@@ -4,12 +4,13 @@ import android.os.Bundle
 import com.bn.todo.R
 import com.bn.todo.arch.NavigationActivity
 
-class MainActivity : NavigationActivity() {
+class WelcomeActivity : NavigationActivity() {
 
-    override val navHostId = R.id.main_nav
+    override val navHostId = R.id.nav_host
 
     override fun onCreate(savedInstanceState: Bundle?) {
+        supportActionBar?.hide()
         super.onCreate(savedInstanceState)
-        setContentView(R.layout.activity_main)
+        setContentView(R.layout.activity_welcome)
     }
 }

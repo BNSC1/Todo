@@ -2,10 +2,7 @@ package com.bn.todo.util
 
 import android.content.Context
 import androidx.datastore.core.DataStore
-import androidx.datastore.preferences.core.MutablePreferences
-import androidx.datastore.preferences.core.Preferences
-import androidx.datastore.preferences.core.edit
-import androidx.datastore.preferences.core.stringPreferencesKey
+import androidx.datastore.preferences.core.*
 import androidx.datastore.preferences.preferencesDataStore
 import com.bn.todo.di.ApplicationModule.context
 import com.bn.todo.util.DataStoreKeys.DATASTORE_NAME
@@ -25,11 +22,21 @@ object DataStoreMgr {
     inline fun <reified T> readPreferences(
         key: Preferences.Key<T>
     ) = context.dataStore.data.map { prefs ->
-        prefs[key] as T
+        prefs[key] ?: run {
+            when (T::class) {
+                Int::class -> 0
+                Long::class -> 0L
+                Float::class -> 0f
+                Double::class -> 0.0
+                Boolean::class -> false
+                else -> null
+            }
+        } as T
     }
 }
 
 object DataStoreKeys {
     internal const val DATASTORE_NAME = "preferences"
     val CURRENT_LIST = stringPreferencesKey("current_list")
+    val NOT_FIRST_LAUNCH = booleanPreferencesKey("not_first_launch")
 }
