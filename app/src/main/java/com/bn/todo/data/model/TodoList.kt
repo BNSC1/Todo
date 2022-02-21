@@ -5,10 +5,7 @@ import androidx.room.Entity
 import androidx.room.PrimaryKey
 
 @Entity
-data class Todo(
+data class TodoList(
     @PrimaryKey(autoGenerate = true) val id: Long,
-    @ColumnInfo val title: String,
-    @ColumnInfo val body: String?,
-//    val locationName: String?,
-//    val imageUri: Uri?
+    @ColumnInfo val name: String
 )

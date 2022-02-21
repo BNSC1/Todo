@@ -1,13 +1,8 @@
 package com.bn.todo.arch
 
 import androidx.lifecycle.ViewModel
+import kotlinx.coroutines.Job
 
-abstract class BaseViewModel(
-    initialState: State = State.LOADING
-) : ViewModel() {
-
-    enum class State {
-        LOADED, LOADING, LOADING_FAILED
-    }
-
+abstract class BaseViewModel : ViewModel() {
+    private var job: Job? = null
 }
