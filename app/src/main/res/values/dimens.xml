@@ -7,5 +7,6 @@
     <dimen name="padding_large_button">32dp</dimen>
 
     <dimen name="welcome_cover_ratio">0.8</dimen>
+    <dimen name="golden_ratio_invert">0.382</dimen>
     <dimen name="padding_title_layout">16dp</dimen>
 </resources>

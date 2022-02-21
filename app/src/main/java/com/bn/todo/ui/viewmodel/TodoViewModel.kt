@@ -3,13 +3,14 @@ package com.bn.todo.ui.viewmodel
 import com.bn.todo.arch.BaseViewModel
 import com.bn.todo.data.model.Todo
 import com.bn.todo.data.model.TodoList
+import javax.inject.Inject
 
-class TodoViewModel : BaseViewModel() {
+class TodoViewModel @Inject constructor() : BaseViewModel() {
 
-    fun createList(name: String) {}
-    fun queryList(name: String? = null) {}
-    fun editList(list: TodoList, name: String) {}
-    fun deleteList(list: TodoList) {}
+    fun createTodoList(name: String) {}
+    fun queryTodoList(name: String? = null) {}
+    fun editTodoList(list: TodoList, name: String) {}
+    fun deleteTodoList(list: TodoList) {}
 
     fun createTodo(title: String, body: String?) {}
     fun queryTodo(name: String? = null) {}
