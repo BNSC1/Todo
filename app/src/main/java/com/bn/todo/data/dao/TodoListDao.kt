@@ -1,23 +1,23 @@
 package com.bn.todo.data.dao
 
-import androidx.lifecycle.LiveData
 import androidx.room.*
 import com.bn.todo.data.model.TodoList
+import kotlinx.coroutines.flow.Flow
 
 @Dao
 interface TodoListDao {
     @Insert(onConflict = OnConflictStrategy.REPLACE)
-    fun insert(list: TodoList)
+    suspend fun insert(list: TodoList)
 
     @Query("Select * from `TodoList`")
-    fun query(): LiveData<List<TodoList>>
+    fun query(): Flow<List<TodoList>>
 
     @Query("Select * from `TodoList` where `name` = :queryString")
-    fun query(queryString: String): LiveData<List<TodoList>>
+    fun query(queryString: String): Flow<List<TodoList>>
 
     @Update
-    fun update(list: TodoList)
+    suspend fun update(list: TodoList)
 
     @Delete
-    fun delete(list: TodoList)
+    suspend fun delete(list: TodoList)
 }

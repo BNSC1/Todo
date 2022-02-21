@@ -7,17 +7,17 @@ import com.bn.todo.data.model.Todo
 @Dao
 interface TodoDao {
     @Insert(onConflict = OnConflictStrategy.REPLACE)
-    fun insert(todo: Todo)
+    suspend fun insert(todo: Todo)
 
     @Query("Select * from `Todo`")
-    fun query(): LiveData<List<Todo>>
+    suspend fun query(): LiveData<List<Todo>>
 
     @Query("Select * from `Todo` where `title` = :queryString")
-    fun query(queryString: String): LiveData<List<Todo>>
+    suspend fun query(queryString: String): LiveData<List<Todo>>
 
     @Update
-    fun update(todo: Todo)
+    suspend fun update(todo: Todo)
 
     @Delete
-    fun delete(todo: Todo)
+    suspend fun delete(todo: Todo)
 }
