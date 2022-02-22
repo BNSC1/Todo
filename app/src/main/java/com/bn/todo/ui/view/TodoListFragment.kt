@@ -1,6 +1,6 @@
 package com.bn.todo.ui.view
 
 import com.bn.todo.arch.BaseFragment
-import com.bn.todo.databinding.FragmentListBinding
+import com.bn.todo.databinding.FragmentTodoListBinding
 
-class ListFragment : BaseFragment<FragmentListBinding>()
+class TodoListFragment : BaseFragment<FragmentTodoListBinding>()

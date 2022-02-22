@@ -21,10 +21,15 @@ object DataStoreMgr {
             values.forEach { prefs[key] = it }
         }
 
-    inline fun <reified T> readPreferences(
+    suspend inline fun <reified T> readPreferences(
         key: Preferences.Key<T>
     ) =
-        context.dataStore.data.catch { if (it is IOException) emit(emptyPreferences()) else throw it }
+        context.dataStore.data.catch {
+            if (it is IOException) {
+                it.printStackTrace()
+                emit(emptyPreferences())
+            } else throw it
+        }
             .map { prefs ->
                 prefs[key] ?: run {
                     when (T::class) {

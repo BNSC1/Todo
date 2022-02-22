@@ -26,7 +26,6 @@ class TodoViewModel @Inject constructor() : BaseViewModel() {
     fun editTodo(todo: Todo, name: String? = null, body: String?) {}
     fun deleteTodo(todo: Todo) {}
 
-    private suspend fun setNotFirstTimeLaunch(isNotFirstTimeLaunch: Boolean) {
+    private suspend fun setNotFirstTimeLaunch(isNotFirstTimeLaunch: Boolean) =
         DataStoreMgr.savePreferences(DataStoreKeys.NOT_FIRST_LAUNCH, isNotFirstTimeLaunch)
-    }
 }
