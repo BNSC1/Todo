@@ -10,11 +10,11 @@ import androidx.viewbinding.ViewBinding
 import java.lang.reflect.ParameterizedType
 
 abstract class BaseFragment<Binding : ViewBinding> : Fragment() {
-    private val activity get() = getActivity() as? NavigationActivity
+    private val mActivity get() = activity as? NavigationActivity
     private var _binding: Binding? = null
     protected val binding get() = _binding!!
 
-    private val navigation get() = activity?.navigation
+    private val navigation get() = mActivity?.navigation
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,

@@ -15,10 +15,10 @@ object DataStoreMgr {
 
     suspend inline fun <reified T> savePreferences(
         key: Preferences.Key<T>,
-        vararg values: MutablePreferences
+        vararg values: T
     ) =
         context.dataStore.edit { prefs ->
-            values.forEach { prefs[key] = it as T }
+            values.forEach { prefs[key] = it }
         }
 
     inline fun <reified T> readPreferences(
