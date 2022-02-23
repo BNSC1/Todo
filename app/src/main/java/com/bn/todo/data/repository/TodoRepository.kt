@@ -5,8 +5,7 @@ import com.bn.todo.data.model.Todo
 import com.bn.todo.data.model.TodoList
 import javax.inject.Inject
 
-class TodoRepository @Inject constructor() {
-    private val database = TodoDatabase.getInstance()
+class TodoRepository @Inject constructor(database: TodoDatabase) {
     private val todoDao = database.todoDao()
     private val todoListDao = database.todoListDao()
 
