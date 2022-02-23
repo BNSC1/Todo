@@ -21,5 +21,18 @@
         android:id="@+id/createListFragment"
         android:name="com.bn.todo.ui.view.CreateListFragment"
         android:label="fragment_create_list"
-        tools:layout="@layout/fragment_create_list" />
+        tools:layout="@layout/fragment_create_list">
+        <action
+            android:id="@+id/action_to_main_activity"
+            app:destination="@id/mainActivity"
+            app:enterAnim="@anim/fragment_enter"
+            app:exitAnim="@anim/fragment_exit"
+            app:popEnterAnim="@anim/fragment_enter_pop"
+            app:popExitAnim="@anim/fragment_exit_pop" />
+    </fragment>
+    <activity
+        android:id="@+id/mainActivity"
+        android:name="com.bn.todo.ui.MainActivity"
+        android:label="activity_main"
+        tools:layout="@layout/activity_main" />
 </navigation>

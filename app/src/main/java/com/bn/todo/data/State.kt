@@ -1,6 +1,6 @@
 package com.bn.todo.data
 
-enum class Status {
+enum class State {
     SUCCESS,
     ERROR,
     LOADING
