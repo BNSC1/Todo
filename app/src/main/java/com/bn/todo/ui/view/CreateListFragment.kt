@@ -23,7 +23,7 @@ class CreateListFragment : BaseFragment<FragmentCreateListBinding>() {
                 val listName =
                     listNameInput.text.getTextOrDefault(getString(R.string.default_list_name))
                         .toString()
-                viewModel.createTodoList(listName)
+                viewModel.insertTodoList(listName)
             }
         }
     }

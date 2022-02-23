@@ -2,13 +2,26 @@ package com.bn.todo.data.model
 
 import androidx.room.ColumnInfo
 import androidx.room.Entity
+import androidx.room.ForeignKey
 import androidx.room.PrimaryKey
 
-@Entity
+@Entity(
+    foreignKeys = [ForeignKey(
+        entity = TodoList::class,
+        parentColumns = arrayOf("id"),
+        childColumns = arrayOf("listId"),
+        onDelete = ForeignKey.CASCADE
+    )]
+)
 data class Todo(
-    @PrimaryKey(autoGenerate = true) val id: Long,
     @ColumnInfo val title: String,
     @ColumnInfo val body: String?,
 //    val locationName: String?,
 //    val imageUri: Uri?
-)
+) {
+    @ColumnInfo
+    var listId: Long = 0L
+
+    @PrimaryKey(autoGenerate = true)
+    var id = 0
+}
