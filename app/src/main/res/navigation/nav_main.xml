@@ -8,6 +8,14 @@
     <fragment
         android:id="@+id/listFragment"
         android:name="com.bn.todo.ui.view.TodoListFragment"
-        android:label="fragment_list"
-        tools:layout="@layout/fragment_todo_list" />
+        android:label="Lists"
+        tools:layout="@layout/fragment_todo_list">
+        <action
+            android:id="@+id/action_to_settings_activity"
+            app:destination="@id/settingsActivity" />
+    </fragment>
+    <activity
+        android:id="@+id/settingsActivity"
+        android:name="com.bn.todo.ui.SettingsActivity"
+        android:label="Settings" />
 </navigation>

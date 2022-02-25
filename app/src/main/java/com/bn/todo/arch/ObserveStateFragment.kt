@@ -3,7 +3,7 @@ package com.bn.todo.arch
 import androidx.viewbinding.ViewBinding
 import com.bn.todo.data.Resource
 import com.bn.todo.data.State
-import com.bn.todo.util.showDialog
+import com.bn.todo.ktx.showDialog
 import timber.log.Timber
 
 abstract class ObserveStateFragment<Binding : ViewBinding> : BaseFragment<Binding>() {

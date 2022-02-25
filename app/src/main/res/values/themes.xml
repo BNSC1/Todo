@@ -14,6 +14,20 @@
         <!-- Customize your theme here. -->
     </style>
 
+    <style name="Theme.Todo.NoActionBar">
+        <item name="windowActionBar">false</item>
+        <item name="windowNoTitle">true</item>
+    </style>
+
+    <style name="toolbar" parent="ThemeOverlay.AppCompat.Dark.ActionBar">
+        <item name="popupTheme">@style/ThemeOverlay.AppCompat.DayNight.ActionBar</item>
+        <item name="android:textColorPrimary">?attr/colorOnPrimary</item>
+        <item name="android:textColorSecondary">?attr/colorOnPrimary</item>
+        <item name="tint">?attr/colorOnPrimary</item>
+        <item name="iconTint">?attr/colorOnPrimary</item>
+    </style>
+
+
     <style name="welcome_text">
         <item name="android:textSize">@dimen/size_huge_text</item>
         <item name="android:textColor">@color/white</item>
@@ -37,5 +51,11 @@
     <style name="transparent_button.large">
         <item name="android:padding">@dimen/padding_large_button</item>
         <item name="android:textSize">@dimen/size_large_text</item>
+    </style>
+
+    <style name="text_header_navigation_drawer">
+        <item name="android:gravity">center</item>
+        <item name="android:textSize">@dimen/size_huge_text</item>
+        <item name="android:textColor">@color/white</item>
     </style>
 </resources>

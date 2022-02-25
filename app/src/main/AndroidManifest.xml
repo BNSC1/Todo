@@ -13,17 +13,22 @@
         android:supportsRtl="true"
         android:theme="@style/Theme.Todo">
         <activity
+            android:name=".ui.SettingsActivity"
+            android:exported="false"
+            android:label="@string/title_activity_settings" />
+        <activity
             android:name=".ui.WelcomeActivity"
             android:exported="false" />
         <activity
             android:name=".ui.MainActivity"
-            android:exported="false" />
-
+            android:exported="false"
+            android:theme="@style/Theme.Todo.NoActionBar" />
         <activity
             android:name=".ui.EntryActivity"
             android:exported="true">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
+
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
