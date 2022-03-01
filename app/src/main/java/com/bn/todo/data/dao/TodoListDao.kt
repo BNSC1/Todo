@@ -2,6 +2,7 @@ package com.bn.todo.data.dao
 
 import androidx.room.*
 import com.bn.todo.data.model.TodoList
+import kotlinx.coroutines.flow.Flow
 
 @Dao
 interface TodoListDao {
@@ -9,10 +10,10 @@ interface TodoListDao {
     suspend fun insert(list: TodoList)
 
     @Query("Select * from `TodoList`")
-    fun query(): List<TodoList>
+    fun query(): Flow<List<TodoList>>
 
     @Query("Select * from `TodoList` where `name` = :queryString")
-    fun query(queryString: String): List<TodoList>
+    fun query(queryString: String): Flow<List<TodoList>>
 
     @Update
     suspend fun update(list: TodoList)

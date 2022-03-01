@@ -26,10 +26,7 @@ class TodoViewModel @Inject constructor(
         emit(Resource.success(null))
     }
 
-    fun queryTodoList(name: String? = null) = liveData(Dispatchers.IO) {
-        emit(Resource.loading())
-        emit(Resource.success(repository.queryTodoList(name)))
-    }
+    fun queryTodoList(name: String? = null) = repository.queryTodoList(name)
 
     fun updateTodoList(list: TodoList, name: String) {}
     fun deleteTodoList(list: TodoList) {}
