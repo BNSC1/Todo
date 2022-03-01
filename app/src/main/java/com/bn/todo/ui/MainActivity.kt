@@ -11,10 +11,20 @@ import androidx.drawerlayout.widget.DrawerLayout.SimpleDrawerListener
 import androidx.navigation.ui.NavigationUI
 import com.bn.todo.R
 import com.bn.todo.arch.NavigationActivity
+import com.bn.todo.data.Resource
+import com.bn.todo.data.State
+import com.bn.todo.data.model.TodoList
 import com.bn.todo.databinding.ActivityMainBinding
 import com.bn.todo.ktx.showToast
+import com.bn.todo.ui.viewmodel.TodoViewModel
+import dagger.hilt.android.AndroidEntryPoint
+import timber.log.Timber
+import javax.inject.Inject
 
+@AndroidEntryPoint
 class MainActivity : NavigationActivity() {
+    @Inject
+    lateinit var viewModel: TodoViewModel
     private lateinit var binding: ActivityMainBinding
     override val navHostId = R.id.nav_host
 
@@ -55,7 +65,17 @@ class MainActivity : NavigationActivity() {
     }
 
     private fun ActivityMainBinding.addDrawerMenu() {
-        drawer.navigation.menu
+        with(drawer.navigation.menu) {
+            viewModel.queryTodoList().observe(this@MainActivity) { resource ->
+                handleState(resource, {
+                    (resource.data as List<TodoList>).forEach { list ->
+                        add(list.name)
+                    }
+                    add(R.string.action_add_list).setIcon(R.drawable.ic_add_list)
+                    invalidateOptionsMenu()
+                })
+            }
+        }
     }
 
     override fun onCreateOptionsMenu(menu: Menu?): Boolean {
@@ -90,6 +110,23 @@ class MainActivity : NavigationActivity() {
             R.id.action_settings -> {
                 startActivity(Intent(this, SettingsActivity::class.java))
             }
+        }
+    }
+
+    private fun handleState(
+        resource: Resource<*>,
+        successAction: () -> Unit,
+        errorAction: () -> Unit = {},
+        loadingAction: () -> Unit = {}
+    ) {
+        Timber.d("state is ${resource.state}")
+        when (resource.state) {
+            State.SUCCESS -> successAction()
+            State.ERROR -> {
+                errorAction()
+                resource.message?.let { viewModel.setErrorMsg(it) }
+            }
+            State.LOADING -> loadingAction()
         }
     }
 }

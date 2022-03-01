@@ -16,13 +16,13 @@ abstract class ObserveStateFragment<Binding : ViewBinding> : BaseFragment<Bindin
 
 
     fun handleState(
-        resource: Resource<Nothing>,
+        resource: Resource<*>,
         successAction: () -> Unit,
         errorAction: () -> Unit = {},
         loadingAction: () -> Unit = {}
-    ): Unit? {
+    ) {
         Timber.d("state is ${resource.state}")
-        return when (resource.state) {
+        when (resource.state) {
             State.SUCCESS -> successAction()
             State.ERROR -> {
                 errorAction()

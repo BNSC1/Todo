@@ -6,5 +6,4 @@
     android:layout_height="match_parent"
     android:layout_gravity="start"
     android:orientation="vertical"
-    app:headerLayout="@layout/header_drawer"
-    app:menu="@menu/drawer_items" />
+    app:headerLayout="@layout/header_drawer" />
