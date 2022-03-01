@@ -19,6 +19,7 @@ import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
+private const val MENU_ORDER = Menu.NONE
 @AndroidEntryPoint
 class MainActivity : NavigationActivity() {
     @Inject
@@ -67,9 +68,20 @@ class MainActivity : NavigationActivity() {
             job = lifecycle.coroutineScope.launch {
                 viewModel.queryTodoList().collect {
                     it.forEach { list ->
-                        add(list.name)
+                        add(R.id.list_group, list.id, MENU_ORDER, list.name)
                     }
-                    add(R.string.action_add_list).setIcon(R.drawable.ic_add_list)
+                    add(
+                        R.id.list_group,
+                        R.id.action_add_list,
+                        MENU_ORDER,
+                        R.string.action_add_list
+                    ).setIcon(R.drawable.ic_add_list)
+                    add(
+                        R.id.setting_group,
+                        R.id.action_settings,
+                        MENU_ORDER,
+                        R.string.settings
+                    ).setIcon(R.drawable.ic_settings)
                     invalidateOptionsMenu()
                 }
             }
@@ -99,6 +111,10 @@ class MainActivity : NavigationActivity() {
             R.id.action_add_list -> {
                 //todo: add list function
                 showToast("show add list")
+            }
+            else -> {
+                //todo: select list function
+                showToast("item ${item.itemId} selected")
             }
         }
     }
