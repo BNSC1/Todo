@@ -7,16 +7,21 @@ import android.view.MenuItem
 import android.view.View
 import androidx.appcompat.app.ActionBarDrawerToggle
 import androidx.core.view.GravityCompat
+import androidx.core.view.size
 import androidx.drawerlayout.widget.DrawerLayout.SimpleDrawerListener
 import androidx.lifecycle.coroutineScope
 import androidx.navigation.ui.NavigationUI
 import com.bn.todo.R
 import com.bn.todo.arch.NavigationActivity
+import com.bn.todo.data.Resource
+import com.bn.todo.data.State
 import com.bn.todo.databinding.ActivityMainBinding
 import com.bn.todo.ktx.showToast
 import com.bn.todo.ui.viewmodel.TodoViewModel
+import com.bn.todo.util.DialogUtil
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.launch
+import timber.log.Timber
 import javax.inject.Inject
 
 private const val MENU_ORDER = Menu.NONE
@@ -67,8 +72,9 @@ class MainActivity : NavigationActivity() {
         with(drawer.navigation.menu) {
             job = lifecycle.coroutineScope.launch {
                 viewModel.queryTodoList().collect {
+                    if (size != 0) clear()
                     it.forEach { list ->
-                        add(R.id.list_group, list.id, MENU_ORDER, list.name)
+                        add(R.id.list_group, list.id, MENU_ORDER, list.name).isCheckable = true
                     }
                     add(
                         R.id.list_group,
@@ -106,16 +112,39 @@ class MainActivity : NavigationActivity() {
         return true
     }
 
-    private fun onOptionListsSelected(item: MenuItem) {
-        when (item.itemId) {
-            R.id.action_add_list -> {
-                //todo: add list function
-                showToast("show add list")
-            }
-            else -> {
-                //todo: select list function
-                showToast("item ${item.itemId} selected")
-            }
+    private fun ActivityMainBinding.onOptionListsSelected(item: MenuItem) = when (item.itemId) {
+        R.id.action_add_list -> {
+            DialogUtil.showInputDialog(
+                this@MainActivity,
+                "Enter a name for new list",
+                inputReceiver = object : DialogUtil.OnInputReceiver {
+                    override fun receiveInput(input: String?) {
+                        if (!input.isNullOrBlank()) {
+                            viewModel.insertTodoList(input).observe(this@MainActivity) {
+                                handleState(it, {
+                                    //todo: set current list to newly added one.
+                                })
+                            }
+                        }
+                    }
+                })
+            showToast("show add list")
+        }
+        else -> {
+            setSelectedList(item)
+        }
+    }
+
+    private fun ActivityMainBinding.setSelectedList(item: MenuItem) {
+        showToast("item ${item.itemId} selected")
+        layoutToolbar.toolbar.title = item.title
+        viewModel.shouldRefreshList.postValue(true)
+        setCurrentListId(item)
+    }
+
+    private fun setCurrentListId(item: MenuItem) {
+        job = lifecycle.coroutineScope.launch {
+            viewModel.setCurrentListId(item.itemId)
         }
     }
 
@@ -124,6 +153,23 @@ class MainActivity : NavigationActivity() {
             R.id.action_settings -> {
                 startActivity(Intent(this, SettingsActivity::class.java))
             }
+        }
+    }
+
+    private fun handleState(
+        resource: Resource<*>,
+        successAction: () -> Unit,
+        errorAction: () -> Unit = {},
+        loadingAction: () -> Unit = {}
+    ) {
+        Timber.d("state is ${resource.state}")
+        when (resource.state) {
+            State.SUCCESS -> successAction()
+            State.ERROR -> {
+                errorAction()
+                resource.message?.let { viewModel.setErrorMsg(it) }
+            }
+            State.LOADING -> loadingAction()
         }
     }
 

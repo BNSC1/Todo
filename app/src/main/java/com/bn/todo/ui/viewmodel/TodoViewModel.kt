@@ -1,5 +1,6 @@
 package com.bn.todo.ui.viewmodel
 
+import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.liveData
 import androidx.lifecycle.viewModelScope
 import com.bn.todo.arch.BaseViewModel
@@ -16,6 +17,8 @@ import javax.inject.Inject
 class TodoViewModel @Inject constructor(
     private val repository: TodoRepository
 ) : BaseViewModel() {
+
+    val shouldRefreshList = MutableLiveData<Boolean>()
 
     fun insertTodoList(name: String) = liveData(Dispatchers.IO) {
         emit(Resource.loading())
@@ -47,4 +50,8 @@ class TodoViewModel @Inject constructor(
 
     private suspend fun setNotFirstTimeLaunch(isNotFirstTimeLaunch: Boolean) =
         DataStoreMgr.savePreferences(DataStoreKeys.NOT_FIRST_LAUNCH, isNotFirstTimeLaunch)
+
+    suspend fun getCurrentListId() = DataStoreMgr.readPreferences(DataStoreKeys.CURRENT_LIST, 1)
+    suspend fun setCurrentListId(id: Int) =
+        DataStoreMgr.savePreferences(DataStoreKeys.CURRENT_LIST, id)
 }

@@ -29,22 +29,14 @@
             android:orientation="horizontal"
             app:layout_constraintGuide_percent="@dimen/golden_ratio_invert" />
 
-        <com.google.android.material.textfield.TextInputLayout
+        <include
             android:id="@+id/list_name_input_layout"
-            style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
-            android:layout_width="match_parent"
+            layout="@layout/layout_list_name_input"
+            android:layout_width="0dp"
             android:layout_height="wrap_content"
-            android:hint="@string/hint_input_list_name"
             app:layout_constraintBottom_toTopOf="@+id/guideline2"
             app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintStart_toEndOf="parent">
-
-            <com.google.android.material.textfield.TextInputEditText
-                android:id="@+id/list_name_input"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content" />
-
-        </com.google.android.material.textfield.TextInputLayout>
+            app:layout_constraintStart_toStartOf="parent" />
 
     </androidx.constraintlayout.widget.ConstraintLayout>
 

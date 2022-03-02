@@ -22,7 +22,8 @@ object DataStoreMgr {
         }
 
     suspend inline fun <reified T> readPreferences(
-        key: Preferences.Key<T>
+        key: Preferences.Key<T>,
+        default: T? = null
     ) =
         context.dataStore.data.catch {
             if (it is IOException) {
@@ -32,20 +33,22 @@ object DataStoreMgr {
         }
             .map { prefs ->
                 prefs[key] ?: run {
-                    when (T::class) {
-                        Int::class -> 0
-                        Long::class -> 0L
-                        Float::class -> 0f
-                        Double::class -> 0.0
-                        Boolean::class -> false
-                        else -> null
-                    }
-                } as T
+                    default ?: {
+                        when (T::class) {
+                            Int::class -> 0
+                            Long::class -> 0L
+                            Float::class -> 0f
+                            Double::class -> 0.0
+                            Boolean::class -> false
+                            else -> null
+                        }
+                    } as T
+                }
             }
 }
 
 object DataStoreKeys {
     internal const val DATASTORE_NAME = "preferences"
-    val CURRENT_LIST = stringPreferencesKey("current_list")
+    val CURRENT_LIST = intPreferencesKey("current_list")
     val NOT_FIRST_LAUNCH = booleanPreferencesKey("not_first_launch")
 }

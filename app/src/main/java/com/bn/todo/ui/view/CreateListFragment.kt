@@ -21,7 +21,7 @@ class CreateListFragment : ObserveStateFragment<FragmentCreateListBinding>() {
         with(binding) {
             nextBtn.setOnClickListener {
                 val listName =
-                    listNameInput.text.getTextOrDefault(getString(R.string.default_list_name))
+                    listNameInputLayout.listNameInput.text.getTextOrDefault(getString(R.string.default_list_name))
                         .toString()
                 insertTodoList(listName)
             }
