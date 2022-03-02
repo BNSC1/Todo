@@ -7,9 +7,11 @@ import android.view.ViewGroup
 import androidx.fragment.app.Fragment
 import androidx.navigation.NavDirections
 import androidx.viewbinding.ViewBinding
+import kotlinx.coroutines.Job
 import java.lang.reflect.ParameterizedType
 
 abstract class BaseFragment<Binding : ViewBinding> : Fragment() {
+    protected var job: Job? = null
     private val mActivity get() = activity as? NavigationActivity
     private var _binding: Binding? = null
     protected val binding get() = _binding!!

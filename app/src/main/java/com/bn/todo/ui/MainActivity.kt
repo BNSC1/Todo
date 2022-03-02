@@ -10,12 +10,14 @@ import androidx.core.view.GravityCompat
 import androidx.core.view.size
 import androidx.drawerlayout.widget.DrawerLayout.SimpleDrawerListener
 import androidx.lifecycle.coroutineScope
+import androidx.lifecycle.lifecycleScope
 import androidx.navigation.ui.NavigationUI
 import com.bn.todo.R
 import com.bn.todo.arch.NavigationActivity
 import com.bn.todo.data.Resource
 import com.bn.todo.data.State
 import com.bn.todo.databinding.ActivityMainBinding
+import com.bn.todo.ktx.showDialog
 import com.bn.todo.ktx.showToast
 import com.bn.todo.ui.viewmodel.TodoViewModel
 import com.bn.todo.util.DialogUtil
@@ -70,7 +72,7 @@ class MainActivity : NavigationActivity() {
 
     private fun ActivityMainBinding.addDrawerMenu() {
         with(drawer.navigation.menu) {
-            job = lifecycle.coroutineScope.launch {
+            job = lifecycleScope.launch {
                 viewModel.queryTodoList().collect {
                     if (size != 0) clear()
                     it.forEach { list ->
@@ -116,15 +118,19 @@ class MainActivity : NavigationActivity() {
         R.id.action_add_list -> {
             DialogUtil.showInputDialog(
                 this@MainActivity,
-                "Enter a name for new list",
+                getString(R.string.title_input_name_for_list),
                 inputReceiver = object : DialogUtil.OnInputReceiver {
                     override fun receiveInput(input: String?) {
                         if (!input.isNullOrBlank()) {
-                            viewModel.insertTodoList(input).observe(this@MainActivity) {
-                                handleState(it, {
-                                    //todo: set current list to newly added one.
-                                })
+                            job = lifecycleScope.launch {
+                                viewModel.insertTodoList(input).collect {
+                                    handleState(it, {
+                                        viewModel.shouldGoToNewList.postValue(true)
+                                    })
+                                }
                             }
+                        } else {
+                            showDialog(message = getString(R.string.title_input_name_for_list))
                         }
                     }
                 })

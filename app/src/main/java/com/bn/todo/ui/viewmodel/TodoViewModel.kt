@@ -1,7 +1,6 @@
 package com.bn.todo.ui.viewmodel
 
 import androidx.lifecycle.MutableLiveData
-import androidx.lifecycle.liveData
 import androidx.lifecycle.viewModelScope
 import com.bn.todo.arch.BaseViewModel
 import com.bn.todo.data.Resource
@@ -10,7 +9,10 @@ import com.bn.todo.data.model.TodoList
 import com.bn.todo.data.repository.TodoRepository
 import com.bn.todo.util.DataStoreKeys
 import com.bn.todo.util.DataStoreMgr
-import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.flow.MutableSharedFlow
+import kotlinx.coroutines.flow.SharingStarted
+import kotlinx.coroutines.flow.flow
+import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
@@ -18,16 +20,21 @@ class TodoViewModel @Inject constructor(
     private val repository: TodoRepository
 ) : BaseViewModel() {
 
-    val shouldRefreshList = MutableLiveData<Boolean>()
+    val shouldGoToNewList = MutableLiveData<Boolean>(false)
+    val testShouldGoToNewList = MutableSharedFlow<Boolean>()
+    val shouldRefreshList = MutableLiveData<Boolean>(false)
 
-    fun insertTodoList(name: String) = liveData(Dispatchers.IO) {
-        emit(Resource.loading())
+    fun insertTodoList(name: String) = flow {
         job = viewModelScope.launch {
             repository.insertTodoList(name)
             setNotFirstTimeLaunch(true)
         }
         emit(Resource.success(null))
-    }
+    }.stateIn(
+        scope = viewModelScope,
+        started = SharingStarted.Lazily,
+        initialValue = Resource.loading()
+    )
 
     fun queryTodoList(name: String? = null) = repository.queryTodoList(name)
 

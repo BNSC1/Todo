@@ -39,7 +39,6 @@ object DataStoreMgr {
                             Long::class -> 0L
                             Float::class -> 0f
                             Double::class -> 0.0
-                            Boolean::class -> false
                             else -> null
                         }
                     } as T

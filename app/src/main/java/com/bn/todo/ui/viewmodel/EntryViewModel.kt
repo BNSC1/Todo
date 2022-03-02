@@ -6,5 +6,6 @@ import com.bn.todo.util.DataStoreMgr
 import javax.inject.Inject
 
 class EntryViewModel @Inject constructor() : BaseViewModel() {
-    suspend fun getIsNotFirstLaunch() = DataStoreMgr.readPreferences(DataStoreKeys.NOT_FIRST_LAUNCH)
+    suspend fun getIsNotFirstLaunch() =
+        DataStoreMgr.readPreferences(DataStoreKeys.NOT_FIRST_LAUNCH, false)
 }
