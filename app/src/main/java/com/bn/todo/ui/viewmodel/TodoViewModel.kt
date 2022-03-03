@@ -58,7 +58,7 @@ class TodoViewModel @Inject constructor(
     private suspend fun setNotFirstTimeLaunch(isNotFirstTimeLaunch: Boolean) =
         DataStoreMgr.savePreferences(DataStoreKeys.NOT_FIRST_LAUNCH, isNotFirstTimeLaunch)
 
-    suspend fun getCurrentListId() = DataStoreMgr.readPreferences(DataStoreKeys.CURRENT_LIST, 1)
-    suspend fun setCurrentListId(id: Int) =
+    suspend fun loadCurrentListId() = DataStoreMgr.readPreferences(DataStoreKeys.CURRENT_LIST, 1)
+    suspend fun saveCurrentListId(id: Int) =
         DataStoreMgr.savePreferences(DataStoreKeys.CURRENT_LIST, id)
 }
