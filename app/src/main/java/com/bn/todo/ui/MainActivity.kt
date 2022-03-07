@@ -34,7 +34,6 @@ class MainActivity : NavigationActivity() {
     private lateinit var binding: ActivityMainBinding
     override val navHostId = R.id.nav_host
     private var lists: List<TodoList> = emptyList()
-    private var currentItemId = -1
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -45,10 +44,14 @@ class MainActivity : NavigationActivity() {
         }
     }
 
-    private fun ActivityMainBinding.setCurrentList() {
-        job = lifecycleScope.launch {
-            viewModel.loadCurrentListId().collect {
-                setSelectedListItem(it)
+    private fun ActivityMainBinding.setList(itemId: Int? = null) {
+        itemId?.let {
+            setSelectedListItem(itemId)
+        } ?: let {
+            job = lifecycleScope.launch {
+                viewModel.loadCurrentListId().collect {
+                    setSelectedListItem(it)
+                }
             }
         }
     }
@@ -100,8 +103,11 @@ class MainActivity : NavigationActivity() {
                     MENU_ORDER,
                     R.string.settings
                 ).setIcon(R.drawable.ic_settings)
+                if (viewModel.shouldGoToNewList.value) {
+                    setList(lists.size)
+                    viewModel.shouldGoToNewList.value = false
+                } else setList()
                 invalidateOptionsMenu()
-                setCurrentList()
             }
         }
     }
@@ -152,15 +158,11 @@ class MainActivity : NavigationActivity() {
     }
 
     private fun ActivityMainBinding.setSelectedListItem(itemId: Int) {
-        if (currentItemId != itemId) {
-            Timber.d("setSelectedListItem")
             val listIndex = itemId - 1 //navigation item id starts from 1
             drawer.navigation.menu.getItem(listIndex).isChecked = true
             layoutToolbar.toolbar.title = lists[listIndex].name
             viewModel.shouldRefreshList.value = true
             saveCurrentListId(listIndex + 1) //adds it back for next time use
-            currentItemId = itemId
-        }
     }
 
     private fun saveCurrentListId(listIndex: Int) {
