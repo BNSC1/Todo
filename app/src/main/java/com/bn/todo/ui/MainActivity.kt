@@ -45,13 +45,16 @@ class MainActivity : NavigationActivity() {
         }
     }
 
-    private suspend fun ActivityMainBinding.setCurrentList() {
-        viewModel.loadCurrentListId().collect {
-            setSelectedListItem(it)
+    private fun ActivityMainBinding.setCurrentList() {
+        job = lifecycleScope.launch {
+            viewModel.loadCurrentListId().collect {
+                setSelectedListItem(it)
+            }
         }
     }
 
     private fun ActivityMainBinding.setupDrawer() {
+        addDrawerMenu()
         setSupportActionBar(layoutToolbar.toolbar)
         val toggle = ActionBarDrawerToggle(
             this@MainActivity, layoutDrawer,
@@ -66,6 +69,7 @@ class MainActivity : NavigationActivity() {
             override fun onDrawerClosed(drawerView: View) {
             }
         })
+        drawer.navigation.setNavigationItemSelectedListener { onNavigationItemSelected(it) }
         NavigationUI.setupActionBarWithNavController(
             this@MainActivity,
             navigation,
@@ -74,34 +78,30 @@ class MainActivity : NavigationActivity() {
         layoutToolbar.toolbar.setNavigationOnClickListener {
             layoutDrawer.openDrawer(GravityCompat.START)
         }
-        drawer.navigation.setNavigationItemSelectedListener { onNavigationItemSelected(it) }
-        addDrawerMenu()
     }
 
     private fun ActivityMainBinding.addDrawerMenu() {
         with(drawer.navigation.menu) {
-            job = lifecycleScope.launch {
-                viewModel.queryTodoList().collect {
-                    if (size != 0) clear()
-                    lists = it
-                    lists.forEach { list ->
-                        add(R.id.list_group, list.id, MENU_ORDER, list.name).isCheckable = true
-                    }
-                    add(
-                        R.id.list_group,
-                        R.id.action_add_list,
-                        MENU_ORDER,
-                        R.string.action_add_list
-                    ).setIcon(R.drawable.ic_add_list)
-                    add(
-                        R.id.setting_group,
-                        R.id.action_settings,
-                        MENU_ORDER,
-                        R.string.settings
-                    ).setIcon(R.drawable.ic_settings)
-                    invalidateOptionsMenu()
-                    setCurrentList()
+            viewModel.queryTodoList().observe(this@MainActivity) {
+                if (size != 0) clear()
+                lists = it
+                lists.forEach { list ->
+                    add(R.id.list_group, list.id, MENU_ORDER, list.name).isCheckable = true
                 }
+                add(
+                    R.id.list_group,
+                    R.id.action_add_list,
+                    MENU_ORDER,
+                    R.string.action_add_list
+                ).setIcon(R.drawable.ic_add_list)
+                add(
+                    R.id.setting_group,
+                    R.id.action_settings,
+                    MENU_ORDER,
+                    R.string.settings
+                ).setIcon(R.drawable.ic_settings)
+                invalidateOptionsMenu()
+                setCurrentList()
             }
         }
     }
@@ -132,10 +132,10 @@ class MainActivity : NavigationActivity() {
                 inputReceiver = object : DialogUtil.OnInputReceiver {
                     override fun receiveInput(input: String?) {
                         if (!input.isNullOrBlank()) {
-                            job = lifecycleScope.launch {
+                            job = lifecycleScope.launchWhenStarted {
                                 viewModel.insertTodoList(input).collect {
                                     handleState(it, {
-                                        viewModel.shouldGoToNewList.postValue(true)
+                                        viewModel.shouldGoToNewList.value = true
                                     })
                                 }
                             }
@@ -157,7 +157,7 @@ class MainActivity : NavigationActivity() {
             val listIndex = itemId - 1 //navigation item id starts from 1
             drawer.navigation.menu.getItem(listIndex).isChecked = true
             layoutToolbar.toolbar.title = lists[listIndex].name
-            viewModel.shouldRefreshList.postValue(true)
+            viewModel.shouldRefreshList.value = true
             saveCurrentListId(listIndex + 1) //adds it back for next time use
             currentItemId = itemId
         }
