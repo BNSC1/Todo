@@ -6,6 +6,7 @@ import android.view.LayoutInflater
 import com.bn.todo.R
 import com.bn.todo.databinding.LayoutListNameInputBinding
 
+
 object DialogUtil {
     fun showDialog(context: Context, title: String?, msg: String): AlertDialog =
         AlertDialog.Builder(context).apply {
@@ -23,16 +24,17 @@ object DialogUtil {
     ): AlertDialog =
         AlertDialog.Builder(context).apply {
             val inflater = LayoutInflater.from(context)
-            val binding = LayoutListNameInputBinding.inflate(inflater)
-
-            title?.let { setTitle(it) }
-            setView(binding.root)
-            hint?.let { binding.listNameInput.hint = it }
-            setPositiveButton(android.R.string.ok) { d, _ ->
-                inputReceiver.receiveInput(binding.listNameInput.text.toString())
-                d.dismiss()
+            LayoutListNameInputBinding.inflate(inflater).apply {
+                title?.let { setTitle(it) }
+                setView(root)
+                hint?.let { listNameInput.hint = it }
+                setPositiveButton(android.R.string.ok) { d, _ ->
+                    inputReceiver.receiveInput(listNameInput.text.toString())
+                    d.dismiss()
+                }
+                setNegativeButton(android.R.string.cancel) { d, _ -> d.dismiss() }
+                listNameInput.requestFocus()
             }
-            setNegativeButton(android.R.string.cancel) { d, _ -> d.dismiss() }
 
             create()
         }.show()
