@@ -11,7 +11,10 @@
     <string name="action_close">Close</string>
     <string name="settings">Settings</string>
     <string name="action_add_list">Add List</string>
-    <string name="title_activity_settings">SettingsActivity</string>
+    <string name="action_add_todo">Create a new todo</string>
+    <string name="title_activity_settings">Settings</string>
+    <string name="title_input_name_for_list">Enter a name for new list</string>
+    <string name="title_add_todo">Add Todo</string>
 
     <!-- Preference Titles -->
     <string name="messages_header">Messages</string>
@@ -27,5 +30,4 @@
     <string name="attachment_summary_on">Automatically download attachments for incoming emails
     </string>
     <string name="attachment_summary_off">Only download attachments when manually requested</string>
-    <string name="title_input_name_for_list">Enter a name for new list</string>
 </resources>

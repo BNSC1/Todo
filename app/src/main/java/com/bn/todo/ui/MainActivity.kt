@@ -4,11 +4,10 @@ import android.content.Intent
 import android.os.Bundle
 import android.view.Menu
 import android.view.MenuItem
-import android.view.View
 import androidx.appcompat.app.ActionBarDrawerToggle
 import androidx.core.view.GravityCompat
 import androidx.core.view.size
-import androidx.drawerlayout.widget.DrawerLayout.SimpleDrawerListener
+import androidx.drawerlayout.widget.DrawerLayout
 import androidx.lifecycle.lifecycleScope
 import androidx.navigation.ui.NavigationUI
 import com.bn.todo.R
@@ -32,15 +31,40 @@ class MainActivity : NavigationActivity() {
     @Inject
     lateinit var viewModel: TodoViewModel
     private lateinit var binding: ActivityMainBinding
-    override val navHostId = R.id.nav_host
-    private var lists: List<TodoList> = emptyList()
+    override val navHostId by lazy { binding.navHost.id }
+    private var lists = emptyList<TodoList>()
+    private lateinit var toggle: ActionBarDrawerToggle
+    private var isRootFragment = false
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         binding = ActivityMainBinding.inflate(layoutInflater)
         setContentView(binding.root)
         with(binding) {
+            setupToolbar()
             setupDrawer()
+        }
+    }
+
+    private fun ActivityMainBinding.setupToolbar() {
+        setSupportActionBar(layoutToolbar.toolbar)
+        toggle = ActionBarDrawerToggle(
+            this@MainActivity, layoutDrawer,
+            layoutToolbar.toolbar, R.string.action_open, R.string.action_close
+        )
+        toggle.syncState()
+        layoutDrawer.addDrawerListener(toggle)
+        NavigationUI.setupActionBarWithNavController(
+            this@MainActivity,
+            navigation,
+            layoutDrawer
+        )
+        navigation.addOnDestinationChangedListener { _, destination, _ ->
+            isRootFragment = when (destination.id) {
+                R.id.listFragment -> true
+                else -> false
+            }
+            updateDrawerNavigation()
         }
     }
 
@@ -58,29 +82,7 @@ class MainActivity : NavigationActivity() {
 
     private fun ActivityMainBinding.setupDrawer() {
         addDrawerMenu()
-        setSupportActionBar(layoutToolbar.toolbar)
-        val toggle = ActionBarDrawerToggle(
-            this@MainActivity, layoutDrawer,
-            layoutToolbar.toolbar, R.string.action_open, R.string.action_close
-        )
-        toggle.syncState()
-        layoutDrawer.addDrawerListener(toggle)
-        layoutDrawer.addDrawerListener(object : SimpleDrawerListener() {
-            override fun onDrawerOpened(drawerView: View) {
-            }
-
-            override fun onDrawerClosed(drawerView: View) {
-            }
-        })
         drawer.navigation.setNavigationItemSelectedListener { onNavigationItemSelected(it) }
-        NavigationUI.setupActionBarWithNavController(
-            this@MainActivity,
-            navigation,
-            layoutDrawer
-        )
-        layoutToolbar.toolbar.setNavigationOnClickListener {
-            layoutDrawer.openDrawer(GravityCompat.START)
-        }
     }
 
     private fun ActivityMainBinding.addDrawerMenu() {
@@ -104,21 +106,36 @@ class MainActivity : NavigationActivity() {
                     R.string.settings
                 ).setIcon(R.drawable.ic_settings)
                 if (viewModel.shouldGoToNewList.value) {
-                    setList(lists.size)
-                    viewModel.shouldGoToNewList.value = false
+                    goToNewList()
                 } else setList()
                 invalidateOptionsMenu()
             }
         }
     }
 
-    override fun onCreateOptionsMenu(menu: Menu?): Boolean {
-        supportActionBar?.setDisplayHomeAsUpEnabled(true)
-        return true
+    private fun ActivityMainBinding.goToNewList() {
+        setList(lists.size)
+        viewModel.shouldGoToNewList.value = false
     }
 
-    override fun onSupportNavigateUp() =
-        NavigationUI.navigateUp(navigation, binding.layoutDrawer)
+    private fun ActivityMainBinding.updateDrawerNavigation() {
+        supportActionBar?.let { actionBar ->
+            if (isRootFragment) {
+                actionBar.setDisplayHomeAsUpEnabled(false)
+                toggle.syncState()
+                layoutToolbar.toolbar.setNavigationOnClickListener {
+                    layoutDrawer.openDrawer(
+                        GravityCompat.START
+                    )
+                }
+                layoutDrawer.setDrawerLockMode(DrawerLayout.LOCK_MODE_UNDEFINED)
+            } else {
+                layoutDrawer.setDrawerLockMode(DrawerLayout.LOCK_MODE_LOCKED_CLOSED)
+                actionBar.setDisplayHomeAsUpEnabled(true)
+                layoutToolbar.toolbar.setNavigationOnClickListener { onBackPressed() }
+            }
+        }
+    }
 
     private fun ActivityMainBinding.onNavigationItemSelected(item: MenuItem): Boolean {
         when (item.groupId) {
