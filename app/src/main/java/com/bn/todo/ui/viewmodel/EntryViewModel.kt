@@ -7,5 +7,5 @@ import javax.inject.Inject
 
 class EntryViewModel @Inject constructor() : BaseViewModel() {
     suspend fun getIsNotFirstLaunch() =
-        DataStoreMgr.readPreferences(DataStoreKeys.NOT_FIRST_LAUNCH, false)
+        DataStoreMgr.getPreferences(DataStoreKeys.NOT_FIRST_LAUNCH, false)
 }

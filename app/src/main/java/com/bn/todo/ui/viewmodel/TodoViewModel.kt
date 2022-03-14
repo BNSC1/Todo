@@ -9,10 +9,7 @@ import com.bn.todo.data.model.TodoList
 import com.bn.todo.data.repository.TodoRepository
 import com.bn.todo.util.DataStoreKeys
 import com.bn.todo.util.DataStoreMgr
-import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.SharingStarted
-import kotlinx.coroutines.flow.flow
-import kotlinx.coroutines.flow.stateIn
+import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
@@ -20,13 +17,17 @@ class TodoViewModel @Inject constructor(
     private val repository: TodoRepository
 ) : BaseViewModel() {
 
-    val shouldGoToNewList = MutableStateFlow(false)
-    val shouldRefreshList = MutableStateFlow(false)
+    private val _shouldGoToNewList = MutableStateFlow(false)
+    val shouldGoToNewList get() = _shouldGoToNewList
+    private val _shouldRefreshList = MutableStateFlow(false)
+    val shouldRefreshList get() = _shouldRefreshList
 
     fun insertTodoList(name: String) = flow {
         job = viewModelScope.launch {
             repository.insertTodoList(name)
-            setNotFirstTimeLaunch(true)
+            if (!getNotFirstTimeLaunch().first()) {
+                setNotFirstTimeLaunch(true)
+            }
         }
         emit(Resource.success(null))
     }.stateIn(
@@ -55,9 +56,12 @@ class TodoViewModel @Inject constructor(
     }
 
     private suspend fun setNotFirstTimeLaunch(isNotFirstTimeLaunch: Boolean) =
-        DataStoreMgr.savePreferences(DataStoreKeys.NOT_FIRST_LAUNCH, isNotFirstTimeLaunch)
+        DataStoreMgr.setPreferences(DataStoreKeys.NOT_FIRST_LAUNCH, isNotFirstTimeLaunch)
 
-    suspend fun loadCurrentListId() = DataStoreMgr.readPreferences(DataStoreKeys.CURRENT_LIST, 1)
-    suspend fun saveCurrentListId(id: Int) =
-        DataStoreMgr.savePreferences(DataStoreKeys.CURRENT_LIST, id)
+    private suspend fun getNotFirstTimeLaunch(default: Boolean = false) =
+        DataStoreMgr.getPreferences(DataStoreKeys.NOT_FIRST_LAUNCH, default)
+
+    suspend fun getCurrentListId() = DataStoreMgr.getPreferences(DataStoreKeys.CURRENT_LIST, 1)
+    suspend fun setCurrentListId(id: Int) =
+        DataStoreMgr.setPreferences(DataStoreKeys.CURRENT_LIST, id)
 }

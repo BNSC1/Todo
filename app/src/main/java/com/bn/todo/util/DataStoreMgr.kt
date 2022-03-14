@@ -13,7 +13,7 @@ import java.io.IOException
 val Context.dataStore: DataStore<Preferences> by preferencesDataStore(DATASTORE_NAME)
 object DataStoreMgr {
 
-    suspend inline fun <reified T> savePreferences(
+    suspend inline fun <reified T> setPreferences(
         key: Preferences.Key<T>,
         vararg values: T
     ) =
@@ -21,7 +21,7 @@ object DataStoreMgr {
             values.forEach { prefs[key] = it }
         }
 
-    suspend inline fun <reified T> readPreferences(
+    suspend inline fun <reified T> getPreferences(
         key: Preferences.Key<T>,
         default: T? = null
     ) =

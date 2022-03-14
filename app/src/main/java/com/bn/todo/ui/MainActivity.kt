@@ -70,7 +70,7 @@ class MainActivity : NavigationActivity() {
             setSelectedListItem(itemId)
         } ?: let {
             job = lifecycleScope.launch {
-                viewModel.loadCurrentListId().collect {
+                viewModel.getCurrentListId().collect {
                     setSelectedListItem(it)
                 }
             }
@@ -170,16 +170,16 @@ class MainActivity : NavigationActivity() {
     }
 
     private fun ActivityMainBinding.setSelectedListItem(itemId: Int) {
-            val listIndex = itemId - 1 //navigation item id starts from 1
-            drawer.navigation.menu.getItem(listIndex).isChecked = true
-            layoutToolbar.toolbar.title = lists[listIndex].name
-            viewModel.shouldRefreshList.value = true
-            saveCurrentListId(listIndex + 1) //adds it back for next time use
+        val listIndex = itemId - 1 //navigation item id starts from 1
+        drawer.navigation.menu.getItem(listIndex).isChecked = true
+        layoutToolbar.toolbar.title = lists[listIndex].name
+        viewModel.shouldRefreshList.value = true
+        setCurrentListId(listIndex + 1) //adds it back for next time use
     }
 
-    private fun saveCurrentListId(listIndex: Int) {
+    private fun setCurrentListId(listIndex: Int) {
         job = lifecycleScope.launch {
-            viewModel.saveCurrentListId(listIndex)
+            viewModel.setCurrentListId(listIndex)
         }
     }
 
