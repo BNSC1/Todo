@@ -5,9 +5,7 @@ import android.os.Bundle
 import android.view.Menu
 import android.view.MenuItem
 import androidx.appcompat.app.ActionBarDrawerToggle
-import androidx.core.view.GravityCompat
 import androidx.core.view.size
-import androidx.drawerlayout.widget.DrawerLayout
 import androidx.lifecycle.lifecycleScope
 import androidx.navigation.ui.NavigationUI
 import com.bn.todo.R
@@ -16,8 +14,7 @@ import com.bn.todo.data.Resource
 import com.bn.todo.data.State
 import com.bn.todo.data.model.TodoList
 import com.bn.todo.databinding.ActivityMainBinding
-import com.bn.todo.ktx.showDialog
-import com.bn.todo.ktx.showToast
+import com.bn.todo.ktx.*
 import com.bn.todo.ui.viewmodel.TodoViewModel
 import com.bn.todo.util.DialogUtil
 import dagger.hilt.android.AndroidEntryPoint
@@ -124,13 +121,11 @@ class MainActivity : NavigationActivity() {
                 actionBar.setDisplayHomeAsUpEnabled(false)
                 toggle.syncState()
                 layoutToolbar.toolbar.setNavigationOnClickListener {
-                    layoutDrawer.openDrawer(
-                        GravityCompat.START
-                    )
+                    layoutDrawer.openDrawer()
                 }
-                layoutDrawer.setDrawerLockMode(DrawerLayout.LOCK_MODE_UNDEFINED)
+                layoutDrawer.setLocked(false)
             } else {
-                layoutDrawer.setDrawerLockMode(DrawerLayout.LOCK_MODE_LOCKED_CLOSED)
+                layoutDrawer.setLocked(true)
                 actionBar.setDisplayHomeAsUpEnabled(true)
                 layoutToolbar.toolbar.setNavigationOnClickListener { onBackPressed() }
             }
@@ -143,7 +138,7 @@ class MainActivity : NavigationActivity() {
             R.id.setting_group -> onOptionSettingsSelected(item)
         }
 
-        layoutDrawer.closeDrawer(GravityCompat.START)
+        layoutDrawer.closeDrawer()
         return true
     }
 

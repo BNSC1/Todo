@@ -2,6 +2,8 @@ package com.bn.todo.ktx
 
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
+import androidx.core.view.GravityCompat
+import androidx.drawerlayout.widget.DrawerLayout
 import androidx.fragment.app.Fragment
 import com.bn.todo.util.DialogUtil
 
@@ -36,3 +38,14 @@ fun Fragment.showToast(messageStringId: Int, duration: Int = Toast.LENGTH_SHORT)
 
 fun Fragment.showToast(message: String, duration: Int = Toast.LENGTH_SHORT) =
     Toast.makeText(requireActivity(), message, duration).show()
+
+fun DrawerLayout.openDrawer() = this.openDrawer(GravityCompat.START)
+
+fun DrawerLayout.closeDrawer() = this.closeDrawer(GravityCompat.START)
+
+fun DrawerLayout.setLocked(locked: Boolean) =
+    this.setDrawerLockMode(
+        if (locked)
+            DrawerLayout.LOCK_MODE_UNDEFINED
+        else DrawerLayout.LOCK_MODE_LOCKED_CLOSED
+    )
