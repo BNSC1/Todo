@@ -26,12 +26,10 @@ class TodoViewModel @Inject constructor(
     val shouldRefreshTitle get() = _shouldRefreshTitle
 
     fun insertTodoList(name: String) = flow {
-        job = viewModelScope.launch {
             repository.insertTodoList(name)
             if (!getNotFirstTimeLaunch().first()) {
                 setNotFirstTimeLaunch(true)
             }
-        }
         emit(Resource.success(null))
     }.stateIn(
         scope = viewModelScope,
@@ -44,13 +42,16 @@ class TodoViewModel @Inject constructor(
     fun updateTodoList(list: TodoList, name: String) {}
     fun deleteTodoList(list: TodoList) {}
 
-    fun insertTodo(title: String, body: String?) {
+    fun insertTodo(title: String, body: String?) = flow {
         job = viewModelScope.launch {
-            getCurrentListId().collect { listId ->
-                repository.insertTodo(title, body, listId)
-            }
+            repository.insertTodo(title, body, getCurrentListId().first())
         }
-    }
+        emit(Resource.success(null))
+    }.stateIn(
+        scope = viewModelScope,
+        started = SharingStarted.Lazily,
+        initialValue = Resource.loading()
+    )
 
     fun queryTodo(name: String? = null) {}
     fun updateTodo(todo: Todo, name: String, body: String) {

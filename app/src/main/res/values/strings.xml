@@ -32,4 +32,6 @@
     <string name="attachment_summary_on">Automatically download attachments for incoming emails
     </string>
     <string name="attachment_summary_off">Only download attachments when manually requested</string>
+    <string name="action_add">Add</string>
+    <string name="error_title_required">Title is required</string>
 </resources>
