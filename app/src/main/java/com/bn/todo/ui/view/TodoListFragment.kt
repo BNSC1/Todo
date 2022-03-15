@@ -2,14 +2,18 @@ package com.bn.todo.ui.view
 
 import android.os.Bundle
 import android.view.View
-import com.bn.todo.arch.BaseViewModel
+import androidx.lifecycle.lifecycleScope
 import com.bn.todo.arch.ObserveStateFragment
 import com.bn.todo.databinding.FragmentTodoListBinding
+import com.bn.todo.ui.viewmodel.TodoViewModel
+import dagger.hilt.android.AndroidEntryPoint
+import kotlinx.coroutines.launch
 import javax.inject.Inject
 
+@AndroidEntryPoint
 class TodoListFragment : ObserveStateFragment<FragmentTodoListBinding>() {
     @Inject
-    override lateinit var viewModel: BaseViewModel
+    override lateinit var viewModel: TodoViewModel
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
@@ -18,6 +22,13 @@ class TodoListFragment : ObserveStateFragment<FragmentTodoListBinding>() {
             addTodoBtn.setOnClickListener {
                 TodoListFragmentDirections.actionCreateTodo().navigate()
             }
+        }
+    }
+
+    override fun onResume() {
+        super.onResume()
+        job = viewLifecycleOwner.lifecycleScope.launch {
+            viewModel.shouldRefreshTitle.emit(true)
         }
     }
 }

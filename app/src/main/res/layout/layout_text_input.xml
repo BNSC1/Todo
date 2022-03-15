@@ -3,11 +3,10 @@
     style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:hint="@string/hint_input_list_name"
     android:padding="8dp">
 
     <com.google.android.material.textfield.TextInputEditText
-        android:id="@+id/list_name_input"
+        android:id="@+id/input"
         android:inputType="text"
         android:layout_width="match_parent"
         android:layout_height="wrap_content" />

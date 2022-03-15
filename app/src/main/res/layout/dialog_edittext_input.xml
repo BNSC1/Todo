@@ -5,5 +5,5 @@
 
     <include
         android:id="@+id/list_name_input_layout"
-        layout="@layout/layout_list_name_input" />
+        layout="@layout/layout_text_input" />
 </FrameLayout>

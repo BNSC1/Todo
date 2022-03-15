@@ -6,6 +6,8 @@
     <string name="text_create_list_instruction">First, we need to create a list before we can make todo\'s.\nLet\'s give our list a fresh name to get started.</string>
     <string name="default_list_name">New List</string>
     <string name="hint_input_list_name">List Name</string>
+    <string name="hint_input_todo_title">Title</string>
+    <string name="hint_input_todo_body">Body</string>
     <string name="action_ok">OK</string>
     <string name="action_open">Open</string>
     <string name="action_close">Close</string>

@@ -4,7 +4,7 @@ import android.app.AlertDialog
 import android.content.Context
 import android.view.LayoutInflater
 import com.bn.todo.R
-import com.bn.todo.databinding.LayoutListNameInputBinding
+import com.bn.todo.databinding.LayoutTextInputBinding
 
 
 object DialogUtil {
@@ -24,16 +24,18 @@ object DialogUtil {
     ): AlertDialog =
         AlertDialog.Builder(context).apply {
             val inflater = LayoutInflater.from(context)
-            LayoutListNameInputBinding.inflate(inflater).apply {
+            LayoutTextInputBinding.inflate(inflater).apply {
+                root.hint = context.getString(R.string.hint_input_list_name)
+
                 title?.let { setTitle(it) }
                 setView(root)
-                hint?.let { listNameInput.hint = it }
+                hint?.let { input.hint = it }
                 setPositiveButton(android.R.string.ok) { d, _ ->
-                    inputReceiver.receiveInput(listNameInput.text.toString())
+                    inputReceiver.receiveInput(input.text.toString())
                     d.dismiss()
                 }
                 setNegativeButton(android.R.string.cancel) { d, _ -> d.dismiss() }
-                listNameInput.requestFocus()
+                input.requestFocus()
             }
 
             create()

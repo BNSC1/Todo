@@ -23,8 +23,8 @@ class TodoRepository @Inject constructor(database: TodoDatabase) {
         todoListDao.delete(list)
 
 
-    suspend fun insertTodo(title: String, body: String?) =
-        todoDao.insert(Todo(title, body))
+    suspend fun insertTodo(title: String, body: String?, listId: Int) =
+        todoDao.insert(Todo(title, body, listId))
 
     fun queryTodo(name: String? = null) = name?.let {
         todoDao.query(it)

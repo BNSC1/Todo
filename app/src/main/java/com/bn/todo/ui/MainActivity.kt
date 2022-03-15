@@ -30,6 +30,7 @@ class MainActivity : NavigationActivity() {
     private lateinit var binding: ActivityMainBinding
     override val navHostId by lazy { binding.navHost.id }
     private var lists = emptyList<TodoList>()
+    private var listIndex = 0
     private lateinit var toggle: ActionBarDrawerToggle
     private var isRootFragment = false
 
@@ -40,6 +41,19 @@ class MainActivity : NavigationActivity() {
         with(binding) {
             setupToolbar()
             setupDrawer()
+            initShouldRefreshTitleObserver()
+        }
+    }
+
+    private fun ActivityMainBinding.initShouldRefreshTitleObserver() {
+        job = lifecycleScope.launch {
+            viewModel.shouldRefreshTitle.collect { shouldRefresh ->
+                Timber.d("title updated!")
+                if (shouldRefresh && lists.isNotEmpty()) {
+                    layoutToolbar.toolbar.title = lists[listIndex].name
+                    viewModel.shouldRefreshTitle.tryEmit(false)
+                }
+            }
         }
     }
 
@@ -84,28 +98,30 @@ class MainActivity : NavigationActivity() {
 
     private fun ActivityMainBinding.addDrawerMenu() {
         with(drawer.navigation.menu) {
-            viewModel.queryTodoList().observe(this@MainActivity) {
-                if (size != 0) clear()
-                lists = it
-                lists.forEach { list ->
-                    add(R.id.list_group, list.id, MENU_ORDER, list.name).isCheckable = true
+            job = lifecycleScope.launch {
+                viewModel.queryTodoList().collect {
+                    if (size != 0) clear()
+                    lists = it
+                    lists.forEach { list ->
+                        add(R.id.list_group, list.id, MENU_ORDER, list.name).isCheckable = true
+                    }
+                    add(
+                        R.id.list_group,
+                        R.id.action_add_list,
+                        MENU_ORDER,
+                        R.string.action_add_list
+                    ).setIcon(R.drawable.ic_add_list)
+                    add(
+                        R.id.setting_group,
+                        R.id.action_settings,
+                        MENU_ORDER,
+                        R.string.settings
+                    ).setIcon(R.drawable.ic_settings)
+                    if (viewModel.shouldGoToNewList.value) {
+                        goToNewList()
+                    } else setList()
+                    invalidateOptionsMenu()
                 }
-                add(
-                    R.id.list_group,
-                    R.id.action_add_list,
-                    MENU_ORDER,
-                    R.string.action_add_list
-                ).setIcon(R.drawable.ic_add_list)
-                add(
-                    R.id.setting_group,
-                    R.id.action_settings,
-                    MENU_ORDER,
-                    R.string.settings
-                ).setIcon(R.drawable.ic_settings)
-                if (viewModel.shouldGoToNewList.value) {
-                    goToNewList()
-                } else setList()
-                invalidateOptionsMenu()
             }
         }
     }
@@ -170,9 +186,11 @@ class MainActivity : NavigationActivity() {
     }
 
     private fun ActivityMainBinding.setSelectedListItem(itemId: Int) {
-        val listIndex = itemId - 1 //navigation item id starts from 1
+        listIndex = itemId - 1 //navigation item id starts from 1
         drawer.navigation.menu.getItem(listIndex).isChecked = true
-        layoutToolbar.toolbar.title = lists[listIndex].name
+        job = lifecycleScope.launch {
+            viewModel.shouldRefreshTitle.emit(true)
+        }
         viewModel.shouldRefreshList.value = true
         setCurrentListId(listIndex + 1) //adds it back for next time use
     }

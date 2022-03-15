@@ -1,6 +1,5 @@
 package com.bn.todo.ui.viewmodel
 
-import androidx.lifecycle.asLiveData
 import androidx.lifecycle.viewModelScope
 import com.bn.todo.arch.BaseViewModel
 import com.bn.todo.data.Resource
@@ -12,15 +11,19 @@ import com.bn.todo.util.DataStoreMgr
 import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.launch
 import javax.inject.Inject
+import javax.inject.Singleton
 
+@Singleton
 class TodoViewModel @Inject constructor(
     private val repository: TodoRepository
 ) : BaseViewModel() {
 
-    private val _shouldGoToNewList = MutableStateFlow(false)
+    private val _shouldGoToNewList by lazy { MutableStateFlow(false) }
     val shouldGoToNewList get() = _shouldGoToNewList
-    private val _shouldRefreshList = MutableStateFlow(false)
+    private val _shouldRefreshList by lazy { MutableStateFlow(false) }
     val shouldRefreshList get() = _shouldRefreshList
+    private val _shouldRefreshTitle by lazy { MutableSharedFlow<Boolean>() }
+    val shouldRefreshTitle get() = _shouldRefreshTitle
 
     fun insertTodoList(name: String) = flow {
         job = viewModelScope.launch {
@@ -36,12 +39,19 @@ class TodoViewModel @Inject constructor(
         initialValue = Resource.loading()
     )
 
-    fun queryTodoList(name: String? = null) = repository.queryTodoList(name).asLiveData()
+    fun queryTodoList(name: String? = null) = repository.queryTodoList(name)
 
     fun updateTodoList(list: TodoList, name: String) {}
     fun deleteTodoList(list: TodoList) {}
 
-    fun insertTodo(title: String, body: String?) {}
+    fun insertTodo(title: String, body: String?) {
+        job = viewModelScope.launch {
+            getCurrentListId().collect { listId ->
+                repository.insertTodo(title, body, listId)
+            }
+        }
+    }
+
     fun queryTodo(name: String? = null) {}
     fun updateTodo(todo: Todo, name: String, body: String) {
         job = viewModelScope.launch {

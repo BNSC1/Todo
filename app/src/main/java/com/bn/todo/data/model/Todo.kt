@@ -16,11 +16,10 @@ import androidx.room.PrimaryKey
 data class Todo(
     @ColumnInfo val title: String,
     @ColumnInfo val body: String?,
+    @ColumnInfo var listId: Int
 //    val locationName: String?,
 //    val imageUri: Uri?
 ) {
-    @ColumnInfo
-    var listId: Long = 0L
 
     @PrimaryKey(autoGenerate = true)
     var id = 0
