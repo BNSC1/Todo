@@ -1,6 +1,7 @@
 package com.bn.todo.ui.view
 
 import android.os.Bundle
+import android.text.Editable
 import android.view.Menu
 import android.view.MenuInflater
 import android.view.MenuItem
@@ -12,14 +13,18 @@ import androidx.navigation.ui.NavigationUI
 import com.bn.todo.R
 import com.bn.todo.arch.ObserveStateFragment
 import com.bn.todo.databinding.FragmentCreateTodoBinding
-import com.bn.todo.ktx.showToast
+import com.bn.todo.databinding.LayoutTextInputBinding
 import com.bn.todo.ui.viewmodel.TodoViewModel
+import com.bn.todo.util.TextInputUtil
+import com.google.android.material.textfield.TextInputEditText
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
 @AndroidEntryPoint
 class CreateTodoFragment : ObserveStateFragment<FragmentCreateTodoBinding>() {
+    private var isCreationAllowed = false
+
     @Inject
     override lateinit var viewModel: TodoViewModel
 
@@ -40,11 +45,10 @@ class CreateTodoFragment : ObserveStateFragment<FragmentCreateTodoBinding>() {
 
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
         if (item.itemId == R.id.action_add) {
-            showToast("click on save")
             with(binding) {
                 val title = layoutTitleInput.input.text.toString()
                 val body = layoutBodyInput.input.text.toString()
-                if (title.isNotBlank()) {
+                if (isCreationAllowed) {
                     job = viewLifecycleOwner.lifecycleScope.launch {
                         viewModel.insertTodo(title, body).collect {
                             handleState(it, {
@@ -53,7 +57,8 @@ class CreateTodoFragment : ObserveStateFragment<FragmentCreateTodoBinding>() {
                         }
                     }
                 } else {
-                    layoutTitleInput.root.error = getString(R.string.error_title_required)
+                    layoutTitleInput.setTitleInputError()
+                    TextInputUtil.showKeyboard(requireActivity(), layoutTitleInput.input)
                 }
             }
         }
@@ -67,12 +72,23 @@ class CreateTodoFragment : ObserveStateFragment<FragmentCreateTodoBinding>() {
         layoutTitleInput.apply {
             root.hint = getString(R.string.hint_input_todo_title)
             root.isErrorEnabled = true
-            input.requestFocus()
+            TextInputUtil.showKeyboard(requireActivity(), input)
+            input.addTextChangedListener(object :
+                TextInputUtil.TextChangedListener<TextInputEditText>(input) {
+                override fun onTextChanged(target: TextInputEditText, s: Editable?) {
+                    root.error = ""
+                    isCreationAllowed = !target.text.isNullOrBlank()
+                }
+            })
         }
         layoutBodyInput.apply {
             root.hint = getString(R.string.hint_input_todo_body)
             input.isSingleLine = false
             input.minLines = 2
         }
+    }
+
+    private fun LayoutTextInputBinding.setTitleInputError() {
+        root.error = getString(R.string.error_title_required)
     }
 }

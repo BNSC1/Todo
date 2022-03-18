@@ -190,8 +190,8 @@ class MainActivity : NavigationActivity() {
         drawer.navigation.menu.getItem(listIndex).isChecked = true
         job = lifecycleScope.launch {
             viewModel.shouldRefreshTitle.emit(true)
+            viewModel.shouldRefreshList.emit(true)
         }
-        viewModel.shouldRefreshList.value = true
         setCurrentListId(listIndex + 1) //adds it back for next time use
     }
 
