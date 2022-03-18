@@ -46,6 +46,6 @@ fun DrawerLayout.closeDrawer() = this.closeDrawer(GravityCompat.START)
 fun DrawerLayout.setLocked(locked: Boolean) =
     this.setDrawerLockMode(
         if (locked)
-            DrawerLayout.LOCK_MODE_UNDEFINED
-        else DrawerLayout.LOCK_MODE_LOCKED_CLOSED
+            DrawerLayout.LOCK_MODE_LOCKED_CLOSED
+        else DrawerLayout.LOCK_MODE_UNDEFINED
     )
