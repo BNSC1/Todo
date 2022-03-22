@@ -1,5 +1,10 @@
 package com.bn.todo.arch
 
+import android.os.Bundle
+import android.view.LayoutInflater
+import android.view.View
+import android.view.ViewGroup
+import androidx.lifecycle.lifecycleScope
 import androidx.viewbinding.ViewBinding
 import com.bn.todo.data.Resource
 import com.bn.todo.data.State
@@ -8,9 +13,23 @@ import timber.log.Timber
 
 abstract class ObserveStateFragment<Binding : ViewBinding> : BaseFragment<Binding>() {
     abstract val viewModel: BaseViewModel
-    fun observeErrorMsg() {
-        viewModel.errorMsg.observe(viewLifecycleOwner) {
-            showDialog(message = it)
+
+    override fun onCreateView(
+        inflater: LayoutInflater, container: ViewGroup?,
+        savedInstanceState: Bundle?
+    ): View {
+        initViewBinding(container)
+        observeErrorMsg()
+        return binding.root
+    }
+
+    private fun observeErrorMsg() {
+        job = viewLifecycleOwner.lifecycleScope.launchWhenStarted {
+            viewModel.errorMsg.collect {
+                if (it.isNotBlank()) {
+                    showDialog(message = it)
+                }
+            }
         }
     }
 
@@ -26,7 +45,7 @@ abstract class ObserveStateFragment<Binding : ViewBinding> : BaseFragment<Bindin
             State.SUCCESS -> successAction()
             State.ERROR -> {
                 errorAction()
-                resource.message?.let { viewModel.setErrorMsg(it) }
+                resource.message?.let { viewModel.errorMsg.tryEmit(it) }
             }
             State.LOADING -> loadingAction()
         }

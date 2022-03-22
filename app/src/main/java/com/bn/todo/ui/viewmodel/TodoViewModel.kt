@@ -27,7 +27,7 @@ class TodoViewModel @Inject constructor(
 
     fun insertTodoList(name: String) = flow {
             repository.insertTodoList(name)
-            if (!getNotFirstTimeLaunch().first()) {
+            if (!getNotFirstTimeLaunch()) {
                 setNotFirstTimeLaunch(true)
             }
         emit(Resource.success(null))
@@ -44,7 +44,7 @@ class TodoViewModel @Inject constructor(
 
     fun insertTodo(title: String, body: String?) = flow {
         job = viewModelScope.launch {
-            repository.insertTodo(title, body, getCurrentListId().first())
+            repository.insertTodo(title, body, getCurrentListId())
         }
         emit(Resource.success(null))
     }.stateIn(

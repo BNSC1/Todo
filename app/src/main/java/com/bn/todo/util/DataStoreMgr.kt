@@ -7,6 +7,7 @@ import androidx.datastore.preferences.preferencesDataStore
 import com.bn.todo.di.ApplicationModule.context
 import com.bn.todo.util.DataStoreKeys.DATASTORE_NAME
 import kotlinx.coroutines.flow.catch
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.map
 import java.io.IOException
 
@@ -16,10 +17,11 @@ object DataStoreMgr {
     suspend inline fun <reified T> setPreferences(
         key: Preferences.Key<T>,
         vararg values: T
-    ) =
+    ) {
         context.dataStore.edit { prefs ->
             values.forEach { prefs[key] = it }
         }
+    }
 
     suspend inline fun <reified T> getPreferences(
         key: Preferences.Key<T>,
@@ -43,7 +45,7 @@ object DataStoreMgr {
                         }
                     } as T
                 }
-            }
+            }.first()
 }
 
 object DataStoreKeys {

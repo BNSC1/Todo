@@ -7,7 +7,6 @@ import com.bn.todo.arch.ObserveStateFragment
 import com.bn.todo.databinding.FragmentTodoListBinding
 import com.bn.todo.ui.viewmodel.TodoViewModel
 import dagger.hilt.android.AndroidEntryPoint
-import kotlinx.coroutines.launch
 import javax.inject.Inject
 
 @AndroidEntryPoint
@@ -27,7 +26,7 @@ class TodoListFragment : ObserveStateFragment<FragmentTodoListBinding>() {
 
     override fun onResume() {
         super.onResume()
-        job = viewLifecycleOwner.lifecycleScope.launch {
+        job = viewLifecycleOwner.lifecycleScope.launchWhenStarted {
             viewModel.shouldRefreshTitle.emit(true)
         }
     }

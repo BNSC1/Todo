@@ -18,7 +18,6 @@ import com.bn.todo.ui.viewmodel.TodoViewModel
 import com.bn.todo.util.TextInputUtil
 import com.google.android.material.textfield.TextInputEditText
 import dagger.hilt.android.AndroidEntryPoint
-import kotlinx.coroutines.launch
 import javax.inject.Inject
 
 @AndroidEntryPoint
@@ -49,7 +48,7 @@ class CreateTodoFragment : ObserveStateFragment<FragmentCreateTodoBinding>() {
                 val title = layoutTitleInput.input.text.toString()
                 val body = layoutBodyInput.input.text.toString()
                 if (isCreationAllowed) {
-                    job = viewLifecycleOwner.lifecycleScope.launch {
+                    job = viewLifecycleOwner.lifecycleScope.launchWhenStarted {
                         viewModel.insertTodo(title, body).collect {
                             handleState(it, {
                                 findNavController().popBackStack()

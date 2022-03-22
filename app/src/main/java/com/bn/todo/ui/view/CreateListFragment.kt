@@ -10,7 +10,7 @@ import com.bn.todo.ktx.getTextOrDefault
 import com.bn.todo.ui.viewmodel.TodoViewModel
 import com.bn.todo.util.TextInputUtil
 import dagger.hilt.android.AndroidEntryPoint
-import kotlinx.coroutines.launch
+import kotlinx.coroutines.flow.first
 import javax.inject.Inject
 
 @AndroidEntryPoint
@@ -34,13 +34,11 @@ class CreateListFragment : ObserveStateFragment<FragmentCreateListBinding>() {
     }
 
     private fun insertTodoList(listName: String) {
-        job = lifecycleScope.launch {
-            viewModel.insertTodoList(listName).collect {
-                handleState(it, {
-                    CreateListFragmentDirections.actionToMainActivity().navigate()
-                    requireActivity().finish()
-                })
-            }
+        job = lifecycleScope.launchWhenStarted {
+            handleState(viewModel.insertTodoList(listName).first(), {
+                CreateListFragmentDirections.actionToMainActivity().navigate()
+                requireActivity().finish()
+            })
         }
     }
 }
