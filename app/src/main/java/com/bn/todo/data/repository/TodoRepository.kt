@@ -26,9 +26,9 @@ class TodoRepository @Inject constructor(database: TodoDatabase) {
     suspend fun insertTodo(title: String, body: String?, listId: Int) =
         todoDao.insert(Todo(title, body, listId))
 
-    fun queryTodo(name: String? = null) = name?.let {
-        todoDao.query(it)
-    } ?: todoDao.query()
+    fun queryTodo(listId: Int, name: String? = null) = name?.let {
+        todoDao.query(listId, it)
+    } ?: todoDao.query(listId)
 
     suspend fun updateTodo(todo: Todo, title: String, body: String) =
         todoDao.update(todo.copy(title = title, body = body))

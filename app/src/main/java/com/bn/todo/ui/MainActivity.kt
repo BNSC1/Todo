@@ -18,6 +18,7 @@ import com.bn.todo.ktx.*
 import com.bn.todo.ui.viewmodel.TodoViewModel
 import com.bn.todo.util.DialogUtil
 import dagger.hilt.android.AndroidEntryPoint
+import kotlinx.coroutines.flow.first
 import timber.log.Timber
 import javax.inject.Inject
 
@@ -45,7 +46,6 @@ class MainActivity : NavigationActivity() {
     private fun ActivityMainBinding.initShouldRefreshTitleObserver() {
         job = lifecycleScope.launchWhenStarted {
             viewModel.shouldRefreshTitle.collect { shouldRefresh ->
-                Timber.d("title updated!")
                 if (shouldRefresh && lists.isNotEmpty()) {
                     layoutToolbar.toolbar.title = lists[listIndex].name
                     viewModel.shouldRefreshTitle.tryEmit(false)
@@ -56,17 +56,17 @@ class MainActivity : NavigationActivity() {
 
     private fun ActivityMainBinding.setupToolbar() {
         setSupportActionBar(layoutToolbar.toolbar)
+        NavigationUI.setupActionBarWithNavController(
+            this@MainActivity,
+            navigation,
+            layoutDrawer
+        )
         toggle = ActionBarDrawerToggle(
             this@MainActivity, layoutDrawer,
             layoutToolbar.toolbar, R.string.action_open, R.string.action_close
         )
         toggle.syncState()
         layoutDrawer.addDrawerListener(toggle)
-        NavigationUI.setupActionBarWithNavController(
-            this@MainActivity,
-            navigation,
-            layoutDrawer
-        )
         navigation.addOnDestinationChangedListener { _, destination, _ ->
             isRootFragment = when (destination.id) {
                 R.id.listFragment -> true
@@ -81,7 +81,7 @@ class MainActivity : NavigationActivity() {
             setSelectedListItem(itemId)
         } ?: let {
             job = lifecycleScope.launchWhenStarted {
-                setSelectedListItem(viewModel.getCurrentListId())
+                setSelectedListItem(viewModel.getCurrentListId().first())
             }
         }
     }
@@ -188,16 +188,14 @@ class MainActivity : NavigationActivity() {
         listIndex = itemId - 1 //navigation item id starts from 1
         drawer.navigation.menu.getItem(listIndex).isChecked = true
         job = lifecycleScope.launchWhenStarted {
+            setCurrentListId(listIndex + 1) //adds it back for next time use
             viewModel.shouldRefreshTitle.emit(true)
             viewModel.shouldRefreshList.emit(true)
         }
-        setCurrentListId(listIndex + 1) //adds it back for next time use
     }
 
-    private fun setCurrentListId(listIndex: Int) {
-        job = lifecycleScope.launchWhenStarted {
-            viewModel.setCurrentListId(listIndex)
-        }
+    private suspend fun setCurrentListId(listIndex: Int) {
+        viewModel.setCurrentListId(listIndex)
     }
 
     private fun onOptionSettingsSelected(item: MenuItem) {

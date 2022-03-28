@@ -6,6 +6,7 @@ import androidx.lifecycle.lifecycleScope
 import com.bn.todo.arch.BaseActivity
 import com.bn.todo.ui.viewmodel.EntryViewModel
 import dagger.hilt.android.AndroidEntryPoint
+import kotlinx.coroutines.flow.first
 import javax.inject.Inject
 
 @AndroidEntryPoint
@@ -18,7 +19,7 @@ class EntryActivity : BaseActivity() {
         job = lifecycleScope.launchWhenStarted {
             val intent = Intent(
                 this@EntryActivity,
-                if (viewModel.getIsNotFirstLaunch()) {
+                if (viewModel.getIsNotFirstLaunch().first()) {
                     MainActivity::class.java
                 } else
                     WelcomeActivity::class.java

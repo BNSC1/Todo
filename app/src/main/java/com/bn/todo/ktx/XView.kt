@@ -1,10 +1,14 @@
 package com.bn.todo.ktx
 
+import android.content.res.Resources
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
+import androidx.core.content.res.ResourcesCompat
 import androidx.core.view.GravityCompat
 import androidx.drawerlayout.widget.DrawerLayout
 import androidx.fragment.app.Fragment
+import androidx.recyclerview.widget.DividerItemDecoration
+import androidx.recyclerview.widget.RecyclerView
 import com.bn.todo.util.DialogUtil
 
 fun Fragment.showDialog(titleStringId: Int? = null, messageStringId: Int) =
@@ -49,3 +53,9 @@ fun DrawerLayout.setLocked(locked: Boolean) =
             DrawerLayout.LOCK_MODE_LOCKED_CLOSED
         else DrawerLayout.LOCK_MODE_UNDEFINED
     )
+
+fun RecyclerView.addItemDecoration(dividerResId: Int, theme: Resources.Theme? = null) =
+    this.addItemDecoration(
+        DividerItemDecoration(this.context, DividerItemDecoration.VERTICAL).apply {
+            setDrawable(ResourcesCompat.getDrawable(resources, dividerResId, theme)!!)
+        })
