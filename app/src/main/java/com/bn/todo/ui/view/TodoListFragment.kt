@@ -9,6 +9,7 @@ import com.bn.todo.arch.ObserveStateFragment
 import com.bn.todo.data.model.Todo
 import com.bn.todo.databinding.FragmentTodoListBinding
 import com.bn.todo.ktx.addItemDecoration
+import com.bn.todo.ui.callback.TodoClickCallback
 import com.bn.todo.ui.view.adapter.TodosAdapter
 import com.bn.todo.ui.viewmodel.TodoViewModel
 import dagger.hilt.android.AndroidEntryPoint
@@ -32,7 +33,10 @@ class TodoListFragment : ObserveStateFragment<FragmentTodoListBinding>() {
             list.addItemDecoration(R.drawable.divider_todo)
             list.adapter = TodosAdapter(todos, object : TodosAdapter.OnItemClickListener {
                 override fun onItemClicked(item: Todo) {
-
+                    viewLifecycleOwner.lifecycleScope.launchWhenStarted { //todo: survey observeIn
+                        (requireActivity() as TodoClickCallback).onTodoClick()
+                        viewModel.clickedTodo.emit(item)
+                    }
                 }
             })
         }

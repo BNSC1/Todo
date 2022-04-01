@@ -20,6 +20,9 @@ class TodosAdapter(
         fun bind(todo: Todo) {
             with(binding) {
                 titleText.text = todo.title
+                item.setOnClickListener {
+                    onItemClickListener.onItemClicked(todo)
+                }
             }
         }
     }
@@ -37,7 +40,4 @@ class TodosAdapter(
         return todos.size
     }
 
-    fun update() {
-
-    }
 }

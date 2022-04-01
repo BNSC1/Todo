@@ -15,6 +15,7 @@ import com.bn.todo.data.State
 import com.bn.todo.data.model.TodoList
 import com.bn.todo.databinding.ActivityMainBinding
 import com.bn.todo.ktx.*
+import com.bn.todo.ui.callback.TodoClickCallback
 import com.bn.todo.ui.view.TodoInfoFragment
 import com.bn.todo.ui.viewmodel.TodoViewModel
 import com.bn.todo.util.DialogUtil
@@ -24,8 +25,9 @@ import timber.log.Timber
 import javax.inject.Inject
 
 private const val MENU_ORDER = Menu.NONE
+
 @AndroidEntryPoint
-class MainActivity : NavigationActivity() {
+class MainActivity : NavigationActivity(), TodoClickCallback {
     @Inject
     lateinit var viewModel: TodoViewModel
     private val binding: ActivityMainBinding by viewBinding()
@@ -41,13 +43,13 @@ class MainActivity : NavigationActivity() {
             setupToolbar()
             setupDrawer()
             setupShouldRefreshTitleObserver()
-            setupBackdrop()
         }
     }
 
-    private fun setupBackdrop() {
-        val fragment = TodoInfoFragment()
-        fragment.show(supportFragmentManager, "backdrop")
+    private fun openBottomSheet() {
+        TodoInfoFragment().apply {
+            show(supportFragmentManager, "bottom_sheet")
+        }
     }
 
 
@@ -229,6 +231,10 @@ class MainActivity : NavigationActivity() {
             }
             State.LOADING -> loadingAction()
         }
+    }
+
+    override fun onTodoClick() {
+        openBottomSheet()
     }
 
 }
