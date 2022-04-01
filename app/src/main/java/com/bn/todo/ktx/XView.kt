@@ -1,6 +1,10 @@
 package com.bn.todo.ktx
 
+import android.content.Context
+import android.content.Intent
 import android.content.res.Resources
+import android.view.LayoutInflater
+import android.view.View
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.content.res.ResourcesCompat
@@ -37,6 +41,12 @@ fun AppCompatActivity.showToast(messageStringId: Int, duration: Int = Toast.LENG
 fun AppCompatActivity.showToast(message: String, duration: Int = Toast.LENGTH_SHORT) =
     Toast.makeText(this, message, duration).show()
 
+private fun AppCompatActivity.startActivity(activity: Class<AppCompatActivity>) {
+    val intent = Intent(this, activity)
+    startActivity(intent)
+    finish()
+}
+
 fun Fragment.showToast(messageStringId: Int, duration: Int = Toast.LENGTH_SHORT) =
     showToast(getString(messageStringId), duration)
 
@@ -59,3 +69,18 @@ fun RecyclerView.addItemDecoration(dividerResId: Int, theme: Resources.Theme? = 
         DividerItemDecoration(this.context, DividerItemDecoration.VERTICAL).apply {
             setDrawable(ResourcesCompat.getDrawable(resources, dividerResId, theme)!!)
         })
+
+fun View.makeVisible() {
+    visibility = View.VISIBLE
+}
+
+fun View.makeInVisible() {
+    visibility = View.INVISIBLE
+}
+
+fun View.makeGone() {
+    visibility = View.GONE
+}
+
+internal val Context.layoutInflater: LayoutInflater
+    get() = LayoutInflater.from(this)

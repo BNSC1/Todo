@@ -6,6 +6,10 @@ plugins {
     id 'androidx.navigation.safeargs'
 }
 
+ext {
+    androidslidinguppanelVersion = '4.4.1'
+}
+
 android {
     compileSdk 31
 

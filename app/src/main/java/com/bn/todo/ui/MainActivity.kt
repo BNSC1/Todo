@@ -15,6 +15,7 @@ import com.bn.todo.data.State
 import com.bn.todo.data.model.TodoList
 import com.bn.todo.databinding.ActivityMainBinding
 import com.bn.todo.ktx.*
+import com.bn.todo.ui.view.TodoInfoFragment
 import com.bn.todo.ui.viewmodel.TodoViewModel
 import com.bn.todo.util.DialogUtil
 import dagger.hilt.android.AndroidEntryPoint
@@ -39,12 +40,19 @@ class MainActivity : NavigationActivity() {
         with(binding) {
             setupToolbar()
             setupDrawer()
-            initShouldRefreshTitleObserver()
+            setupShouldRefreshTitleObserver()
+            setupBackdrop()
         }
     }
 
-    private fun ActivityMainBinding.initShouldRefreshTitleObserver() {
-        job = lifecycleScope.launchWhenStarted {
+    private fun setupBackdrop() {
+        val fragment = TodoInfoFragment()
+        fragment.show(supportFragmentManager, "backdrop")
+    }
+
+
+    private fun ActivityMainBinding.setupShouldRefreshTitleObserver() {
+        lifecycleScope.launchWhenStarted {
             viewModel.shouldRefreshTitle.collect { shouldRefresh ->
                 if (shouldRefresh && lists.isNotEmpty()) {
                     layoutToolbar.toolbar.title = lists[listIndex].name
@@ -92,7 +100,7 @@ class MainActivity : NavigationActivity() {
     }
 
     private fun ActivityMainBinding.observeTodoList() {
-        job = lifecycleScope.launchWhenStarted {
+        lifecycleScope.launchWhenStarted {
             viewModel.queryTodoList().collect {
                 updateDrawerMenu(it)
             }
@@ -165,7 +173,7 @@ class MainActivity : NavigationActivity() {
                 inputReceiver = object : DialogUtil.OnInputReceiver {
                     override fun receiveInput(input: String?) {
                         if (!input.isNullOrBlank()) {
-                            job = lifecycleScope.launchWhenStarted {
+                            lifecycleScope.launchWhenStarted {
                                 viewModel.insertTodoList(input).collect {
                                     handleState(it, {
                                         viewModel.shouldGoToNewList.value = true

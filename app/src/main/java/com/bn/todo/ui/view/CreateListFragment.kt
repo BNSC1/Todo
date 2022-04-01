@@ -22,7 +22,7 @@ class CreateListFragment : ObserveStateFragment<FragmentCreateListBinding>() {
         super.onViewCreated(view, savedInstanceState)
 
         with(binding) {
-            listNameInputLayout.root.hint = getString(R.string.hint_input_list_name)
+            listNameInputLayout.root.hint = getString(R.string.list_name)
             TextInputUtil.showKeyboard(requireActivity(), listNameInputLayout.input)
             nextBtn.setOnClickListener {
                 val listName =

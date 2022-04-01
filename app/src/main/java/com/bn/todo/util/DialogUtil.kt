@@ -25,7 +25,7 @@ object DialogUtil {
         AlertDialog.Builder(context).apply {
             val inflater = LayoutInflater.from(context)
             LayoutTextInputBinding.inflate(inflater).apply {
-                root.hint = context.getString(R.string.hint_input_list_name)
+                root.hint = context.getString(R.string.list_name)
 
                 title?.let { setTitle(it) }
                 setView(root)

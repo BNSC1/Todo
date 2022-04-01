@@ -5,9 +5,9 @@
     <string name="action_next">Next</string>
     <string name="text_create_list_instruction">First, we need to create a list before we can make todo\'s.\nLet\'s give our list a fresh name to get started.</string>
     <string name="default_list_name">New List</string>
-    <string name="hint_input_list_name">List Name</string>
-    <string name="hint_input_todo_title">Title</string>
-    <string name="hint_input_todo_body">Body</string>
+    <string name="list_name">List Name</string>
+    <string name="todo_title">Title</string>
+    <string name="todo_body">Body</string>
     <string name="action_ok">OK</string>
     <string name="action_open">Open</string>
     <string name="action_close">Close</string>
@@ -34,4 +34,6 @@
     <string name="attachment_summary_off">Only download attachments when manually requested</string>
     <string name="action_add">Add</string>
     <string name="error_title_required">Title is required</string>
+    <!-- TODO: Remove or change this placeholder text -->
+    <string name="hello_blank_fragment">Hello blank fragment</string>
 </resources>

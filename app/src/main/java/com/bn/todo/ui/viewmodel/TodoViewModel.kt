@@ -26,6 +26,8 @@ class TodoViewModel @Inject constructor(
     val shouldRefreshList get() = _shouldRefreshList
     private val _shouldRefreshTitle by lazy { MutableSharedFlow<Boolean>() }
     val shouldRefreshTitle get() = _shouldRefreshTitle
+    private val _clickedTodo by lazy { MutableSharedFlow<Todo>() }
+    val clickedTodo get() = _clickedTodo
 
     fun insertTodoList(name: String) = flow {
         repository.insertTodoList(name)

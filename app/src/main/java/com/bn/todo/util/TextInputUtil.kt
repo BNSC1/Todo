@@ -7,7 +7,6 @@ import android.text.TextWatcher
 import android.view.View
 import android.view.WindowManager
 import android.view.inputmethod.InputMethodManager
-import timber.log.Timber
 
 
 object TextInputUtil {
@@ -15,7 +14,6 @@ object TextInputUtil {
         crossinline focusedAction: () -> Unit = {},
         crossinline unfocusedAction: () -> Unit = {}
     ) = View.OnFocusChangeListener { _, focused ->
-        Timber.d("OnFocusChangeListener")
         if (focused) {
             focusedAction()
         } else {

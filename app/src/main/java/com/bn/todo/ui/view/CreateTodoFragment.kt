@@ -69,7 +69,7 @@ class CreateTodoFragment : ObserveStateFragment<FragmentCreateTodoBinding>() {
 
     private fun FragmentCreateTodoBinding.setupLayout() {
         layoutTitleInput.apply {
-            root.hint = getString(R.string.hint_input_todo_title)
+            root.hint = getString(R.string.todo_title)
             root.isErrorEnabled = true
             TextInputUtil.showKeyboard(requireActivity(), input)
             input.addTextChangedListener(object :
@@ -81,7 +81,7 @@ class CreateTodoFragment : ObserveStateFragment<FragmentCreateTodoBinding>() {
             })
         }
         layoutBodyInput.apply {
-            root.hint = getString(R.string.hint_input_todo_body)
+            root.hint = getString(R.string.todo_body)
             input.isSingleLine = false
             input.minLines = 2
         }

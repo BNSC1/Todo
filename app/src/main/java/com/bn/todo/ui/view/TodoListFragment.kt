@@ -40,7 +40,7 @@ class TodoListFragment : ObserveStateFragment<FragmentTodoListBinding>() {
 
     @SuppressLint("NotifyDataSetChanged")
     private fun initObserveTodoList() {
-        job = viewLifecycleOwner.lifecycleScope.launchWhenStarted {
+        viewLifecycleOwner.lifecycleScope.launchWhenStarted {
             viewModel.shouldRefreshList.collect { shouldRefresh ->
                 if (shouldRefresh) {
                     todos.clear()
@@ -49,7 +49,7 @@ class TodoListFragment : ObserveStateFragment<FragmentTodoListBinding>() {
                 }
             }
         }
-        job = viewLifecycleOwner.lifecycleScope.launchWhenStarted {
+        viewLifecycleOwner.lifecycleScope.launchWhenStarted {
             viewModel.queryTodo().collect { data ->
                 todos.clear()
                 todos.addAll(data)
