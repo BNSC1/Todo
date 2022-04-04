@@ -67,11 +67,16 @@ class TodoViewModel @Inject constructor(
         }
     }
 
-    fun deleteTodo(todo: Todo) {
+    fun deleteTodo(todo: Todo) = flow {
         job = viewModelScope.launch {
             repository.deleteTodo(todo)
         }
-    }
+        emit(Resource.success(null))
+    }.stateIn(
+        scope = viewModelScope,
+        started = SharingStarted.Lazily,
+        initialValue = Resource.loading()
+    )
 
     private suspend fun setNotFirstTimeLaunch(isNotFirstTimeLaunch: Boolean) =
         DataStoreMgr.setPreferences(DataStoreKeys.NOT_FIRST_LAUNCH, isNotFirstTimeLaunch)
