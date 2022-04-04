@@ -167,30 +167,31 @@ class MainActivity : NavigationActivity(), TodoClickCallback {
         return true
     }
 
-    private fun ActivityMainBinding.onOptionListsSelected(item: MenuItem) = when (item.itemId) {
-        R.id.action_add_list -> {
-            DialogUtil.showInputDialog(
-                this@MainActivity,
-                getString(R.string.title_input_name_for_list),
-                inputReceiver = object : DialogUtil.OnInputReceiver {
-                    override fun receiveInput(input: String?) {
-                        if (!input.isNullOrBlank()) {
-                            lifecycleScope.launchWhenStarted {
-                                viewModel.insertTodoList(input).collect {
-                                    handleState(it, {
-                                        viewModel.shouldGoToNewList.value = true
-                                    })
+    private fun ActivityMainBinding.onOptionListsSelected(item: MenuItem) {
+        when (item.itemId) {
+            R.id.action_add_list -> {
+                DialogUtil.showInputDialog(
+                    this@MainActivity,
+                    getString(R.string.title_input_name_for_list),
+                    inputReceiver = object : DialogUtil.OnInputReceiver {
+                        override fun receiveInput(input: String?) {
+                            if (!input.isNullOrBlank()) {
+                                lifecycleScope.launchWhenStarted {
+                                    viewModel.insertTodoList(input).collect { res ->
+                                        handleState(res, {
+                                            viewModel.shouldGoToNewList.value = true
+                                        })
+                                    }
                                 }
+                            } else {
+                                showDialog(message = getString(R.string.title_input_name_for_list))
                             }
-                        } else {
-                            showDialog(message = getString(R.string.title_input_name_for_list))
                         }
-                    }
-                })
-            showToast("show add list, ${item.itemId}")
-        }
-        else -> {
-            setSelectedListItem(item.itemId)
+                    })
+            }
+            else -> {
+                setSelectedListItem(item.itemId)
+            }
         }
     }
 

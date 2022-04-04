@@ -17,6 +17,8 @@
     <string name="title_activity_settings">Settings</string>
     <string name="title_input_name_for_list">Enter a name for new list</string>
     <string name="title_add_todo">Add Todo</string>
+    <string name="hint_no_todo">You don\'t seem to have any todos in this list, press the "+" button to create one.</string>
+
 
     <!-- Preference Titles -->
     <string name="messages_header">Messages</string>
@@ -36,4 +38,7 @@
     <string name="error_title_required">Title is required</string>
     <!-- TODO: Remove or change this placeholder text -->
     <string name="hello_blank_fragment">Hello blank fragment</string>
+    <string name="action_delete">Delete</string>
+    <string name="action_edit">Edit</string>
+    <string name="action_complete">Complete</string>
 </resources>

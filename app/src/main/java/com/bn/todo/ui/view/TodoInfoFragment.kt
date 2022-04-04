@@ -5,7 +5,6 @@ import android.view.View
 import androidx.lifecycle.lifecycleScope
 import com.bn.todo.arch.BaseBottomSheetDialogFragment
 import com.bn.todo.databinding.FragmentTodoInfoBinding
-import com.bn.todo.ktx.showToast
 import com.bn.todo.ui.viewmodel.TodoViewModel
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.launch
@@ -21,7 +20,6 @@ class TodoInfoFragment : BaseBottomSheetDialogFragment<FragmentTodoInfoBinding>(
         with(binding) {
             viewLifecycleOwner.lifecycleScope.launch {
                 viewModel.clickedTodo.collect { todo ->
-                    showToast("collected")
                     titleText.text = todo.title
                     bodyText.text = todo.body
                 }
