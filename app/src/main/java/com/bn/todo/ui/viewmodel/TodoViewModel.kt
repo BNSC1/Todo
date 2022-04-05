@@ -61,11 +61,16 @@ class TodoViewModel @Inject constructor(
         repository.queryTodo(getCurrentListId().first(), name)
 //            .shareIn(scope = viewModelScope, started = SharingStarted.Lazily)
 
-    fun updateTodo(todo: Todo, name: String, body: String) {
+    fun updateTodo(todo: Todo, name: String, body: String) = flow {
         job = viewModelScope.launch {
             repository.updateTodo(todo, name, body)
         }
-    }
+        emit(Resource.success(null))
+    }.stateIn(
+        scope = viewModelScope,
+        started = SharingStarted.Lazily,
+        initialValue = Resource.loading()
+    )
 
     fun deleteTodo(todo: Todo) = flow {
         job = viewModelScope.launch {

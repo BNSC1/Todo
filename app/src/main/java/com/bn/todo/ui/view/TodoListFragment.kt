@@ -33,7 +33,7 @@ class TodoListFragment : ObserveStateFragment<FragmentTodoListBinding>() {
             list.addItemDecoration(R.drawable.divider_todo)
             list.adapter = TodosAdapter(todos, object : TodosAdapter.OnItemClickListener {
                 override fun onItemClicked(item: Todo) {
-                    viewLifecycleOwner.lifecycleScope.launchWhenStarted { //todo: survey observeIn
+                    viewLifecycleOwner.lifecycleScope.launchWhenStarted {
                         (requireActivity() as TodoClickCallback).onTodoClick()
                         viewModel.clickedTodo.emit(item)
                     }
@@ -49,7 +49,7 @@ class TodoListFragment : ObserveStateFragment<FragmentTodoListBinding>() {
                 if (shouldRefresh) {
                     todos.clear()
                     todos.addAll(viewModel.queryTodo().first())
-                    binding.list.adapter!!.notifyDataSetChanged() //todo: duplicate code cleanup
+                    binding.list.adapter!!.notifyDataSetChanged() //todo: optimize
                 }
             }
         }

@@ -19,9 +19,6 @@ data class Todo(
     @ColumnInfo val listId: Int,
     @ColumnInfo val isCompleted: Boolean = false,
 //    val locationName: String?,
-//    val imageUri: Uri?
-) {
-
-    @PrimaryKey(autoGenerate = true)
-    var id = 0
-}
+//    val imageUri: Uri?,
+    @PrimaryKey(autoGenerate = true) var id: Int = 0
+)

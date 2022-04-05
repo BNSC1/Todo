@@ -9,31 +9,51 @@ import android.view.View
 import androidx.lifecycle.lifecycleScope
 import androidx.navigation.findNavController
 import androidx.navigation.fragment.findNavController
+import androidx.navigation.fragment.navArgs
 import androidx.navigation.ui.NavigationUI
 import com.bn.todo.R
 import com.bn.todo.arch.ObserveStateFragment
+import com.bn.todo.data.model.Todo
 import com.bn.todo.databinding.FragmentCreateTodoBinding
 import com.bn.todo.databinding.LayoutTextInputBinding
+import com.bn.todo.ui.MainActivity
 import com.bn.todo.ui.viewmodel.TodoViewModel
 import com.bn.todo.util.TextInputUtil
 import com.google.android.material.textfield.TextInputEditText
 import dagger.hilt.android.AndroidEntryPoint
+import kotlinx.coroutines.flow.first
 import javax.inject.Inject
 
 @AndroidEntryPoint
 class CreateTodoFragment : ObserveStateFragment<FragmentCreateTodoBinding>() {
-    private var isCreationAllowed = false
-
     @Inject
     override lateinit var viewModel: TodoViewModel
+    private var isAllowed = false
+    private val args by navArgs<CreateTodoFragmentArgs>()
+    private val sourceFragment: String by lazy { args.sourceFragment }
+    private var isEditMode = false
+    private lateinit var clickedTodo: Todo
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         setHasOptionsMenu(true)
+        isEditMode = sourceFragment == TodoInfoFragment.TAG
 
         with(binding) {
             setupLayout()
+            if (isEditMode) {
+                (requireActivity() as MainActivity).supportActionBar?.title =
+                    getString(R.string.title_edit_todo)
+                fetchTodo()
+            }
+        }
+    }
 
+    private fun FragmentCreateTodoBinding.fetchTodo() {
+        viewLifecycleOwner.lifecycleScope.launchWhenStarted {
+            clickedTodo = viewModel.clickedTodo.first()
+            layoutTitleInput.input.setText(clickedTodo.title)
+            layoutBodyInput.input.setText(clickedTodo.body)
         }
     }
 
@@ -47,12 +67,20 @@ class CreateTodoFragment : ObserveStateFragment<FragmentCreateTodoBinding>() {
             with(binding) {
                 val title = layoutTitleInput.input.text.toString()
                 val body = layoutBodyInput.input.text.toString()
-                if (isCreationAllowed) {
+                if (isAllowed) {
                     job = viewLifecycleOwner.lifecycleScope.launchWhenStarted {
-                        viewModel.insertTodo(title, body).collect {
-                            handleState(it, {
-                                findNavController().popBackStack()
-                            })
+                        if (isEditMode) {
+                            viewModel.updateTodo(clickedTodo, title, body).collect {
+                                handleState(it, {
+                                    findNavController().popBackStack()
+                                })
+                            }
+                        } else {
+                            viewModel.insertTodo(title, body).collect {
+                                handleState(it, {
+                                    findNavController().popBackStack()
+                                })
+                            }
                         }
                     }
                 } else {
@@ -76,7 +104,7 @@ class CreateTodoFragment : ObserveStateFragment<FragmentCreateTodoBinding>() {
                 TextInputUtil.TextChangedListener<TextInputEditText>(input) {
                 override fun onTextChanged(target: TextInputEditText, s: Editable?) {
                     root.error = ""
-                    isCreationAllowed = !target.text.isNullOrBlank()
+                    isAllowed = !target.text.isNullOrBlank()
                 }
             })
         }

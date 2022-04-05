@@ -13,6 +13,10 @@ import javax.inject.Inject
 
 @AndroidEntryPoint
 class TodoInfoFragment : ObserveStateBottomSheetDialogFragment<FragmentTodoInfoBinding>() {
+    companion object {
+        const val TAG = "TodoInfoFragment"
+    }
+
     @Inject
     override lateinit var viewModel: TodoViewModel
     private lateinit var clickedTodo: Todo
@@ -33,6 +37,10 @@ class TodoInfoFragment : ObserveStateBottomSheetDialogFragment<FragmentTodoInfoB
                         })
                     }
                 }
+            }
+            editBtn.setOnClickListener {
+                TodoListFragmentDirections.actionCreateTodo(TAG).navigate()
+                dismiss()
             }
         }
     }
