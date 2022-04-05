@@ -33,6 +33,9 @@ class TodoRepository @Inject constructor(database: TodoDatabase) {
     suspend fun updateTodo(todo: Todo, title: String, body: String) =
         todoDao.update(todo.copy(title = title, body = body))
 
+    suspend fun updateTodo(todo: Todo, isCompleted: Boolean) =
+        todoDao.update(todo.copy(isCompleted = isCompleted))
+
     suspend fun deleteTodo(todo: Todo) =
         todoDao.delete(todo)
 }

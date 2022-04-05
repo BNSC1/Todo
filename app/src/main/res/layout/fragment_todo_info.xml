@@ -74,6 +74,21 @@
             app:layout_constraintStart_toEndOf="@+id/edit_btn"
             app:layout_constraintTop_toTopOf="parent" />
 
+        <Button
+            android:id="@+id/undo_complete_btn"
+            style="@style/bottom_sheet_button"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:drawableTop="@drawable/ic_clear"
+            android:text="@string/action_undo_complete"
+            android:textColor="?android:colorAccent"
+            android:visibility="invisible"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintHorizontal_bias="0.5"
+            app:layout_constraintStart_toEndOf="@+id/edit_btn"
+            app:layout_constraintTop_toTopOf="parent" />
+
     </androidx.constraintlayout.widget.ConstraintLayout>
 
 </androidx.constraintlayout.widget.ConstraintLayout>

@@ -72,6 +72,17 @@ class TodoViewModel @Inject constructor(
         initialValue = Resource.loading()
     )
 
+    fun updateTodo(todo: Todo, isCompleted: Boolean) = flow {
+        job = viewModelScope.launch {
+            repository.updateTodo(todo, isCompleted)
+        }
+        emit(Resource.success(null))
+    }.stateIn(
+        scope = viewModelScope,
+        started = SharingStarted.Lazily,
+        initialValue = Resource.loading()
+    )
+
     fun deleteTodo(todo: Todo) = flow {
         job = viewModelScope.launch {
             repository.deleteTodo(todo)

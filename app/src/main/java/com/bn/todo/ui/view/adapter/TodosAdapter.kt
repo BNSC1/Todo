@@ -20,6 +20,7 @@ class TodosAdapter(
         fun bind(todo: Todo) {
             with(binding) {
                 titleText.text = todo.title
+                completedCheckbox.isChecked = todo.isCompleted
                 item.setOnClickListener {
                     onItemClickListener.onItemClicked(todo)
                 }
