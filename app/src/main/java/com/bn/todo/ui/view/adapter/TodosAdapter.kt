@@ -27,6 +27,7 @@ class TodosAdapter(
             with(binding) {
                 titleText.text = todo.title
                 if (todo.isCompleted) {
+                    defaultTextColor
                     setAppearanceCompleted()
                 } else {
                     unsetAppearanceCompleted()
