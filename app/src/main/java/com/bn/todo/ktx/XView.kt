@@ -3,8 +3,10 @@ package com.bn.todo.ktx
 import android.content.Context
 import android.content.Intent
 import android.content.res.Resources
+import android.graphics.Paint
 import android.view.LayoutInflater
 import android.view.View
+import android.widget.TextView
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.content.res.ResourcesCompat
@@ -70,17 +72,25 @@ fun RecyclerView.addItemDecoration(dividerResId: Int, theme: Resources.Theme? = 
             setDrawable(ResourcesCompat.getDrawable(resources, dividerResId, theme)!!)
         })
 
-fun View.makeVisible() {
+fun View.setVisible() {
     visibility = View.VISIBLE
 }
 
-fun View.makeInVisible() {
+fun View.setInvisible() {
     visibility = View.INVISIBLE
 }
 
-fun View.makeGone() {
+fun View.setGone() {
     visibility = View.GONE
 }
 
 internal val Context.layoutInflater: LayoutInflater
     get() = LayoutInflater.from(this)
+
+fun TextView.setStrikeThrough() {
+    paintFlags = paintFlags or Paint.STRIKE_THRU_TEXT_FLAG
+}
+
+fun TextView.unsetStrikeThrough() {
+    paintFlags = 0
+}

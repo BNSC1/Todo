@@ -41,4 +41,6 @@
     <string name="action_edit">Edit</string>
     <string name="action_complete">Complete</string>
     <string name="action_undo_complete">Undo</string>
+    <string name="completed">Completed</string>
+    <string name="not_completed">Not completed</string>
 </resources>

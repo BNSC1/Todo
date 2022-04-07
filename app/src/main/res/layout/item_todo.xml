@@ -2,22 +2,28 @@
 <androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
-    android:id="@+id/item"
+    android:id="@+id/item_layout"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:background="?android:attr/selectableItemBackground"
     android:paddingHorizontal="16dp"
     android:paddingVertical="8dp">
 
-    <TextView
-        android:id="@+id/title_text"
-        style="@style/text_todo_list_title"
-        android:layout_width="wrap_content"
+    <FrameLayout
+        android:layout_width="0dp"
         android:layout_height="wrap_content"
         app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toStartOf="@+id/completed_checkbox"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent"
-        tools:text="Todo" />
+        app:layout_constraintTop_toTopOf="parent">
+
+        <TextView
+            android:id="@+id/title_text"
+            style="@style/text_todo_list_title"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            tools:text="Todo" />
+    </FrameLayout>
 
     <CheckBox
         android:id="@+id/completed_checkbox"

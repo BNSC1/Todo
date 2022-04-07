@@ -7,14 +7,32 @@
     android:padding="8dp"
     tools:context=".ui.view.TodoInfoFragment">
 
+    <FrameLayout
+        android:id="@+id/title_text_layout"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        app:layout_constraintEnd_toStartOf="@+id/complete_text"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent">
+
+        <TextView
+            android:id="@+id/title_text"
+            style="@style/text_todo_list_title"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            tools:text="title" />
+    </FrameLayout>
+
     <TextView
-        style="@style/text_todo_list_title"
-        android:id="@+id/title_text"
+        android:id="@+id/complete_text"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent"
-        tools:text="title" />
+        android:text="@string/completed"
+        android:textAllCaps="true"
+        android:textColor="?android:colorPrimary"
+        app:layout_constraintBottom_toBottomOf="@+id/title_text_layout"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toTopOf="@+id/title_text_layout" />
 
     <TextView
         android:id="@+id/body_text"
@@ -22,7 +40,7 @@
         android:layout_height="wrap_content"
         android:layout_marginTop="8dp"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/title_text"
+        app:layout_constraintTop_toBottomOf="@+id/title_text_layout"
         tools:text="body" />
 
     <androidx.constraintlayout.widget.ConstraintLayout

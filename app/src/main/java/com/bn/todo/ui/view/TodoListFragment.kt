@@ -31,14 +31,15 @@ class TodoListFragment : ObserveStateFragment<FragmentTodoListBinding>() {
             }
             initObserveTodoList()
             list.addItemDecoration(R.drawable.divider_todo)
-            list.adapter = TodosAdapter(todos, object : TodosAdapter.OnItemClickListener {
-                override fun onItemClicked(item: Todo) {
-                    viewLifecycleOwner.lifecycleScope.launchWhenStarted {
-                        (requireActivity() as TodoClickCallback).onTodoClick()
-                        viewModel.clickedTodo.emit(item)
+            list.adapter =
+                TodosAdapter(requireContext(), todos, object : TodosAdapter.OnItemClickListener {
+                    override fun onItemClicked(item: Todo) {
+                        viewLifecycleOwner.lifecycleScope.launchWhenStarted {
+                            (requireActivity() as TodoClickCallback).onTodoClick()
+                            viewModel.clickedTodo.emit(item)
+                        }
                     }
-                }
-            })
+                })
         }
     }
 

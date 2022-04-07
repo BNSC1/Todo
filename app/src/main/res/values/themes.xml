@@ -61,7 +61,6 @@
 
     <style name="text_todo_list_title">
         <item name="android:textSize">@dimen/size_large_text</item>
-        <item name="android:textColor">@color/black</item>
     </style>
 
     <style name="bottom_sheet_button" parent="Widget.MaterialComponents.Button.TextButton.Dialog" />
