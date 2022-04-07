@@ -28,6 +28,7 @@ class TodoViewModel @Inject constructor(
     val shouldRefreshTitle get() = _shouldRefreshTitle
     private val _clickedTodo by lazy { MutableSharedFlow<Todo>(replay = 1) }
     val clickedTodo get() = _clickedTodo
+    val todoLists get() = queryTodoList()
 
     fun insertTodoList(name: String) = flow {
         repository.insertTodoList(name)
@@ -43,7 +44,17 @@ class TodoViewModel @Inject constructor(
 
     fun queryTodoList(name: String? = null) = repository.queryTodoList(name)
 
-    fun updateTodoList(list: TodoList, name: String) {}
+    fun updateTodoList(list: TodoList, name: String) = flow {
+        job = viewModelScope.launch {
+            repository.updateTodoList(list, name)
+        }
+        emit(Resource.success(null))
+    }.stateIn(
+        scope = viewModelScope,
+        started = SharingStarted.Lazily,
+        initialValue = Resource.loading()
+    )
+
     fun deleteTodoList(list: TodoList) {}
 
     fun insertTodo(title: String, body: String?) = flow {
@@ -99,6 +110,8 @@ class TodoViewModel @Inject constructor(
 
     private suspend fun getNotFirstTimeLaunch(default: Boolean = false) =
         DataStoreMgr.getPreferences(DataStoreKeys.NOT_FIRST_LAUNCH, default)
+
+    suspend fun getCurrentList() = todoLists.first()[getCurrentListId().first() - 1]
 
     suspend fun getCurrentListId() =
         DataStoreMgr.getPreferences(DataStoreKeys.CURRENT_LIST, 1)

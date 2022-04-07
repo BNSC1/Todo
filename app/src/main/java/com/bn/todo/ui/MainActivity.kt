@@ -5,7 +5,7 @@ import android.os.Bundle
 import android.view.Menu
 import android.view.MenuItem
 import androidx.appcompat.app.ActionBarDrawerToggle
-import androidx.core.view.size
+import androidx.core.view.isNotEmpty
 import androidx.lifecycle.lifecycleScope
 import androidx.navigation.ui.NavigationUI
 import com.bn.todo.R
@@ -103,7 +103,7 @@ class MainActivity : NavigationActivity(), TodoClickCallback {
 
     private fun ActivityMainBinding.observeTodoList() {
         lifecycleScope.launchWhenStarted {
-            viewModel.queryTodoList().collect {
+            viewModel.todoLists.collect {
                 updateDrawerMenu(it)
             }
         }
@@ -111,7 +111,7 @@ class MainActivity : NavigationActivity(), TodoClickCallback {
 
     private fun ActivityMainBinding.updateDrawerMenu(lists: List<TodoList>) {
         with(drawer.navigation.menu) {
-            if (size != 0) clear()
+            if (isNotEmpty()) clear()
             this@MainActivity.lists = lists
             this@MainActivity.lists.forEach { list ->
                 add(R.id.list_group, list.id, MENU_ORDER, list.name).isCheckable = true
@@ -176,7 +176,7 @@ class MainActivity : NavigationActivity(), TodoClickCallback {
                     inputReceiver = object : DialogUtil.OnInputReceiver {
                         override fun receiveInput(input: String?) {
                             if (!input.isNullOrBlank()) {
-                                lifecycleScope.launchWhenStarted {
+                                job = lifecycleScope.launchWhenStarted {
                                     viewModel.insertTodoList(input).collect { res ->
                                         handleState(res, {
                                             viewModel.shouldGoToNewList.value = true
@@ -199,7 +199,7 @@ class MainActivity : NavigationActivity(), TodoClickCallback {
         listIndex = itemId - 1 //navigation item id starts from 1
         drawer.navigation.menu.getItem(listIndex).isChecked = true
         job = lifecycleScope.launchWhenStarted {
-            setCurrentListId(listIndex + 1) //adds it back for next time use
+            setCurrentListId(itemId) //adds it back for next time use
             viewModel.shouldRefreshTitle.emit(true)
             viewModel.shouldRefreshList.emit(true)
         }

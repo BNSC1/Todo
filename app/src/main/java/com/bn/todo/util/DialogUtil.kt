@@ -8,18 +8,32 @@ import com.bn.todo.databinding.LayoutTextInputBinding
 
 
 object DialogUtil {
-    fun showDialog(context: Context, title: String?, msg: String): AlertDialog =
+    fun showDialog(context: Context, title: String? = null, msg: String): AlertDialog =
         AlertDialog.Builder(context).apply {
             title?.let { setTitle(it) }
             setMessage(msg)
-            setPositiveButton(context.getString(R.string.action_ok)) { _, _ -> }
-            setCancelable(false)
+            setPositiveButton(android.R.string.ok) { _, _ -> }
+        }.show()
+
+    fun showConfirmDialog(
+        context: Context,
+        title: String? = null,
+        msg: String,
+        okAction: () -> Unit,
+        cancelAction: () -> Unit = {}
+    ): AlertDialog =
+        AlertDialog.Builder(context).apply {
+            title?.let { setTitle(it) }
+            setMessage(msg)
+            setPositiveButton(context.getString(android.R.string.ok)) { _, _ -> okAction() }
+            setNegativeButton(context.getString(android.R.string.cancel)) { _, _ -> cancelAction() }
         }.show()
 
     fun showInputDialog(
         context: Context,
         title: String? = null,
         hint: String? = null,
+        defaultValue: String? = null,
         inputReceiver: OnInputReceiver
     ): AlertDialog =
         AlertDialog.Builder(context).apply {
@@ -35,6 +49,7 @@ object DialogUtil {
                     d.dismiss()
                 }
                 setNegativeButton(android.R.string.cancel) { d, _ -> d.dismiss() }
+                defaultValue?.let { input.setText(it) }
                 input.requestFocus()
             }
 
