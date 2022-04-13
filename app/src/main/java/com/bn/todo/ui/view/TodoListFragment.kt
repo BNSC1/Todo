@@ -101,14 +101,19 @@ class TodoListFragment : ObserveStateFragment<FragmentTodoListBinding>() {
             }
         } else if (item.itemId == R.id.action_delete_list) {
             job = viewLifecycleOwner.lifecycleScope.launchWhenStarted {
+                val currentList = viewModel.getCurrentList()
                 showConfirmDialog(requireContext(),
                     msg = String.format(
                         getString(R.string.msg_confirm_delete_list_format),
-                        viewModel.getCurrentList().name
+                        currentList.name
                     ),
                     okAction = {
                         job = viewLifecycleOwner.lifecycleScope.launchWhenStarted {
-                            viewModel.deleteTodoList(viewModel.getCurrentList()) //todo: list delete
+                            viewModel.deleteTodoList(currentList).collect { res ->
+                                handleState(res, {
+                                    viewModel.shouldGoToNewList.value = true
+                                })
+                            }
                         }
                     }
                 )

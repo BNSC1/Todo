@@ -4,6 +4,7 @@ import android.content.Intent
 import android.os.Bundle
 import android.view.Menu
 import android.view.MenuItem
+import android.widget.Toast
 import androidx.appcompat.app.ActionBarDrawerToggle
 import androidx.core.view.isNotEmpty
 import androidx.lifecycle.lifecycleScope
@@ -33,7 +34,7 @@ class MainActivity : NavigationActivity(), TodoClickCallback {
     private val binding: ActivityMainBinding by viewBinding()
     override val navHostId by lazy { binding.navHost.id }
     private var lists = emptyList<TodoList>()
-    private var listIndex = 0
+    private var currentListId = 0
     private lateinit var toggle: ActionBarDrawerToggle
     private var isRootFragment = false
 
@@ -57,7 +58,8 @@ class MainActivity : NavigationActivity(), TodoClickCallback {
         lifecycleScope.launchWhenStarted {
             viewModel.shouldRefreshTitle.collect { shouldRefresh ->
                 if (shouldRefresh && lists.isNotEmpty()) {
-                    layoutToolbar.toolbar.title = lists[listIndex].name
+                    layoutToolbar.toolbar.title =
+                        lists.firstOrNull { it.id == currentListId }?.name ?: "Error"
                     viewModel.shouldRefreshTitle.tryEmit(false)
                 }
             }
@@ -86,9 +88,9 @@ class MainActivity : NavigationActivity(), TodoClickCallback {
         }
     }
 
-    private fun ActivityMainBinding.setList(itemId: Int? = null) {
-        itemId?.let {
-            setSelectedListItem(itemId)
+    private fun ActivityMainBinding.setList(menuId: Int? = null) {
+        menuId?.let {
+            setSelectedListItem(menuId)
         } ?: let {
             job = lifecycleScope.launchWhenStarted {
                 setSelectedListItem(viewModel.getCurrentListId().first())
@@ -136,7 +138,9 @@ class MainActivity : NavigationActivity(), TodoClickCallback {
     }
 
     private fun ActivityMainBinding.goToNewList() {
-        setList(lists.size)
+        job = lifecycleScope.launchWhenStarted {
+            setList(viewModel.todoLists.first().last().id)
+        }
         viewModel.shouldGoToNewList.value = false
     }
 
@@ -179,7 +183,9 @@ class MainActivity : NavigationActivity(), TodoClickCallback {
                                 job = lifecycleScope.launchWhenStarted {
                                     viewModel.insertTodoList(input).collect { res ->
                                         handleState(res, {
-                                            viewModel.shouldGoToNewList.value = true
+                                            lifecycleScope.launchWhenStarted {
+                                                viewModel.shouldGoToNewList.value = true
+                                            }
                                         })
                                     }
                                 }
@@ -195,17 +201,23 @@ class MainActivity : NavigationActivity(), TodoClickCallback {
         }
     }
 
-    private fun ActivityMainBinding.setSelectedListItem(itemId: Int) {
-        listIndex = itemId - 1 //navigation item id starts from 1
-        drawer.navigation.menu.getItem(listIndex).isChecked = true
-        job = lifecycleScope.launchWhenStarted {
-            setCurrentListId(itemId) //adds it back for next time use
-            viewModel.shouldRefreshTitle.emit(true)
-            viewModel.shouldRefreshList.emit(true)
+    private fun ActivityMainBinding.setSelectedListItem(menuId: Int) {
+        currentListId = menuId
+        if (currentListId >= 0) {
+            val menuIndex = lists.indexOf(lists.firstOrNull { currentListId == it.id })
+            drawer.navigation.menu.getItem(menuIndex).isChecked =
+                true
+            job = lifecycleScope.launchWhenStarted {
+                setCurrentListIndex(currentListId)
+                viewModel.shouldRefreshTitle.emit(true)
+                viewModel.shouldRefreshList.emit(true)
+            }
+        } else {
+            showToast("listIndex is $currentListId, lists size is ${lists.size}", Toast.LENGTH_LONG)
         }
     }
 
-    private suspend fun setCurrentListId(listIndex: Int) {
+    private suspend fun setCurrentListIndex(listIndex: Int) {
         viewModel.setCurrentListId(listIndex)
     }
 

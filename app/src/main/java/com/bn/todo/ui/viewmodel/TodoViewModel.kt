@@ -42,7 +42,7 @@ class TodoViewModel @Inject constructor(
         initialValue = Resource.loading()
     )
 
-    fun queryTodoList(name: String? = null) = repository.queryTodoList(name)
+    private fun queryTodoList(name: String? = null) = repository.queryTodoList(name)
 
     fun updateTodoList(list: TodoList, name: String) = flow {
         job = viewModelScope.launch {
@@ -55,7 +55,16 @@ class TodoViewModel @Inject constructor(
         initialValue = Resource.loading()
     )
 
-    fun deleteTodoList(list: TodoList) {}
+    fun deleteTodoList(list: TodoList) = flow {
+        job = viewModelScope.launch {
+            repository.deleteTodoList(list)
+        }
+        emit(Resource.success(null))
+    }.stateIn(
+        scope = viewModelScope,
+        started = SharingStarted.Lazily,
+        initialValue = Resource.loading()
+    )
 
     fun insertTodo(title: String, body: String?) = flow {
         job = viewModelScope.launch {
@@ -111,10 +120,10 @@ class TodoViewModel @Inject constructor(
     private suspend fun getNotFirstTimeLaunch(default: Boolean = false) =
         DataStoreMgr.getPreferences(DataStoreKeys.NOT_FIRST_LAUNCH, default)
 
-    suspend fun getCurrentList() = todoLists.first()[getCurrentListId().first() - 1]
+    suspend fun getCurrentList() = todoLists.first().first { it.id == getCurrentListId().first() }
 
     suspend fun getCurrentListId() =
-        DataStoreMgr.getPreferences(DataStoreKeys.CURRENT_LIST, 1)
+        DataStoreMgr.getPreferences(DataStoreKeys.CURRENT_LIST, todoLists.first()[0].id)
 
     suspend fun setCurrentListId(id: Int) = withContext(Dispatchers.IO) {
         DataStoreMgr.setPreferences(DataStoreKeys.CURRENT_LIST, id)
