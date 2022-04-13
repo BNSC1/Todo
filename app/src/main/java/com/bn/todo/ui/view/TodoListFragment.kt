@@ -11,6 +11,8 @@ import androidx.navigation.findNavController
 import androidx.navigation.ui.NavigationUI
 import com.bn.todo.R
 import com.bn.todo.arch.ObserveStateFragment
+import com.bn.todo.arch.recyclerview.Clickable
+import com.bn.todo.arch.recyclerview.OnItemClickListener
 import com.bn.todo.data.model.Todo
 import com.bn.todo.databinding.FragmentTodoListBinding
 import com.bn.todo.ktx.addItemDecoration
@@ -41,11 +43,11 @@ class TodoListFragment : ObserveStateFragment<FragmentTodoListBinding>() {
             initObserveTodoList()
             list.addItemDecoration(R.drawable.divider_todo)
             list.adapter =
-                TodosAdapter(requireContext(), todos, object : TodosAdapter.OnItemClickListener {
-                    override fun onItemClicked(item: Todo) {
+                TodosAdapter(requireContext(), todos, object : OnItemClickListener {
+                    override fun onItemClick(item: Clickable) {
                         viewLifecycleOwner.lifecycleScope.launchWhenStarted {
                             (requireActivity() as TodoClickCallback).onTodoClick()
-                            viewModel.clickedTodo.emit(item)
+                            viewModel.clickedTodo.emit(item as Todo)
                         }
                     }
                 })

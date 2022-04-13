@@ -8,4 +8,6 @@
     <color name="black">#FF000000</color>
     <color name="white">#FFFFFFFF</color>
     <color name="light_gray">#DFDFDF</color>
+    <color name="text_highlight">#202020</color>
+    <color name="text_gray_out">#505050</color>
 </resources>
