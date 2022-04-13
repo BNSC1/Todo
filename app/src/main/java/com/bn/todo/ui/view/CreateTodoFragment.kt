@@ -72,12 +72,14 @@ class CreateTodoFragment : ObserveStateFragment<FragmentCreateTodoBinding>() {
                         if (isEditMode) {
                             viewModel.updateTodo(clickedTodo, title, body).collect {
                                 handleState(it, {
+                                    viewModel.shouldRefreshList.tryEmit(true)
                                     findNavController().popBackStack()
                                 })
                             }
                         } else {
                             viewModel.insertTodo(title, body).collect {
                                 handleState(it, {
+                                    viewModel.shouldRefreshList.tryEmit(true)
                                     findNavController().popBackStack()
                                 })
                             }

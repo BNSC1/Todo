@@ -22,7 +22,7 @@ class TodoViewModel @Inject constructor(
 
     private val _shouldGoToNewList by lazy { MutableStateFlow(false) }
     val shouldGoToNewList get() = _shouldGoToNewList
-    private val _shouldRefreshList by lazy { MutableSharedFlow<Boolean>() }
+    private val _shouldRefreshList by lazy { MutableSharedFlow<Boolean>(replay = 1) }
     val shouldRefreshList get() = _shouldRefreshList
     private val _shouldRefreshTitle by lazy { MutableSharedFlow<Boolean>() }
     val shouldRefreshTitle get() = _shouldRefreshTitle

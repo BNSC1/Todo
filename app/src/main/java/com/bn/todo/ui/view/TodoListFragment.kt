@@ -65,13 +65,6 @@ class TodoListFragment : ObserveStateFragment<FragmentTodoListBinding>() {
                 }
             }
         }
-        viewLifecycleOwner.lifecycleScope.launchWhenStarted {
-            viewModel.queryTodo().collect { data ->
-                todos.clear()
-                todos.addAll(data)
-                binding.list.adapter!!.notifyDataSetChanged()
-            }
-        }
     }
 
     override fun onCreateOptionsMenu(menu: Menu, inflater: MenuInflater) {
