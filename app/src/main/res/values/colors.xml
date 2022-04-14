@@ -9,5 +9,6 @@
     <color name="white">#FFFFFFFF</color>
     <color name="light_gray">#DFDFDF</color>
     <color name="text_highlight">#202020</color>
-    <color name="text_gray_out">#505050</color>
+    <color name="gray_out">#B0B0B0</color>
+    <color name="list_line">#80808080</color>
 </resources>

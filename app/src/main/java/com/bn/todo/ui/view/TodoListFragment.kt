@@ -85,7 +85,9 @@ class TodoListFragment : ObserveStateFragment<FragmentTodoListBinding>() {
                                 lifecycleScope.launchWhenStarted {
                                     viewModel.updateTodoList(viewModel.getCurrentList(), input)
                                         .collect { res ->
-                                            handleState(res, {})
+                                            handleState(res, {
+//                                                viewModel.shouldRefreshList
+                                            })
                                         }
                                 }
                             } else {

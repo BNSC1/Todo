@@ -24,7 +24,7 @@ class TodosAdapter(
     fun ItemTodoBinding.setAppearanceCompleted() {
         completedCheckbox.isChecked = true
         titleText.setStrikeThrough()
-        titleText.setTextColor(context.getColor(R.color.text_gray_out))
+        titleText.setTextColor(context.getColor(R.color.gray_out))
     }
 
 

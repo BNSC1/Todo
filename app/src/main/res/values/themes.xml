@@ -25,6 +25,7 @@
         <item name="android:textColorSecondary">?attr/colorOnPrimary</item>
         <item name="tint">?attr/colorOnPrimary</item>
         <item name="iconTint">?attr/colorOnPrimary</item>
+        <item name="android:background">?attr/colorPrimary</item>
     </style>
 
 
