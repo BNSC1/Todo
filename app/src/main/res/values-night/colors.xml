@@ -2,4 +2,5 @@
 <resources>
     <color name="text_highlight">#DFDFDF</color>
     <color name="gray_out">#606060</color>
+    <color name="toolbar_color">@color/black</color>
 </resources>

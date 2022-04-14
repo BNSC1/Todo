@@ -10,5 +10,6 @@
         android:layout_height="?attr/actionBarSize"
         android:gravity="center_vertical"
         android:minHeight="?attr/actionBarSize"
+        android:background="@color/toolbar_color"
         android:theme="@style/toolbar" />
 </FrameLayout>
