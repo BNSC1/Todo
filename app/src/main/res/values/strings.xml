@@ -47,5 +47,7 @@
     <string name="action_clear_completed_todos">Clear Completed Todos</string>
     <string name="action_show_completed_todos">Show Completed Todos</string>
     <string name="msg_confirm_delete_list_format">Are you sure you want to delete the list %s?</string>
+    <string name="msg_confirm_clear_completed_todos">Are you sure you want to clear all completed todos from this list?</string>
+    <string name="msg_deleted_todos_format">%s todos deleted</string>
 
 </resources>

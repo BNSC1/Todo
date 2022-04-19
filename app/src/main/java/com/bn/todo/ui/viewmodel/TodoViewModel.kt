@@ -4,6 +4,7 @@ import androidx.lifecycle.viewModelScope
 import com.bn.todo.arch.BaseViewModel
 import com.bn.todo.data.Resource
 import com.bn.todo.data.model.Todo
+import com.bn.todo.data.model.TodoFilter
 import com.bn.todo.data.model.TodoList
 import com.bn.todo.data.repository.TodoRepository
 import com.bn.todo.util.DataStoreKeys
@@ -12,6 +13,7 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
+import timber.log.Timber
 import javax.inject.Inject
 import javax.inject.Singleton
 
@@ -78,8 +80,11 @@ class TodoViewModel @Inject constructor(
     )
 
     suspend fun queryTodo(name: String? = null) =
-        repository.queryTodo(getCurrentListId().first(), name)
-//            .shareIn(scope = viewModelScope, started = SharingStarted.Lazily)
+        repository.queryTodo(
+            TodoFilter(
+                getCurrentListId().first(),
+                getShowCompleted()
+            ).apply { this.name = name })
 
     fun updateTodo(todo: Todo, name: String, body: String) = flow {
         job = viewModelScope.launch {
@@ -113,6 +118,30 @@ class TodoViewModel @Inject constructor(
         started = SharingStarted.Lazily,
         initialValue = Resource.loading()
     )
+
+    fun deleteCompletedTodos(todos: List<Todo>) = flow {
+        val filteredList = todos.filter { it.isCompleted }
+        var deletedCount = 0
+        job = viewModelScope.launch {
+            filteredList.forEach {
+                Timber.d("deleting ${it.title}")
+                deleteTodo(it).collect {
+                    deletedCount++
+                }
+            }
+        }
+        emit(Resource.success(deletedCount)) //todo: not giving result
+    }.stateIn(
+        scope = viewModelScope,
+        started = SharingStarted.Lazily,
+        initialValue = Resource.loading()
+    )
+
+    suspend fun setShowCompleted(showCompleted: Boolean) =
+        DataStoreMgr.setPreferences(DataStoreKeys.SHOW_COMPLETED, showCompleted)
+
+    suspend fun getShowCompleted(default: Boolean = true) =
+        DataStoreMgr.getPreferences(DataStoreKeys.SHOW_COMPLETED, default).first()
 
     private suspend fun setNotFirstTimeLaunch(isNotFirstTimeLaunch: Boolean) =
         DataStoreMgr.setPreferences(DataStoreKeys.NOT_FIRST_LAUNCH, isNotFirstTimeLaunch)

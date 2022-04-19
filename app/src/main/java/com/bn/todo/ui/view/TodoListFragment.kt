@@ -15,8 +15,8 @@ import com.bn.todo.arch.recyclerview.Clickable
 import com.bn.todo.arch.recyclerview.OnItemClickListener
 import com.bn.todo.data.model.Todo
 import com.bn.todo.databinding.FragmentTodoListBinding
-import com.bn.todo.ktx.addItemDecoration
 import com.bn.todo.ktx.showDialog
+import com.bn.todo.ktx.showToast
 import com.bn.todo.ui.callback.TodoClickCallback
 import com.bn.todo.ui.view.adapter.TodosAdapter
 import com.bn.todo.ui.viewmodel.TodoViewModel
@@ -24,6 +24,7 @@ import com.bn.todo.util.DialogUtil
 import com.bn.todo.util.DialogUtil.showConfirmDialog
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.flow.first
+import timber.log.Timber
 import javax.inject.Inject
 
 @AndroidEntryPoint
@@ -41,7 +42,6 @@ class TodoListFragment : ObserveStateFragment<FragmentTodoListBinding>() {
                 TodoListFragmentDirections.actionCreateTodo().navigate()
             }
             initObserveTodoList()
-            list.addItemDecoration(R.drawable.divider_todo)
             list.adapter =
                 TodosAdapter(requireContext(), todos, object : OnItemClickListener {
                     override fun onItemClick(item: Clickable) {
@@ -58,6 +58,7 @@ class TodoListFragment : ObserveStateFragment<FragmentTodoListBinding>() {
     private fun initObserveTodoList() {
         viewLifecycleOwner.lifecycleScope.launchWhenStarted {
             viewModel.shouldRefreshList.collect { shouldRefresh ->
+                Timber.d("should refresh list")
                 if (shouldRefresh) {
                     todos.clear()
                     todos.addAll(viewModel.queryTodo().first())
@@ -72,48 +73,91 @@ class TodoListFragment : ObserveStateFragment<FragmentTodoListBinding>() {
         inflater.inflate(R.menu.menu_todo_list, menu)
     }
 
+    override fun onPrepareOptionsMenu(menu: Menu) {
+        super.onPrepareOptionsMenu(menu)
+        job = viewLifecycleOwner.lifecycleScope.launchWhenStarted {
+            menu.findItem(R.id.action_show_completed_todos).isChecked = viewModel.getShowCompleted()
+        }
+    }
+
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
-        if (item.itemId == R.id.action_rename_list) {
-            job = viewLifecycleOwner.lifecycleScope.launchWhenStarted {
-                DialogUtil.showInputDialog(
-                    requireActivity(),
-                    getString(R.string.title_input_name_for_list),
-                    defaultValue = viewModel.getCurrentList().name,
-                    inputReceiver = object : DialogUtil.OnInputReceiver {
-                        override fun receiveInput(input: String?) {
-                            if (!input.isNullOrBlank()) {
-                                lifecycleScope.launchWhenStarted {
-                                    viewModel.updateTodoList(viewModel.getCurrentList(), input)
-                                        .collect { res ->
-                                            handleState(res, {
-//                                                viewModel.shouldRefreshList
-                                            })
-                                        }
+        when (item.itemId) {
+            R.id.action_rename_list -> {
+                job = viewLifecycleOwner.lifecycleScope.launchWhenStarted {
+                    DialogUtil.showInputDialog(
+                        requireActivity(),
+                        getString(R.string.title_input_name_for_list),
+                        defaultValue = viewModel.getCurrentList().name,
+                        inputReceiver = object : DialogUtil.OnInputReceiver {
+                            override fun receiveInput(input: String?) {
+                                if (!input.isNullOrBlank()) {
+                                    lifecycleScope.launchWhenStarted {
+                                        viewModel.updateTodoList(viewModel.getCurrentList(), input)
+                                            .collect { res ->
+                                                handleState(res, {
+                                                    //                                                viewModel.shouldRefreshList
+                                                })
+                                            }
+                                    }
+                                } else {
+                                    showDialog(message = getString(R.string.title_input_name_for_list))
                                 }
-                            } else {
-                                showDialog(message = getString(R.string.title_input_name_for_list))
                             }
-                        }
-                    })
+                        })
+                }
             }
-        } else if (item.itemId == R.id.action_delete_list) {
-            job = viewLifecycleOwner.lifecycleScope.launchWhenStarted {
-                val currentList = viewModel.getCurrentList()
-                showConfirmDialog(requireContext(),
-                    msg = String.format(
-                        getString(R.string.msg_confirm_delete_list_format),
-                        currentList.name
-                    ),
-                    okAction = {
-                        job = viewLifecycleOwner.lifecycleScope.launchWhenStarted {
-                            viewModel.deleteTodoList(currentList).collect { res ->
-                                handleState(res, {
-                                    viewModel.shouldGoToNewList.value = true
-                                })
+            R.id.action_delete_list -> {
+                job = viewLifecycleOwner.lifecycleScope.launchWhenStarted {
+                    val currentList = viewModel.getCurrentList()
+                    showConfirmDialog(requireContext(),
+                        msg = String.format(
+                            getString(R.string.msg_confirm_delete_list_format),
+                            currentList.name
+                        ),
+                        okAction = {
+                            job = viewLifecycleOwner.lifecycleScope.launchWhenStarted {
+                                viewModel.deleteTodoList(currentList).collect { res ->
+                                    handleState(res, {
+                                        viewModel.shouldGoToNewList.value = true
+                                    })
+                                }
                             }
                         }
-                    }
-                )
+                    )
+                }
+            }
+            R.id.action_clear_completed_todos -> {
+                job = viewLifecycleOwner.lifecycleScope.launchWhenStarted {
+                    val currentList = viewModel.getCurrentList()
+                    showConfirmDialog(requireContext(),
+                        msg = String.format(
+                            getString(R.string.msg_confirm_clear_completed_todos),
+                            currentList.name
+                        ),
+                        okAction = {
+                            job = viewLifecycleOwner.lifecycleScope.launchWhenStarted {
+                                viewModel.deleteCompletedTodos(todos).collect { res ->
+                                    handleState(res, {
+                                        showToast(
+                                            String.format(
+                                                getString(R.string.msg_deleted_todos_format),
+                                                res.data
+                                            )
+                                        )
+                                        viewModel.shouldRefreshList.tryEmit(true)
+                                    })
+                                }
+                            }
+                        }
+                    )
+                }
+            }
+            R.id.action_show_completed_todos -> {
+                item.isChecked = !item.isChecked
+                job = viewLifecycleOwner.lifecycleScope.launchWhenStarted {
+                    viewModel.setShowCompleted(item.isChecked)
+                    viewModel.shouldRefreshList.emit(true)
+                }
             }
         }
         return NavigationUI.onNavDestinationSelected(

@@ -15,6 +15,9 @@ interface TodoDao {
     @Query("Select * from `Todo` where `title` = :queryString and `listId` = :listId")
     fun query(listId: Int, queryString: String): Flow<List<Todo>>
 
+    @Query("Select * from `Todo` where `listId` = :listId and not `isCompleted`")
+    fun queryNotCompleted(listId: Int): Flow<List<Todo>>
+
     @Update
     suspend fun update(todo: Todo)
 

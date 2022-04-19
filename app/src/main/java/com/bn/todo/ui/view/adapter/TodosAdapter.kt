@@ -2,7 +2,7 @@ package com.bn.todo.ui.view.adapter
 
 import android.content.Context
 import com.bn.todo.R
-import com.bn.todo.arch.recyclerview.ClickableListAdapter
+import com.bn.todo.arch.recyclerview.BaseListAdapter
 import com.bn.todo.arch.recyclerview.OnItemClickListener
 import com.bn.todo.data.model.Todo
 import com.bn.todo.databinding.ItemTodoBinding
@@ -13,7 +13,7 @@ class TodosAdapter(
     private val context: Context,
     todos: List<Todo>,
     private val onItemClickListener: OnItemClickListener
-) : ClickableListAdapter<ItemTodoBinding, Todo>(todos, onItemClickListener, { binding, todo ->
+) : BaseListAdapter<ItemTodoBinding, Todo>(todos, { binding, todo ->
     val defaultTextColor by lazy { context.getColor(R.color.text_highlight) }
     fun ItemTodoBinding.unsetAppearanceCompleted() {
         completedCheckbox.isChecked = false

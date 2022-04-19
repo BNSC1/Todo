@@ -2,7 +2,9 @@ package com.bn.todo.data.repository
 
 import com.bn.todo.data.db.TodoDatabase
 import com.bn.todo.data.model.Todo
+import com.bn.todo.data.model.TodoFilter
 import com.bn.todo.data.model.TodoList
+import kotlinx.coroutines.flow.Flow
 import javax.inject.Inject
 
 class TodoRepository @Inject constructor(database: TodoDatabase) {
@@ -26,9 +28,17 @@ class TodoRepository @Inject constructor(database: TodoDatabase) {
     suspend fun insertTodo(title: String, body: String?, listId: Int) =
         todoDao.insert(Todo(title, body, listId))
 
-    fun queryTodo(listId: Int, name: String? = null) = name?.let {
-        todoDao.query(listId, it)
-    } ?: todoDao.query(listId)
+    fun queryTodo(todoFilter: TodoFilter): Flow<List<Todo>> {
+        todoFilter.apply {
+            return name?.let {
+                todoDao.query(todoFilter.listId, it)
+            } ?: if (showCompleted) {
+                todoDao.query(todoFilter.listId)
+            } else {
+                todoDao.queryNotCompleted(todoFilter.listId)
+            }
+        }
+    }
 
     suspend fun updateTodo(todo: Todo, title: String, body: String) =
         todoDao.update(todo.copy(title = title, body = body))
