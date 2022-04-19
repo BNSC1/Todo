@@ -209,8 +209,8 @@ class MainActivity : NavigationActivity(), TodoClickCallback {
                 true
             job = lifecycleScope.launchWhenStarted {
                 setCurrentListIndex(currentListId)
-                viewModel.shouldRefreshTitle.emit(true)
                 viewModel.shouldRefreshList.emit(true)
+                viewModel.shouldRefreshTitle.emit(true)
             }
         } else {
             showToast("listIndex is $currentListId, lists size is ${lists.size}", Toast.LENGTH_LONG)

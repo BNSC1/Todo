@@ -23,4 +23,7 @@ interface TodoDao {
 
     @Delete
     suspend fun delete(todo: Todo)
+
+    @Query("delete from `Todo` where `listId` = :listId and isCompleted")
+    suspend fun deleteCompleted(listId: Int): Int
 }

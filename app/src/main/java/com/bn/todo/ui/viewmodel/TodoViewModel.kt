@@ -11,9 +11,7 @@ import com.bn.todo.util.DataStoreKeys
 import com.bn.todo.util.DataStoreMgr
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.*
-import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
-import timber.log.Timber
 import javax.inject.Inject
 import javax.inject.Singleton
 
@@ -26,7 +24,7 @@ class TodoViewModel @Inject constructor(
     val shouldGoToNewList get() = _shouldGoToNewList
     private val _shouldRefreshList by lazy { MutableSharedFlow<Boolean>(replay = 1) }
     val shouldRefreshList get() = _shouldRefreshList
-    private val _shouldRefreshTitle by lazy { MutableSharedFlow<Boolean>() }
+    private val _shouldRefreshTitle by lazy { MutableSharedFlow<Boolean>(replay = 1) }
     val shouldRefreshTitle get() = _shouldRefreshTitle
     private val _clickedTodo by lazy { MutableSharedFlow<Todo>(replay = 1) }
     val clickedTodo get() = _clickedTodo
@@ -47,9 +45,7 @@ class TodoViewModel @Inject constructor(
     private fun queryTodoList(name: String? = null) = repository.queryTodoList(name)
 
     fun updateTodoList(list: TodoList, name: String) = flow {
-        job = viewModelScope.launch {
-            repository.updateTodoList(list, name)
-        }
+        repository.updateTodoList(list, name)
         emit(Resource.success(null))
     }.stateIn(
         scope = viewModelScope,
@@ -58,9 +54,7 @@ class TodoViewModel @Inject constructor(
     )
 
     fun deleteTodoList(list: TodoList) = flow {
-        job = viewModelScope.launch {
-            repository.deleteTodoList(list)
-        }
+        repository.deleteTodoList(list)
         emit(Resource.success(null))
     }.stateIn(
         scope = viewModelScope,
@@ -69,9 +63,7 @@ class TodoViewModel @Inject constructor(
     )
 
     fun insertTodo(title: String, body: String?) = flow {
-        job = viewModelScope.launch {
-            repository.insertTodo(title, body, getCurrentListId().first())
-        }
+        repository.insertTodo(title, body, getCurrentListId().first())
         emit(Resource.success(null))
     }.stateIn(
         scope = viewModelScope,
@@ -83,13 +75,11 @@ class TodoViewModel @Inject constructor(
         repository.queryTodo(
             TodoFilter(
                 getCurrentListId().first(),
-                getShowCompleted()
+                getShowCompleted().first()
             ).apply { this.name = name })
 
     fun updateTodo(todo: Todo, name: String, body: String) = flow {
-        job = viewModelScope.launch {
-            repository.updateTodo(todo, name, body)
-        }
+        repository.updateTodo(todo, name, body)
         emit(Resource.success(null))
     }.stateIn(
         scope = viewModelScope,
@@ -98,9 +88,7 @@ class TodoViewModel @Inject constructor(
     )
 
     fun updateTodo(todo: Todo, isCompleted: Boolean) = flow {
-        job = viewModelScope.launch {
-            repository.updateTodo(todo, isCompleted)
-        }
+        repository.updateTodo(todo, isCompleted)
         emit(Resource.success(null))
     }.stateIn(
         scope = viewModelScope,
@@ -109,9 +97,7 @@ class TodoViewModel @Inject constructor(
     )
 
     fun deleteTodo(todo: Todo) = flow {
-        job = viewModelScope.launch {
-            repository.deleteTodo(todo)
-        }
+        repository.deleteTodo(todo)
         emit(Resource.success(null))
     }.stateIn(
         scope = viewModelScope,
@@ -119,18 +105,9 @@ class TodoViewModel @Inject constructor(
         initialValue = Resource.loading()
     )
 
-    fun deleteCompletedTodos(todos: List<Todo>) = flow {
-        val filteredList = todos.filter { it.isCompleted }
-        var deletedCount = 0
-        job = viewModelScope.launch {
-            filteredList.forEach {
-                Timber.d("deleting ${it.title}")
-                deleteTodo(it).collect {
-                    deletedCount++
-                }
-            }
-        }
-        emit(Resource.success(deletedCount)) //todo: not giving result
+    fun deleteCompletedTodos() = flow {
+        val deleted = repository.deleteCompletedTodo(getCurrentListId().first())
+        emit(Resource.success(deleted))
     }.stateIn(
         scope = viewModelScope,
         started = SharingStarted.Lazily,
@@ -141,7 +118,7 @@ class TodoViewModel @Inject constructor(
         DataStoreMgr.setPreferences(DataStoreKeys.SHOW_COMPLETED, showCompleted)
 
     suspend fun getShowCompleted(default: Boolean = true) =
-        DataStoreMgr.getPreferences(DataStoreKeys.SHOW_COMPLETED, default).first()
+        DataStoreMgr.getPreferences(DataStoreKeys.SHOW_COMPLETED, default)
 
     private suspend fun setNotFirstTimeLaunch(isNotFirstTimeLaunch: Boolean) =
         DataStoreMgr.setPreferences(DataStoreKeys.NOT_FIRST_LAUNCH, isNotFirstTimeLaunch)

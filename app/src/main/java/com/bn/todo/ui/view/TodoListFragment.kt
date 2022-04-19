@@ -75,9 +75,7 @@ class TodoListFragment : ObserveStateFragment<FragmentTodoListBinding>() {
 
     override fun onPrepareOptionsMenu(menu: Menu) {
         super.onPrepareOptionsMenu(menu)
-        job = viewLifecycleOwner.lifecycleScope.launchWhenStarted {
-            menu.findItem(R.id.action_show_completed_todos).isChecked = viewModel.getShowCompleted()
-        }
+        initObserveShowCompleted(menu)
     }
 
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
@@ -136,7 +134,7 @@ class TodoListFragment : ObserveStateFragment<FragmentTodoListBinding>() {
                         ),
                         okAction = {
                             job = viewLifecycleOwner.lifecycleScope.launchWhenStarted {
-                                viewModel.deleteCompletedTodos(todos).collect { res ->
+                                viewModel.deleteCompletedTodos().collect { res ->
                                     handleState(res, {
                                         showToast(
                                             String.format(
@@ -166,10 +164,17 @@ class TodoListFragment : ObserveStateFragment<FragmentTodoListBinding>() {
         ) || super.onOptionsItemSelected(item)
     }
 
+    private fun initObserveShowCompleted(menu: Menu) {
+        viewLifecycleOwner.lifecycleScope.launchWhenStarted {
+            viewModel.getShowCompleted().collect {
+                menu.findItem(R.id.action_show_completed_todos).isChecked = it
+                menu.findItem(R.id.action_clear_completed_todos).isEnabled = it
+            }
+        }
+    }
+
     override fun onResume() {
         super.onResume()
-        job = viewLifecycleOwner.lifecycleScope.launchWhenStarted {
-            viewModel.shouldRefreshTitle.emit(true)
-        }
+        viewModel.shouldRefreshTitle.tryEmit(true)
     }
 }
