@@ -13,30 +13,37 @@ class TodosAdapter(
     private val context: Context,
     todos: List<Todo>,
     private val onItemClickListener: OnItemClickListener
-) : BaseListAdapter<ItemTodoBinding, Todo>(todos, { binding, todo ->
-    val defaultTextColor by lazy { context.getColor(R.color.text_highlight) }
-    fun ItemTodoBinding.unsetAppearanceCompleted() {
-        completedCheckbox.isChecked = false
-        titleText.unsetStrikeThrough()
-        titleText.setTextColor(defaultTextColor)
-    }
+) : BaseListAdapter<ItemTodoBinding, Todo>() {
 
-    fun ItemTodoBinding.setAppearanceCompleted() {
-        completedCheckbox.isChecked = true
-        titleText.setStrikeThrough()
-        titleText.setTextColor(context.getColor(R.color.gray_out))
-    }
+    override val items: List<Todo> = todos
 
-
-    with(binding) {
-        titleText.text = todo.title
-        if (todo.isCompleted) {
-            setAppearanceCompleted()
-        } else {
-            unsetAppearanceCompleted()
+    override val bindAction = { binding: ItemTodoBinding, todo: Todo ->
+        val defaultTextColor by lazy { context.getColor(R.color.text_highlight) }
+        fun ItemTodoBinding.unsetAppearanceCompleted() {
+            completedCheckbox.isChecked = false
+            titleText.unsetStrikeThrough()
+            titleText.setTextColor(defaultTextColor)
         }
-        itemLayout.setOnClickListener {
-            onItemClickListener.onItemClick(todo)
+
+        fun ItemTodoBinding.setAppearanceCompleted() {
+            completedCheckbox.isChecked = true
+            titleText.setStrikeThrough()
+            titleText.setTextColor(context.getColor(R.color.gray_out))
+        }
+
+
+        with(binding) {
+            titleText.text = todo.title
+            if (todo.isCompleted) {
+                setAppearanceCompleted()
+            } else {
+                unsetAppearanceCompleted()
+            }
+            itemLayout.setOnClickListener {
+                onItemClickListener.onItemClick(todo)
+            }
         }
     }
-})
+
+
+}

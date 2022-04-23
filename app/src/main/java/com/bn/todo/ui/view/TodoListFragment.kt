@@ -22,6 +22,7 @@ import com.bn.todo.ui.view.adapter.TodosAdapter
 import com.bn.todo.ui.viewmodel.TodoViewModel
 import com.bn.todo.util.DialogUtil
 import com.bn.todo.util.DialogUtil.showConfirmDialog
+import com.bn.todo.util.DialogUtil.showRadioDialog
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.flow.first
 import timber.log.Timber
@@ -80,6 +81,22 @@ class TodoListFragment : ObserveStateFragment<FragmentTodoListBinding>() {
 
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
         when (item.itemId) {
+            R.id.action_sort -> {
+                job = viewLifecycleOwner.lifecycleScope.launchWhenStarted {
+                    (binding.list.adapter as TodosAdapter).apply {
+                        showRadioDialog(requireContext(),
+                            items = resources.getStringArray(R.array.sort_order_group),
+                            title = getString(R.string.title_sort_by),
+                            defaultIndex = viewModel.getSortPref().first(),
+                            okAction = { index ->
+                                job = viewLifecycleOwner.lifecycleScope.launchWhenStarted {
+                                    viewModel.setSortPref(index)
+                                    viewModel.shouldRefreshList.emit(true)
+                                }
+                            })
+                    }
+                }
+            }
             R.id.action_rename_list -> {
                 job = viewLifecycleOwner.lifecycleScope.launchWhenStarted {
                     DialogUtil.showInputDialog(
@@ -93,7 +110,6 @@ class TodoListFragment : ObserveStateFragment<FragmentTodoListBinding>() {
                                         viewModel.updateTodoList(viewModel.getCurrentList(), input)
                                             .collect { res ->
                                                 handleState(res, {
-                                                    //                                                viewModel.shouldRefreshList
                                                 })
                                             }
                                     }

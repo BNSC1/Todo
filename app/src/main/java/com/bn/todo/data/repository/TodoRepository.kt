@@ -28,12 +28,10 @@ class TodoRepository @Inject constructor(database: TodoDatabase) {
     suspend fun insertTodo(title: String, body: String?, listId: Int) =
         todoDao.insert(Todo(title, body, listId))
 
-    fun queryTodo(todoFilter: TodoFilter): Flow<List<Todo>> {
+    fun queryTodo(todoFilter: TodoFilter, sortField: Int): Flow<List<Todo>> {
         todoFilter.apply {
-            return name?.let {
-                todoDao.query(todoFilter.listId, it)
-            } ?: if (showCompleted) {
-                todoDao.query(todoFilter.listId)
+            return if (showCompleted) {
+                todoDao.query(todoFilter.listId, name, sortField)
             } else {
                 todoDao.queryNotCompleted(todoFilter.listId)
             }

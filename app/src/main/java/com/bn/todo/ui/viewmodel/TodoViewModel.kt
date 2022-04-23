@@ -76,7 +76,9 @@ class TodoViewModel @Inject constructor(
             TodoFilter(
                 getCurrentListId().first(),
                 getShowCompleted().first()
-            ).apply { this.name = name })
+            ).apply { this.name = name },
+            getSortPref().first()
+        )
 
     fun updateTodo(todo: Todo, name: String, body: String) = flow {
         repository.updateTodo(todo, name, body)
@@ -113,6 +115,12 @@ class TodoViewModel @Inject constructor(
         started = SharingStarted.Lazily,
         initialValue = Resource.loading()
     )
+
+    suspend fun setSortPref(sortPref: Int) =
+        DataStoreMgr.setPreferences(DataStoreKeys.SORT_PREF, sortPref)
+
+    suspend fun getSortPref(default: Int = 0) =
+        DataStoreMgr.getPreferences(DataStoreKeys.SORT_PREF, default)
 
     suspend fun setShowCompleted(showCompleted: Boolean) =
         DataStoreMgr.setPreferences(DataStoreKeys.SHOW_COMPLETED, showCompleted)

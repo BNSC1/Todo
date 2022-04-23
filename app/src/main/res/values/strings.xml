@@ -49,5 +49,13 @@
     <string name="msg_confirm_delete_list_format">Are you sure you want to delete the list %s?</string>
     <string name="msg_confirm_clear_completed_todos">Are you sure you want to clear all completed todos from this list?</string>
     <string name="msg_deleted_todos_format">%s todo(s) deleted</string>
+    <string name="action_sort">Sort</string>
+
+    <string-array name="sort_order_group">
+        <item name="by_added">Time added</item>
+        <item name="by_alpha">Alphabetical</item>
+        <item name="by_not_completed">Not completed</item>
+    </string-array>
+    <string name="title_sort_by">Sort by…</string>
 
 </resources>

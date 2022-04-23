@@ -56,6 +56,29 @@ object DialogUtil {
             create()
         }.show()
 
+    inline fun showRadioDialog(
+        context: Context,
+        items: Array<String>,
+        crossinline okAction: (Int) -> Unit,
+        title: String? = null,
+        defaultIndex: Int = 0
+
+    ): AlertDialog = AlertDialog.Builder(context).apply {
+        title?.let { setTitle(it) }
+        var clickedIndex = -1
+        setSingleChoiceItems(items, defaultIndex) { _, index ->
+            clickedIndex = index
+        }
+        create().apply {
+            setNegativeButton(android.R.string.cancel) { _, _ ->
+                dismiss()
+            }
+            setPositiveButton(android.R.string.ok) { _, _ ->
+                okAction(clickedIndex)
+            }
+        }
+    }.show()
+
     interface OnInputReceiver {
         fun receiveInput(input: String?)
     }
