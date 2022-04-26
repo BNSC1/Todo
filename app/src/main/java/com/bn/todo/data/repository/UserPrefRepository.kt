@@ -35,20 +35,4 @@ class UserPrefRepository @Inject constructor(
     suspend fun setCurrentListId(id: Int) =
         dataStoreMgr.setPreferences(DataStoreKeys.CURRENT_LIST, id)
 
-//    companion object {
-//        @Volatile
-//        private var INSTANCE: UserPrefRepository? = null
-//
-//        fun getInstance(context: Context): UserPrefRepository {
-//            return INSTANCE ?: synchronized(this) {
-//                INSTANCE?.let {
-//                    return it
-//                }
-//
-//                val instance = UserPrefRepository(context)
-//                INSTANCE = instance
-//                instance
-//            }
-//        }
-//    }
 }

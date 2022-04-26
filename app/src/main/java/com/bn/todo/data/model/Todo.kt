@@ -22,5 +22,5 @@ data class Todo(
     @ColumnInfo val isCompleted: Boolean = false,
 //    val locationName: String?,
 //    val imageUri: Uri?,
-    @PrimaryKey(autoGenerate = true) var id: Int = 0
+    @PrimaryKey(autoGenerate = true) val id: Int = 0
 ) : Listable, Clickable
