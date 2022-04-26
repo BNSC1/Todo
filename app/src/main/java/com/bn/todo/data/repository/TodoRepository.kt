@@ -1,15 +1,17 @@
 package com.bn.todo.data.repository
 
-import com.bn.todo.data.db.TodoDatabase
+import com.bn.todo.data.dao.TodoDao
+import com.bn.todo.data.dao.TodoListDao
 import com.bn.todo.data.model.Todo
 import com.bn.todo.data.model.TodoFilter
 import com.bn.todo.data.model.TodoList
 import kotlinx.coroutines.flow.Flow
 import javax.inject.Inject
 
-class TodoRepository @Inject constructor(database: TodoDatabase) {
-    private val todoDao = database.todoDao()
-    private val todoListDao = database.todoListDao()
+class TodoRepository @Inject constructor(
+    private val todoDao: TodoDao,
+    private val todoListDao: TodoListDao
+) {
 
     suspend fun insertTodoList(name: String) =
         todoListDao.insert(TodoList(name))

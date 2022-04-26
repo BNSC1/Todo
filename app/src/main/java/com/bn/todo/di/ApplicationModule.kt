@@ -30,4 +30,12 @@ object ApplicationModule {
             "todoDatabase"
         ).build()
     }
+
+    @Singleton
+    @Provides
+    fun provideTodoDao(database: TodoDatabase) = database.todoDao()
+
+    @Singleton
+    @Provides
+    fun provideTodoListDao(database: TodoDatabase) = database.todoListDao()
 }

@@ -1,11 +1,12 @@
 package com.bn.todo.ui.viewmodel
 
 import com.bn.todo.arch.BaseViewModel
-import com.bn.todo.util.DataStoreKeys
-import com.bn.todo.util.DataStoreMgr
+import com.bn.todo.data.repository.UserPrefRepository
 import javax.inject.Inject
 
-class EntryViewModel @Inject constructor() : BaseViewModel() {
+class EntryViewModel @Inject constructor(
+    private val userPrefRepository: UserPrefRepository
+) : BaseViewModel() {
     suspend fun getIsNotFirstLaunch() =
-        DataStoreMgr.getPreferences(DataStoreKeys.NOT_FIRST_LAUNCH, false)
+        userPrefRepository.getNotFirstTimeLaunch()
 }

@@ -7,8 +7,7 @@ import com.bn.todo.data.model.Todo
 import com.bn.todo.data.model.TodoFilter
 import com.bn.todo.data.model.TodoList
 import com.bn.todo.data.repository.TodoRepository
-import com.bn.todo.util.DataStoreKeys
-import com.bn.todo.util.DataStoreMgr
+import com.bn.todo.data.repository.UserPrefRepository
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.withContext
@@ -17,7 +16,8 @@ import javax.inject.Singleton
 
 @Singleton
 class TodoViewModel @Inject constructor(
-    private val repository: TodoRepository
+    private val todoRepository: TodoRepository,
+    private val userPrefRepository: UserPrefRepository
 ) : BaseViewModel() {
 
     private val _shouldGoToNewList by lazy { MutableStateFlow(false) }
@@ -31,9 +31,9 @@ class TodoViewModel @Inject constructor(
     val todoLists get() = queryTodoList()
 
     fun insertTodoList(name: String) = flow {
-        repository.insertTodoList(name)
-        if (!getNotFirstTimeLaunch().first()) {
-            setNotFirstTimeLaunch(true)
+        todoRepository.insertTodoList(name)
+        if (!userPrefRepository.getNotFirstTimeLaunch().first()) {
+            userPrefRepository.setNotFirstTimeLaunch(true)
         }
         emit(Resource.success(null))
     }.stateIn(
@@ -42,10 +42,10 @@ class TodoViewModel @Inject constructor(
         initialValue = Resource.loading()
     )
 
-    private fun queryTodoList(name: String? = null) = repository.queryTodoList(name)
+    private fun queryTodoList(name: String? = null) = todoRepository.queryTodoList(name)
 
     fun updateTodoList(list: TodoList, name: String) = flow {
-        repository.updateTodoList(list, name)
+        todoRepository.updateTodoList(list, name)
         emit(Resource.success(null))
     }.stateIn(
         scope = viewModelScope,
@@ -54,7 +54,7 @@ class TodoViewModel @Inject constructor(
     )
 
     fun deleteTodoList(list: TodoList) = flow {
-        repository.deleteTodoList(list)
+        todoRepository.deleteTodoList(list)
         emit(Resource.success(null))
     }.stateIn(
         scope = viewModelScope,
@@ -63,7 +63,7 @@ class TodoViewModel @Inject constructor(
     )
 
     fun insertTodo(title: String, body: String?) = flow {
-        repository.insertTodo(title, body, getCurrentListId().first())
+        todoRepository.insertTodo(title, body, getCurrentListId().first())
         emit(Resource.success(null))
     }.stateIn(
         scope = viewModelScope,
@@ -72,7 +72,7 @@ class TodoViewModel @Inject constructor(
     )
 
     suspend fun queryTodo(name: String? = null) =
-        repository.queryTodo(
+        todoRepository.queryTodo(
             TodoFilter(
                 getCurrentListId().first(),
                 getShowCompleted().first()
@@ -81,7 +81,7 @@ class TodoViewModel @Inject constructor(
         )
 
     fun updateTodo(todo: Todo, name: String, body: String) = flow {
-        repository.updateTodo(todo, name, body)
+        todoRepository.updateTodo(todo, name, body)
         emit(Resource.success(null))
     }.stateIn(
         scope = viewModelScope,
@@ -90,7 +90,7 @@ class TodoViewModel @Inject constructor(
     )
 
     fun updateTodo(todo: Todo, isCompleted: Boolean) = flow {
-        repository.updateTodo(todo, isCompleted)
+        todoRepository.updateTodo(todo, isCompleted)
         emit(Resource.success(null))
     }.stateIn(
         scope = viewModelScope,
@@ -99,7 +99,7 @@ class TodoViewModel @Inject constructor(
     )
 
     fun deleteTodo(todo: Todo) = flow {
-        repository.deleteTodo(todo)
+        todoRepository.deleteTodo(todo)
         emit(Resource.success(null))
     }.stateIn(
         scope = viewModelScope,
@@ -108,7 +108,7 @@ class TodoViewModel @Inject constructor(
     )
 
     fun deleteCompletedTodos() = flow {
-        val deleted = repository.deleteCompletedTodo(getCurrentListId().first())
+        val deleted = todoRepository.deleteCompletedTodo(getCurrentListId().first())
         emit(Resource.success(deleted))
     }.stateIn(
         scope = viewModelScope,
@@ -116,30 +116,23 @@ class TodoViewModel @Inject constructor(
         initialValue = Resource.loading()
     )
 
-    suspend fun setSortPref(sortPref: Int) =
-        DataStoreMgr.setPreferences(DataStoreKeys.SORT_PREF, sortPref)
+    suspend fun getCurrentListId() = userPrefRepository.getCurrentListId(todoLists.first()[0].id)
 
-    suspend fun getSortPref(default: Int = 0) =
-        DataStoreMgr.getPreferences(DataStoreKeys.SORT_PREF, default)
-
-    suspend fun setShowCompleted(showCompleted: Boolean) =
-        DataStoreMgr.setPreferences(DataStoreKeys.SHOW_COMPLETED, showCompleted)
+    suspend fun setCurrentListId(id: Int) = withContext(Dispatchers.IO) {
+        userPrefRepository.setCurrentListId(id)
+    }
 
     suspend fun getShowCompleted(default: Boolean = true) =
-        DataStoreMgr.getPreferences(DataStoreKeys.SHOW_COMPLETED, default)
+        userPrefRepository.getShowCompleted(default)
 
-    private suspend fun setNotFirstTimeLaunch(isNotFirstTimeLaunch: Boolean) =
-        DataStoreMgr.setPreferences(DataStoreKeys.NOT_FIRST_LAUNCH, isNotFirstTimeLaunch)
-
-    private suspend fun getNotFirstTimeLaunch(default: Boolean = false) =
-        DataStoreMgr.getPreferences(DataStoreKeys.NOT_FIRST_LAUNCH, default)
+    suspend fun setShowCompleted(showCompleted: Boolean) =
+        userPrefRepository.setShowCompleted(showCompleted)
 
     suspend fun getCurrentList() = todoLists.first().first { it.id == getCurrentListId().first() }
 
-    suspend fun getCurrentListId() =
-        DataStoreMgr.getPreferences(DataStoreKeys.CURRENT_LIST, todoLists.first()[0].id)
+    suspend fun setSortPref(sortPref: Int) =
+        userPrefRepository.setSortPref(sortPref)
 
-    suspend fun setCurrentListId(id: Int) = withContext(Dispatchers.IO) {
-        DataStoreMgr.setPreferences(DataStoreKeys.CURRENT_LIST, id)
-    }
+    suspend fun getSortPref(default: Int = 0) =
+        userPrefRepository.getSortPref(default)
 }

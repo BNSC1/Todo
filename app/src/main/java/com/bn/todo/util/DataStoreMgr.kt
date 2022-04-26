@@ -4,14 +4,16 @@ import android.content.Context
 import androidx.datastore.core.DataStore
 import androidx.datastore.preferences.core.*
 import androidx.datastore.preferences.preferencesDataStore
-import com.bn.todo.di.ApplicationModule.context
 import com.bn.todo.util.DataStoreKeys.DATASTORE_NAME
+import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.flow.catch
 import kotlinx.coroutines.flow.map
 import java.io.IOException
+import javax.inject.Inject
 
 val Context.dataStore: DataStore<Preferences> by preferencesDataStore(DATASTORE_NAME)
-object DataStoreMgr {
+
+class DataStoreMgr @Inject constructor(@ApplicationContext val context: Context) {
 
     suspend inline fun <reified T> setPreferences(
         key: Preferences.Key<T>,
