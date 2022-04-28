@@ -65,7 +65,7 @@ object DialogUtil {
 
     ): AlertDialog = AlertDialog.Builder(context).apply {
         title?.let { setTitle(it) }
-        var clickedIndex = -1
+        var clickedIndex = defaultIndex
         setSingleChoiceItems(items, defaultIndex) { _, index ->
             clickedIndex = index
         }

@@ -47,12 +47,7 @@ class MainActivity : NavigationActivity(), TodoClickCallback {
         }
     }
 
-    private fun openBottomSheet() {
-        TodoInfoFragment().apply {
-            show(supportFragmentManager, "bottom_sheet")
-        }
-    }
-
+    private fun openBottomSheet() = TodoInfoFragment().show(supportFragmentManager, "bottom_sheet")
 
     private fun ActivityMainBinding.setupShouldRefreshTitleObserver() {
         lifecycleScope.launchWhenStarted {

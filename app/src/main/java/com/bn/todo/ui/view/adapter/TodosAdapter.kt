@@ -18,7 +18,7 @@ class TodosAdapter(
     override val items: List<Todo> = todos
 
     override val bindAction = { binding: ItemTodoBinding, todo: Todo ->
-        val defaultTextColor by lazy { context.getColor(R.color.text_highlight) }
+        val defaultTextColor = context.getColor(R.color.text_highlight)
         fun ItemTodoBinding.unsetAppearanceCompleted() {
             completedCheckbox.isChecked = false
             titleText.unsetStrikeThrough()
