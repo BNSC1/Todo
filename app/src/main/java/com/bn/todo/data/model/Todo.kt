@@ -5,7 +5,6 @@ import androidx.room.Entity
 import androidx.room.ForeignKey
 import androidx.room.PrimaryKey
 import com.bn.todo.arch.recyclerview.Clickable
-import com.bn.todo.arch.recyclerview.Listable
 
 @Entity(
     foreignKeys = [ForeignKey(
@@ -23,4 +22,4 @@ data class Todo(
 //    val locationName: String?,
 //    val imageUri: Uri?,
     @PrimaryKey(autoGenerate = true) val id: Int = 0
-) : Listable, Clickable
+) : Clickable

@@ -7,7 +7,7 @@ import androidx.recyclerview.widget.RecyclerView
 import androidx.viewbinding.ViewBinding
 import java.lang.reflect.ParameterizedType
 
-abstract class BaseListAdapter<Binding : ViewBinding, Item : Listable> :
+abstract class BaseListAdapter<Binding : ViewBinding, Item : Any> :
     RecyclerView.Adapter<BaseViewHolder<Binding, Item>>(), ListUpdateCallback {
     protected abstract val items: List<Item>
     protected abstract val bindAction: (binding: Binding, item: Item) -> Unit

@@ -20,13 +20,13 @@ class TodoViewModel @Inject constructor(
     private val userPrefRepository: UserPrefRepository
 ) : BaseViewModel() {
 
-    private val _shouldGoToNewList by lazy { MutableStateFlow(false) }
+    private val _shouldGoToNewList = MutableStateFlow(false)
     val shouldGoToNewList get() = _shouldGoToNewList
-    private val _shouldRefreshList by lazy { MutableSharedFlow<Boolean>(replay = 1) }
+    private val _shouldRefreshList = MutableSharedFlow<Boolean>(replay = 1)
     val shouldRefreshList get() = _shouldRefreshList
-    private val _shouldRefreshTitle by lazy { MutableSharedFlow<Boolean>(replay = 1) }
+    private val _shouldRefreshTitle = MutableSharedFlow<Boolean>(replay = 1)
     val shouldRefreshTitle get() = _shouldRefreshTitle
-    private val _clickedTodo by lazy { MutableSharedFlow<Todo>(replay = 1) }
+    private val _clickedTodo = MutableSharedFlow<Todo>(replay = 1)
     val clickedTodo get() = _clickedTodo
     val todoLists get() = queryTodoList()
 
