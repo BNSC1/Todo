@@ -10,9 +10,11 @@ import kotlinx.coroutines.flow.catch
 import kotlinx.coroutines.flow.map
 import java.io.IOException
 import javax.inject.Inject
+import javax.inject.Singleton
 
 val Context.dataStore: DataStore<Preferences> by preferencesDataStore(DATASTORE_NAME)
 
+@Singleton
 class DataStoreMgr @Inject constructor(@ApplicationContext val context: Context) {
 
     suspend inline fun <reified T> setPreferences(
