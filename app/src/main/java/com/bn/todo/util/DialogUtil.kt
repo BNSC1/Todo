@@ -15,12 +15,12 @@ object DialogUtil {
             setPositiveButton(android.R.string.ok) { _, _ -> }
         }.show()
 
-    fun showConfirmDialog(
+    inline fun showConfirmDialog(
         context: Context,
         title: String? = null,
         msg: String,
-        okAction: () -> Unit,
-        cancelAction: () -> Unit = {}
+        crossinline okAction: () -> Unit,
+        crossinline cancelAction: () -> Unit = {}
     ): AlertDialog =
         AlertDialog.Builder(context).apply {
             title?.let { setTitle(it) }

@@ -147,9 +147,9 @@ class MainActivity : NavigationActivity(), TodoClickCallback {
                 layoutToolbar.toolbar.setNavigationOnClickListener {
                     layoutDrawer.openDrawer()
                 }
-                layoutDrawer.setLocked(false)
+                layoutDrawer.setLockState(false)
             } else {
-                layoutDrawer.setLocked(true)
+                layoutDrawer.setLockState(true)
                 actionBar.setDisplayHomeAsUpEnabled(true)
                 layoutToolbar.toolbar.setNavigationOnClickListener { onBackPressed() }
             }

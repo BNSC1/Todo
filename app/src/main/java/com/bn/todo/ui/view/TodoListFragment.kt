@@ -14,6 +14,7 @@ import com.bn.todo.arch.ObserveStateFragment
 import com.bn.todo.arch.recyclerview.Clickable
 import com.bn.todo.arch.recyclerview.OnItemClickListener
 import com.bn.todo.data.model.Todo
+import com.bn.todo.data.model.TodoList
 import com.bn.todo.databinding.FragmentTodoListBinding
 import com.bn.todo.ktx.showDialog
 import com.bn.todo.ktx.showToast
@@ -30,6 +31,8 @@ import javax.inject.Inject
 
 @AndroidEntryPoint
 class TodoListFragment : ObserveStateFragment<FragmentTodoListBinding>() {
+    private var currentList: TodoList? = null
+
     @Inject
     override lateinit var viewModel: TodoViewModel
     private val todos = ArrayList<Todo>()
@@ -98,11 +101,11 @@ class TodoListFragment : ObserveStateFragment<FragmentTodoListBinding>() {
                 }
             }
             R.id.action_rename_list -> {
-                job = viewLifecycleOwner.lifecycleScope.launchWhenStarted {
+                tryCurrentListAction({ list ->
                     DialogUtil.showInputDialog(
                         requireActivity(),
                         getString(R.string.title_input_name_for_list),
-                        defaultValue = viewModel.getCurrentList().name,
+                        defaultValue = list.name,
                         inputReceiver = object : DialogUtil.OnInputReceiver {
                             override fun receiveInput(input: String?) {
                                 if (!input.isNullOrBlank()) {
@@ -118,35 +121,30 @@ class TodoListFragment : ObserveStateFragment<FragmentTodoListBinding>() {
                                 }
                             }
                         })
-                }
+                })
             }
             R.id.action_delete_list -> {
-                job = viewLifecycleOwner.lifecycleScope.launchWhenStarted {
-                    val currentList = viewModel.getCurrentList()
+                tryCurrentListAction({ list ->
                     showConfirmDialog(requireContext(),
                         msg = String.format(
                             getString(R.string.msg_confirm_delete_list_format),
-                            currentList.name
+                            list.name
                         ),
                         okAction = {
                             job = viewLifecycleOwner.lifecycleScope.launchWhenStarted {
-                                viewModel.deleteTodoList(currentList).collect { res ->
-                                    handleState(res, {
-                                        viewModel.shouldGoToNewList.value = true
-                                    })
-                                }
+                                viewModel.deleteTodoList(list)
+                                viewModel.shouldGoToNewList.value = true
                             }
                         }
                     )
-                }
+                })
             }
             R.id.action_clear_completed_todos -> {
-                job = viewLifecycleOwner.lifecycleScope.launchWhenStarted {
-                    val currentList = viewModel.getCurrentList()
+                tryCurrentListAction({ list ->
                     showConfirmDialog(requireContext(),
                         msg = String.format(
                             getString(R.string.msg_confirm_clear_completed_todos),
-                            currentList.name
+                            list.name
                         ),
                         okAction = {
                             job = viewLifecycleOwner.lifecycleScope.launchWhenStarted {
@@ -164,7 +162,7 @@ class TodoListFragment : ObserveStateFragment<FragmentTodoListBinding>() {
                             }
                         }
                     )
-                }
+                })
             }
             R.id.action_show_completed_todos -> {
                 item.isChecked = !item.isChecked
@@ -179,6 +177,14 @@ class TodoListFragment : ObserveStateFragment<FragmentTodoListBinding>() {
             requireView().findNavController()
         ) || super.onOptionsItemSelected(item)
     }
+
+    private inline fun tryCurrentListAction(
+        action: (TodoList) -> Unit,
+        nullListAction: () -> Unit = { showToast(getString(R.string.msg_no_list_selected)) }
+    ) =
+        currentList?.let {
+            action(it)
+        } ?: nullListAction()
 
     private fun initObserveShowCompleted(menu: Menu) {
         viewLifecycleOwner.lifecycleScope.launchWhenStarted {

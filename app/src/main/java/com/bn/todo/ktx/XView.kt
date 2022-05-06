@@ -59,14 +59,14 @@ fun DrawerLayout.openDrawer() = this.openDrawer(GravityCompat.START)
 
 fun DrawerLayout.closeDrawer() = this.closeDrawer(GravityCompat.START)
 
-fun DrawerLayout.setLocked(locked: Boolean) =
+fun DrawerLayout.setLockState(locked: Boolean) =
     this.setDrawerLockMode(
         if (locked)
             DrawerLayout.LOCK_MODE_LOCKED_CLOSED
         else DrawerLayout.LOCK_MODE_UNDEFINED
     )
 
-fun RecyclerView.addItemDecoration(dividerResId: Int, theme: Resources.Theme? = null) =
+fun RecyclerView.addDividerItemDecoration(dividerResId: Int, theme: Resources.Theme? = null) =
     this.addItemDecoration(
         DividerItemDecoration(this.context, DividerItemDecoration.VERTICAL).apply {
             setDrawable(ResourcesCompat.getDrawable(resources, dividerResId, theme)!!)
