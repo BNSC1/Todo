@@ -124,20 +124,26 @@ class TodoListFragment : ObserveStateFragment<FragmentTodoListBinding>() {
                 })
             }
             R.id.action_delete_list -> {
-                tryCurrentListAction({ list ->
-                    showConfirmDialog(requireContext(),
-                        msg = String.format(
-                            getString(R.string.msg_confirm_delete_list_format),
-                            list.name
-                        ),
-                        okAction = {
-                            job = viewLifecycleOwner.lifecycleScope.launchWhenStarted {
-                                viewModel.deleteTodoList(list)
-                                viewModel.shouldGoToNewList.value = true
-                            }
-                        }
-                    )
-                })
+                job = viewLifecycleOwner.lifecycleScope.launchWhenStarted {
+                    if (viewModel.listCount.first() > 1) {
+                        tryCurrentListAction({ list ->
+                            showConfirmDialog(requireContext(),
+                                msg = String.format(
+                                    getString(R.string.msg_confirm_delete_list_format),
+                                    list.name
+                                ),
+                                okAction = {
+                                    job = viewLifecycleOwner.lifecycleScope.launchWhenStarted {
+                                        viewModel.deleteTodoList(list)
+                                        viewModel.shouldGoToNewList.value = true
+                                    }
+                                }
+                            )
+                        })
+                    } else {
+                        showDialog(messageStringId = R.string.msg_cannot_delete_last_list)
+                    }
+                }
             }
             R.id.action_clear_completed_todos -> {
                 tryCurrentListAction({ list ->

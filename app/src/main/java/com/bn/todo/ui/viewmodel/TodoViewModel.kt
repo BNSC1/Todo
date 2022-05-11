@@ -28,6 +28,8 @@ class TodoViewModel @Inject constructor(
     val shouldRefreshTitle get() = _shouldRefreshTitle
     private val _clickedTodo = MutableSharedFlow<Todo>(replay = 1)
     val clickedTodo get() = _clickedTodo
+    private val _listCount = MutableSharedFlow<Int>(replay = 1)
+    val listCount get() = _listCount
     val todoLists get() = queryTodoList()
 
     fun insertTodoList(name: String) = flow {
@@ -42,7 +44,8 @@ class TodoViewModel @Inject constructor(
         initialValue = Resource.loading()
     )
 
-    private fun queryTodoList(name: String? = null) = todoRepository.queryTodoList(name)
+    private fun queryTodoList(name: String? = null) =
+        todoRepository.queryTodoList(name).onEach { listCount.emit(it.size) }
 
     fun updateTodoList(list: TodoList, name: String) = flow {
         todoRepository.updateTodoList(list, name)

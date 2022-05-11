@@ -58,5 +58,6 @@
     </string-array>
     <string name="title_sort_by">Sort by…</string>
     <string name="msg_no_list_selected">No list is selected</string>
+    <string name="msg_cannot_delete_last_list">You cannot delete the last todo list!</string>
 
 </resources>
