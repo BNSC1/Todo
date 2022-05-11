@@ -64,6 +64,7 @@ class TodoListFragment : ObserveStateFragment<FragmentTodoListBinding>() {
             viewModel.shouldRefreshList.collect { shouldRefresh ->
                 Timber.d("should refresh list")
                 if (shouldRefresh) {
+                    currentList = viewModel.getCurrentList()
                     todos.clear()
                     todos.addAll(viewModel.queryTodo().first())
                     binding.list.adapter!!.notifyDataSetChanged() //todo: optimize
@@ -109,12 +110,14 @@ class TodoListFragment : ObserveStateFragment<FragmentTodoListBinding>() {
                         inputReceiver = object : DialogUtil.OnInputReceiver {
                             override fun receiveInput(input: String?) {
                                 if (!input.isNullOrBlank()) {
-                                    lifecycleScope.launchWhenStarted {
-                                        viewModel.updateTodoList(viewModel.getCurrentList(), input)
-                                            .collect { res ->
-                                                handleState(res, {
-                                                })
-                                            }
+                                    job = lifecycleScope.launchWhenStarted {
+                                        currentList?.let {
+                                            viewModel.updateTodoList(it, input)
+                                                .collect { res ->
+                                                    handleState(res, {
+                                                    })
+                                                }
+                                        }
                                     }
                                 } else {
                                     showDialog(message = getString(R.string.title_input_name_for_list))
@@ -134,8 +137,13 @@ class TodoListFragment : ObserveStateFragment<FragmentTodoListBinding>() {
                                 ),
                                 okAction = {
                                     job = viewLifecycleOwner.lifecycleScope.launchWhenStarted {
-                                        viewModel.deleteTodoList(list)
-                                        viewModel.shouldGoToNewList.value = true
+                                        viewModel.deleteTodoList(list).collect { res ->
+                                            handleState(
+                                                res,
+                                                {
+                                                    viewModel.shouldGoToNewList.value = true
+                                                })
+                                        }
                                     }
                                 }
                             )

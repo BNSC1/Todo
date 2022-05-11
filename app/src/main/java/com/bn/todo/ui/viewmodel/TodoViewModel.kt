@@ -131,7 +131,8 @@ class TodoViewModel @Inject constructor(
     suspend fun setShowCompleted(showCompleted: Boolean) =
         userPrefRepository.setShowCompleted(showCompleted)
 
-    suspend fun getCurrentList() = todoLists.first().first { it.id == getCurrentListId().first() }
+    suspend fun getCurrentList() =
+        todoLists.first().firstOrNull { it.id == getCurrentListId().first() }
 
     suspend fun setSortPref(sortPref: Int) =
         userPrefRepository.setSortPref(sortPref)
