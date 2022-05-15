@@ -33,11 +33,12 @@ class TodoViewModel @Inject constructor(
 
     fun insertTodoList(name: String) = flow {
         todoRepository.insertTodoList(name)
+        emit(Resource.success(null))
+    }.onEach {
         if (!userPrefRepository.getNotFirstTimeLaunch().first()) {
             userPrefRepository.setNotFirstTimeLaunch(true)
         }
-        emit(Resource.success(null))
-    }.onEach {
+
         if (it.state == State.SUCCESS) {
             setShouldGoToNewList()
         }
