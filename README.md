@@ -2,7 +2,7 @@
 
 Todo helps you create multiple tasks and lists that contains them.
 
-This app utilizes Coroutines Flow and Jetpack Room.
+This app utilizes Coroutines Flow, Jetpack Room and Datastore.
 
 
 <img src="preview/main_page.png" alt="cover"/>
