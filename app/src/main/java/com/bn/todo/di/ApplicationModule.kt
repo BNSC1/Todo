@@ -7,6 +7,7 @@ import com.bn.todo.data.db.TodoDatabase
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
+import dagger.hilt.android.qualifiers.ApplicationContext
 import dagger.hilt.components.SingletonComponent
 import timber.log.Timber
 import javax.inject.Singleton
@@ -15,7 +16,6 @@ import javax.inject.Singleton
 @Module
 @InstallIn(SingletonComponent::class)
 object ApplicationModule {
-    lateinit var context: Context
 
     @Singleton
     @Provides
@@ -23,7 +23,7 @@ object ApplicationModule {
 
     @Singleton
     @Provides
-    fun provideDatabase() = synchronized(this) {
+    fun provideDatabase(@ApplicationContext context: Context) = synchronized(this) {
         Room.databaseBuilder(
             context,
             TodoDatabase::class.java,

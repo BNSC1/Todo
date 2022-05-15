@@ -1,7 +1,6 @@
 package com.bn.todo
 
 import android.app.Application
-import com.bn.todo.di.ApplicationModule
 import dagger.hilt.android.HiltAndroidApp
 import timber.log.Timber
 import javax.inject.Inject
@@ -13,7 +12,6 @@ class MainApplication: Application() {
 
     override fun onCreate() {
         super.onCreate()
-        ApplicationModule.context = applicationContext
         Timber.plant(tree)
     }
 }
