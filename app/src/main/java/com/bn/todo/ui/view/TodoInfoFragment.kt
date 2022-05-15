@@ -37,7 +37,9 @@ class TodoInfoFragment : ObserveStateBottomSheetDialogFragment<FragmentTodoInfoB
                 job = viewLifecycleOwner.lifecycleScope.launchWhenCreated {
                     viewModel.deleteTodo(clickedTodo).collect { res ->
                         handleState(res, {
-                            notifyShouldRefreshList()
+                            viewLifecycleOwner.lifecycleScope.launch {
+                                viewModel.setShouldRefreshList()
+                            }
                             dismiss()
                         })
                     }
@@ -75,7 +77,9 @@ class TodoInfoFragment : ObserveStateBottomSheetDialogFragment<FragmentTodoInfoB
         job = viewLifecycleOwner.lifecycleScope.launch {
             viewModel.updateTodo(clickedTodo, isCompleted).collect { res ->
                 handleState(res, {
-                    notifyShouldRefreshList()
+                    viewLifecycleOwner.lifecycleScope.launch {
+                        viewModel.setShouldRefreshList()
+                    }
                     dismiss()
                 })
             }
@@ -87,7 +91,4 @@ class TodoInfoFragment : ObserveStateBottomSheetDialogFragment<FragmentTodoInfoB
         completeText.setTextColor(colorAccent)
     }
 
-    private fun notifyShouldRefreshList() {
-        viewModel.shouldRefreshList.tryEmit(true)
-    }
 }

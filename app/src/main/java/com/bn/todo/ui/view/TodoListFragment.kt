@@ -16,8 +16,11 @@ import com.bn.todo.arch.recyclerview.OnItemClickListener
 import com.bn.todo.data.model.Todo
 import com.bn.todo.data.model.TodoList
 import com.bn.todo.databinding.FragmentTodoListBinding
+import com.bn.todo.ktx.collectFirstLifecycleFlow
+import com.bn.todo.ktx.collectLatestLifecycleFlow
 import com.bn.todo.ktx.showDialog
 import com.bn.todo.ktx.showToast
+import com.bn.todo.ui.MainActivity
 import com.bn.todo.ui.callback.TodoClickCallback
 import com.bn.todo.ui.view.adapter.TodosAdapter
 import com.bn.todo.ui.viewmodel.TodoViewModel
@@ -26,6 +29,7 @@ import com.bn.todo.util.DialogUtil.showConfirmDialog
 import com.bn.todo.util.DialogUtil.showRadioDialog
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.flow.first
+import kotlinx.coroutines.launch
 import timber.log.Timber
 import javax.inject.Inject
 
@@ -45,7 +49,7 @@ class TodoListFragment : ObserveStateFragment<FragmentTodoListBinding>() {
             addTodoBtn.setOnClickListener {
                 TodoListFragmentDirections.actionCreateTodo().navigate()
             }
-            initObserveTodoList()
+            collectTodos()
             list.adapter =
                 TodosAdapter(requireContext(), todos, object : OnItemClickListener {
                     override fun onItemClick(item: Clickable) {
@@ -59,16 +63,17 @@ class TodoListFragment : ObserveStateFragment<FragmentTodoListBinding>() {
     }
 
     @SuppressLint("NotifyDataSetChanged")
-    private fun initObserveTodoList() {
-        viewLifecycleOwner.lifecycleScope.launchWhenStarted {
-            viewModel.shouldRefreshList.collect { shouldRefresh ->
+    private fun collectTodos() {
+        collectLatestLifecycleFlow(viewModel.shouldRefreshList) { shouldRefresh ->
+            if (shouldRefresh) {
                 Timber.d("should refresh list")
-                if (shouldRefresh) {
-                    currentList = viewModel.getCurrentList()
-                    todos.clear()
-                    todos.addAll(viewModel.queryTodo().first())
-                    binding.list.adapter!!.notifyDataSetChanged() //todo: optimize
-                }
+                currentList = viewModel.getCurrentList()
+                (requireActivity() as MainActivity).supportActionBar?.title =
+                    currentList?.name ?: "Error"
+                todos.clear()
+                todos.addAll(viewModel.queryTodo().first())
+                binding.list.adapter!!.notifyDataSetChanged() //todo: optimize
+                viewModel.setShouldRefreshList(false)
             }
         }
     }
@@ -95,7 +100,6 @@ class TodoListFragment : ObserveStateFragment<FragmentTodoListBinding>() {
                             okAction = { index ->
                                 job = viewLifecycleOwner.lifecycleScope.launchWhenStarted {
                                     viewModel.setSortPref(index)
-                                    viewModel.shouldRefreshList.emit(true)
                                 }
                             })
                     }
@@ -114,8 +118,7 @@ class TodoListFragment : ObserveStateFragment<FragmentTodoListBinding>() {
                                         currentList?.let {
                                             viewModel.updateTodoList(it, input)
                                                 .collect { res ->
-                                                    handleState(res, {
-                                                    })
+                                                    handleState(res, {})
                                                 }
                                         }
                                     }
@@ -127,24 +130,22 @@ class TodoListFragment : ObserveStateFragment<FragmentTodoListBinding>() {
                 })
             }
             R.id.action_delete_list -> {
-                job = viewLifecycleOwner.lifecycleScope.launchWhenStarted {
-                    if (viewModel.listCount.first() > 1) {
+                job = collectFirstLifecycleFlow(viewModel.listCount) { count ->
+                    if (count > 1) {
                         tryCurrentListAction({ list ->
-                            showConfirmDialog(requireContext(),
+                            showConfirmDialog(
+                                requireContext(),
                                 msg = String.format(
                                     getString(R.string.msg_confirm_delete_list_format),
                                     list.name
                                 ),
                                 okAction = {
-                                    job = viewLifecycleOwner.lifecycleScope.launchWhenStarted {
-                                        viewModel.deleteTodoList(list).collect { res ->
+                                    job =
+                                        collectLatestLifecycleFlow(viewModel.deleteTodoList(list)) { res ->
                                             handleState(
                                                 res,
-                                                {
-                                                    viewModel.shouldGoToNewList.value = true
-                                                })
+                                                {})
                                         }
-                                    }
                                 }
                             )
                         })
@@ -161,8 +162,8 @@ class TodoListFragment : ObserveStateFragment<FragmentTodoListBinding>() {
                             list.name
                         ),
                         okAction = {
-                            job = viewLifecycleOwner.lifecycleScope.launchWhenStarted {
-                                viewModel.deleteCompletedTodos().collect { res ->
+                            job =
+                                collectLatestLifecycleFlow(viewModel.deleteCompletedTodos()) { res ->
                                     handleState(res, {
                                         showToast(
                                             String.format(
@@ -170,19 +171,20 @@ class TodoListFragment : ObserveStateFragment<FragmentTodoListBinding>() {
                                                 res.data
                                             )
                                         )
-                                        viewModel.shouldRefreshList.tryEmit(true)
+                                        viewLifecycleOwner.lifecycleScope.launch {
+                                            viewModel.setShouldRefreshList()
+                                        }
+                                        job?.cancel()
                                     })
                                 }
-                            }
+                        })
                         }
                     )
-                })
             }
             R.id.action_show_completed_todos -> {
                 item.isChecked = !item.isChecked
                 job = viewLifecycleOwner.lifecycleScope.launchWhenStarted {
                     viewModel.setShowCompleted(item.isChecked)
-                    viewModel.shouldRefreshList.emit(true)
                 }
             }
         }
@@ -209,8 +211,4 @@ class TodoListFragment : ObserveStateFragment<FragmentTodoListBinding>() {
         }
     }
 
-    override fun onResume() {
-        super.onResume()
-        viewModel.shouldRefreshTitle.tryEmit(true)
-    }
 }

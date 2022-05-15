@@ -3,14 +3,13 @@ package com.bn.todo.ui.viewmodel
 import androidx.lifecycle.viewModelScope
 import com.bn.todo.arch.BaseViewModel
 import com.bn.todo.data.Resource
+import com.bn.todo.data.State
 import com.bn.todo.data.model.Todo
 import com.bn.todo.data.model.TodoFilter
 import com.bn.todo.data.model.TodoList
 import com.bn.todo.data.repository.TodoRepository
 import com.bn.todo.data.repository.UserPrefRepository
-import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.*
-import kotlinx.coroutines.withContext
 import javax.inject.Inject
 import javax.inject.Singleton
 
@@ -21,11 +20,11 @@ class TodoViewModel @Inject constructor(
 ) : BaseViewModel() {
 
     private val _shouldGoToNewList = MutableStateFlow(false)
-    val shouldGoToNewList get() = _shouldGoToNewList
+    val shouldGoToNewList = _shouldGoToNewList.asStateFlow()
     private val _shouldRefreshList = MutableSharedFlow<Boolean>(replay = 1)
-    val shouldRefreshList get() = _shouldRefreshList
-    private val _shouldRefreshTitle = MutableSharedFlow<Boolean>(replay = 1)
-    val shouldRefreshTitle get() = _shouldRefreshTitle
+    val shouldRefreshList = _shouldRefreshList.asSharedFlow()
+    private val _currentList = MutableSharedFlow<TodoList>(replay = 1)
+    val currentList = _currentList.asSharedFlow()
     private val _clickedTodo = MutableSharedFlow<Todo>(replay = 1)
     val clickedTodo get() = _clickedTodo
     private val _listCount = MutableSharedFlow<Int>(replay = 1)
@@ -38,6 +37,10 @@ class TodoViewModel @Inject constructor(
             userPrefRepository.setNotFirstTimeLaunch(true)
         }
         emit(Resource.success(null))
+    }.onEach {
+        if (it.state == State.SUCCESS) {
+            setShouldGoToNewList()
+        }
     }.stateIn(
         scope = viewModelScope,
         started = SharingStarted.Lazily,
@@ -59,6 +62,10 @@ class TodoViewModel @Inject constructor(
     fun deleteTodoList(list: TodoList) = flow {
         todoRepository.deleteTodoList(list)
         emit(Resource.success(null))
+    }.onEach {
+        if (it.state == State.SUCCESS) {
+            setShouldGoToNewList()
+        }
     }.stateIn(
         scope = viewModelScope,
         started = SharingStarted.Lazily,
@@ -68,6 +75,10 @@ class TodoViewModel @Inject constructor(
     fun insertTodo(title: String, body: String?) = flow {
         todoRepository.insertTodo(title, body, getCurrentListId().first())
         emit(Resource.success(null))
+    }.onEach {
+        if (it.state == State.SUCCESS) {
+            setShouldRefreshList()
+        }
     }.stateIn(
         scope = viewModelScope,
         started = SharingStarted.Lazily,
@@ -86,6 +97,10 @@ class TodoViewModel @Inject constructor(
     fun updateTodo(todo: Todo, name: String, body: String) = flow {
         todoRepository.updateTodo(todo, name, body)
         emit(Resource.success(null))
+    }.onEach {
+        if (it.state == State.SUCCESS) {
+            setShouldRefreshList()
+        }
     }.stateIn(
         scope = viewModelScope,
         started = SharingStarted.Lazily,
@@ -119,24 +134,31 @@ class TodoViewModel @Inject constructor(
         initialValue = Resource.loading()
     )
 
+    suspend fun setShouldRefreshList(value: Boolean = true) = _shouldRefreshList.emit(value)
+
+    suspend fun setShouldGoToNewList(value: Boolean = true) = _shouldGoToNewList.emit(value)
+
     suspend fun getCurrentListId() = userPrefRepository.getCurrentListId(todoLists.first()[0].id)
 
-    suspend fun setCurrentListId(id: Int) = withContext(Dispatchers.IO) {
-        userPrefRepository.setCurrentListId(id)
-    }
+    suspend fun setCurrentListId(id: Int? = null) =
+        id?.let { userPrefRepository.setCurrentListId(it) } ?: todoLists.first()[0]
 
-    suspend fun getShowCompleted(default: Boolean = true) =
+    fun getShowCompleted(default: Boolean = true) =
         userPrefRepository.getShowCompleted(default)
 
     suspend fun setShowCompleted(showCompleted: Boolean) =
-        userPrefRepository.setShowCompleted(showCompleted)
+        userPrefRepository.setShowCompleted(showCompleted).also {
+            setShouldRefreshList()
+        }
 
     suspend fun getCurrentList() =
         todoLists.first().firstOrNull { it.id == getCurrentListId().first() }
 
     suspend fun setSortPref(sortPref: Int) =
-        userPrefRepository.setSortPref(sortPref)
+        userPrefRepository.setSortPref(sortPref).also {
+            setShouldRefreshList()
+        }
 
-    suspend fun getSortPref(default: Int = 0) =
+    fun getSortPref(default: Int = 0) =
         userPrefRepository.getSortPref(default)
 }

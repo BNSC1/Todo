@@ -7,6 +7,6 @@ import javax.inject.Inject
 class EntryViewModel @Inject constructor(
     private val userPrefRepository: UserPrefRepository
 ) : BaseViewModel() {
-    suspend fun getIsNotFirstLaunch() =
+    fun getIsNotFirstLaunch() =
         userPrefRepository.getNotFirstTimeLaunch()
 }

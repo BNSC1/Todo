@@ -22,6 +22,7 @@ import com.bn.todo.util.TextInputUtil
 import com.google.android.material.textfield.TextInputEditText
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.flow.first
+import kotlinx.coroutines.launch
 import javax.inject.Inject
 
 @AndroidEntryPoint
@@ -72,15 +73,17 @@ class CreateTodoFragment : ObserveStateFragment<FragmentCreateTodoBinding>() {
                         if (isEditMode) {
                             viewModel.updateTodo(clickedTodo, title, body).collect {
                                 handleState(it, {
-                                    viewModel.shouldRefreshList.tryEmit(true)
-                                    findNavController().popBackStack()
+                                    viewLifecycleOwner.lifecycleScope.launch {
+                                        findNavController().popBackStack()
+                                    }
                                 })
                             }
                         } else {
                             viewModel.insertTodo(title, body).collect {
                                 handleState(it, {
-                                    viewModel.shouldRefreshList.tryEmit(true)
-                                    findNavController().popBackStack()
+                                    viewLifecycleOwner.lifecycleScope.launch {
+                                        findNavController().popBackStack()
+                                    }
                                 })
                             }
                         }

@@ -26,7 +26,7 @@ class DataStoreMgr @Inject constructor(@ApplicationContext val context: Context)
         }
     }
 
-    suspend inline fun <reified T> getPreferences(
+    inline fun <reified T> getPreferences(
         key: Preferences.Key<T>,
         default: T? = null
     ) =
