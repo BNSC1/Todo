@@ -22,7 +22,6 @@ import com.bn.todo.util.DialogUtil
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
-import timber.log.Timber
 import javax.inject.Inject
 
 private const val MENU_ORDER = Menu.NONE
@@ -42,6 +41,19 @@ class MainActivity : NavigationActivity(), TodoClickCallback {
             setupToolbar()
             setupDrawer()
             collectCurrentList()
+            collectLatestLifecycleFlow(viewModel.shouldGoToNewList) { shouldGo -> //todo: code rearrange.
+                if (shouldGo) {
+                    setList(viewModel.todoLists.first().lastIndex)
+                    viewModel.setShouldGoToNewList(false)
+                }
+            }
+            collectLatestLifecycleFlow(viewModel.getCurrentListId()) {
+                viewModel.todoLists.first().let { list ->
+                    setSelectedListItem(list.indexOf(list.firstOrNull {
+                        viewModel.getCurrentListId().first() == it.id
+                    }))
+                }
+            }
         }
     }
 
@@ -75,15 +87,9 @@ class MainActivity : NavigationActivity(), TodoClickCallback {
         }
     }
 
-    private fun ActivityMainBinding.setList(menuId: Int? = null) {
+    private fun ActivityMainBinding.setList(menuId: Int?) {
         menuId?.let {
             setSelectedListItem(menuId)
-        } ?: let {
-            job = lifecycleScope.launchWhenStarted {
-                setSelectedListItem(viewModel.todoLists.first().let { list ->
-                    list.indexOf(list.firstOrNull { viewModel.getCurrentListId().first() == it.id })
-                })
-            }
         }
     }
 
@@ -116,21 +122,16 @@ class MainActivity : NavigationActivity(), TodoClickCallback {
                 MENU_ORDER,
                 R.string.settings
             ).setIcon(R.drawable.ic_settings)
-            collectFirstLifecycleFlow(viewModel.shouldGoToNewList) { shouldGo ->
-                if (shouldGo) {
-                    goToNewList()
-                } else setList()
-                invalidateOptionsMenu()
-            }
+            invalidateOptionsMenu()
         }
     }
 
-    private fun ActivityMainBinding.goToNewList() {
-        job = lifecycleScope.launchWhenStarted {
-            setList(viewModel.todoLists.first().lastIndex).also { Timber.d("go to new list $it") }
-            viewModel.setShouldGoToNewList(false)
-        }
-    }
+//    private fun ActivityMainBinding.goToNewList() {
+//        job = collectFirstLifecycleFlow(viewModel.todoLists) { lists ->
+//            setList(lists, lists.lastIndex)
+//            viewModel.setShouldGoToNewList(false)
+//        }
+//    }
 
     private fun ActivityMainBinding.updateDrawerNavigation() {
         supportActionBar?.let { actionBar ->
@@ -185,10 +186,12 @@ class MainActivity : NavigationActivity(), TodoClickCallback {
     }
 
     private fun ActivityMainBinding.setSelectedListItem(menuId: Int) {
-        job = lifecycleScope.launch {
-            viewModel.setCurrentListId(viewModel.todoLists.first()[menuId].id) //todo: possible unknown null on deletion.
-            drawer.navigation.menu.getItem(menuId).isChecked = true
-            viewModel.setShouldRefreshList()
+        if (menuId >= 0) {
+            job = lifecycleScope.launch {
+                viewModel.setCurrentListId(viewModel.todoLists.first()[menuId].id)
+                drawer.navigation.menu.getItem(menuId).isChecked = true
+                viewModel.setShouldRefreshList()
+            }
         }
     }
 

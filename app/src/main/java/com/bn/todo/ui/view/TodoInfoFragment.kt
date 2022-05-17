@@ -37,9 +37,6 @@ class TodoInfoFragment : ObserveStateBottomSheetDialogFragment<FragmentTodoInfoB
                 job = viewLifecycleOwner.lifecycleScope.launchWhenCreated {
                     viewModel.deleteTodo(clickedTodo).collect { res ->
                         handleState(res, {
-                            viewLifecycleOwner.lifecycleScope.launch {
-                                viewModel.setShouldRefreshList()
-                            }
                             dismiss()
                         })
                     }

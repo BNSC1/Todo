@@ -29,7 +29,6 @@ import com.bn.todo.util.DialogUtil.showConfirmDialog
 import com.bn.todo.util.DialogUtil.showRadioDialog
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.flow.first
-import kotlinx.coroutines.launch
 import timber.log.Timber
 import javax.inject.Inject
 
@@ -171,10 +170,6 @@ class TodoListFragment : ObserveStateFragment<FragmentTodoListBinding>() {
                                                 res.data
                                             )
                                         )
-                                        viewLifecycleOwner.lifecycleScope.launch {
-                                            viewModel.setShouldRefreshList()
-                                        }
-                                        job?.cancel()
                                     })
                                 }
                         })
