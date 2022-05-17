@@ -120,6 +120,8 @@ class TodoViewModel @Inject constructor(
     fun deleteTodo(todo: Todo) = flow {
         todoRepository.deleteTodo(todo)
         emit(Resource.success(null))
+    }.onEach {
+        setShouldRefreshList()
     }.stateIn(
         scope = viewModelScope,
         started = SharingStarted.Lazily,
@@ -129,7 +131,7 @@ class TodoViewModel @Inject constructor(
     fun deleteCompletedTodos() = flow {
         val deleted = todoRepository.deleteCompletedTodo(getCurrentListId().first())
         emit(Resource.success(deleted))
-    }.stateIn(
+    }.onEach { setShouldRefreshList() }.stateIn(
         scope = viewModelScope,
         started = SharingStarted.Lazily,
         initialValue = Resource.loading()
@@ -139,7 +141,7 @@ class TodoViewModel @Inject constructor(
 
     suspend fun setShouldGoToNewList(value: Boolean = true) = _shouldGoToNewList.emit(value)
 
-    suspend fun getCurrentListId() = userPrefRepository.getCurrentListId(todoLists.first()[0].id)
+    fun getCurrentListId() = userPrefRepository.getCurrentListId(0)
 
     suspend fun setCurrentListId(id: Int? = null) =
         id?.let { userPrefRepository.setCurrentListId(it) } ?: todoLists.first()[0]
