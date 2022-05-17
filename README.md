@@ -1,4 +1,4 @@
-# Todo
+# 📝Todo
 
 Todo helps you create multiple tasks and lists that contains them.
 
@@ -30,3 +30,11 @@ Deleting all completed todos.
 
 
 <img src="preview/todo_delete_completed.gif" alt="cover"/>
+
+
+📝To-do's (for this project)
+
+
+1. Implement start time/end time for to-do items.
+2. Implement push notifications.
+3. Implement sorting for to-do items.
