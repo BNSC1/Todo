@@ -161,8 +161,8 @@ class TodoListFragment : ObserveStateFragment<FragmentTodoListBinding>() {
                             list.name
                         ),
                         okAction = {
-                            job =
-                                collectLatestLifecycleFlow(viewModel.deleteCompletedTodos()) { res ->
+                            job = viewLifecycleOwner.lifecycleScope.launchWhenStarted {
+                                viewModel.deleteCompletedTodos().collect { res ->
                                     handleState(res, {
                                         showToast(
                                             String.format(
@@ -172,6 +172,7 @@ class TodoListFragment : ObserveStateFragment<FragmentTodoListBinding>() {
                                         )
                                     })
                                 }
+                            }
                         })
                         }
                     )
