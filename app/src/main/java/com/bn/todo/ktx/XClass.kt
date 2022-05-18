@@ -28,10 +28,8 @@ fun <T> ComponentActivity.collectLatestLifecycleFlow(flow: Flow<T>, collect: sus
     }
 
 fun <T> ComponentActivity.collectFirstLifecycleFlow(flow: Flow<T>, collect: suspend (T) -> Unit) =
-    lifecycleScope.launch {
-        repeatOnLifecycle(Lifecycle.State.STARTED) {
-            collect(flow.first())
-        }
+    lifecycleScope.launchWhenStarted {
+        collect(flow.first())
     }
 
 fun <T> Fragment.collectLifecycleFlow(flow: Flow<T>, collect: FlowCollector<T>) =
@@ -49,8 +47,6 @@ fun <T> Fragment.collectLatestLifecycleFlow(flow: Flow<T>, collect: suspend (T) 
     }
 
 fun <T> Fragment.collectFirstLifecycleFlow(flow: Flow<T>, collect: suspend (T) -> Unit) =
-    viewLifecycleOwner.lifecycleScope.launch {
-        viewLifecycleOwner.repeatOnLifecycle(Lifecycle.State.STARTED) {
-            collect(flow.first())
-        }
+    viewLifecycleOwner.lifecycleScope.launchWhenStarted {
+        collect(flow.first())
     }
