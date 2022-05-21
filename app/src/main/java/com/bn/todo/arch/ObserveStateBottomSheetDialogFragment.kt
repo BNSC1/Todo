@@ -6,6 +6,7 @@ import android.view.View
 import android.view.ViewGroup
 import androidx.lifecycle.lifecycleScope
 import androidx.viewbinding.ViewBinding
+import com.bn.todo.R
 import com.bn.todo.data.Resource
 import com.bn.todo.data.State
 import com.bn.todo.ktx.showDialog
@@ -39,14 +40,19 @@ abstract class ObserveStateBottomSheetDialogFragment<Binding : ViewBinding> :
         resource: Resource<*>,
         successAction: () -> Unit,
         errorAction: () -> Unit = {},
-        loadingAction: () -> Unit = {}
+        loadingAction: () -> Unit = {},
     ) {
         Timber.d("state is ${resource.state}")
         when (resource.state) {
             State.SUCCESS -> successAction()
             State.ERROR -> {
                 errorAction()
-                resource.message?.let { viewModel.errorMsg.tryEmit(it) }
+                job = viewLifecycleOwner.lifecycleScope.launchWhenStarted {
+                    viewModel.errorMsg.emit(
+                        resource.message ?: resource.messageResId?.let { getString(it) }
+                        ?: getString(R.string.err_unknown)
+                    )
+                }
             }
             State.LOADING -> loadingAction()
         }

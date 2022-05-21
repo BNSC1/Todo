@@ -11,28 +11,28 @@ class UserPrefRepository @Inject constructor(
 ) {
 
     suspend fun setSortPref(sortPref: Int) =
-        dataStoreMgr.setPreferences(DataStoreKeys.SORT_PREF, sortPref)
+        dataStoreMgr.setPreference(DataStoreKeys.SORT_PREF, sortPref)
 
     fun getSortPref(default: Int) =
-        dataStoreMgr.getPreferences(DataStoreKeys.SORT_PREF, default)
+        dataStoreMgr.getPreference(DataStoreKeys.SORT_PREF, default)
 
     suspend fun setShowCompleted(showCompleted: Boolean) =
-        dataStoreMgr.setPreferences(DataStoreKeys.SHOW_COMPLETED, showCompleted)
+        dataStoreMgr.setPreference(DataStoreKeys.SHOW_COMPLETED, showCompleted)
 
     fun getShowCompleted(default: Boolean) =
-        dataStoreMgr.getPreferences(DataStoreKeys.SHOW_COMPLETED, default)
+        dataStoreMgr.getPreference(DataStoreKeys.SHOW_COMPLETED, default)
 
     suspend fun setNotFirstTimeLaunch(isNotFirstTimeLaunch: Boolean) =
-        dataStoreMgr.setPreferences(DataStoreKeys.NOT_FIRST_LAUNCH, isNotFirstTimeLaunch)
+        dataStoreMgr.setPreference(DataStoreKeys.NOT_FIRST_LAUNCH, isNotFirstTimeLaunch)
 
     fun getNotFirstTimeLaunch(default: Boolean = false) =
-        dataStoreMgr.getPreferences(DataStoreKeys.NOT_FIRST_LAUNCH, default)
+        dataStoreMgr.getPreference(DataStoreKeys.NOT_FIRST_LAUNCH, default)
 
 
     fun getCurrentListId(default: Int) =
-        dataStoreMgr.getPreferences(DataStoreKeys.CURRENT_LIST, default)
+        dataStoreMgr.getPreference(DataStoreKeys.CURRENT_LIST, default)
 
     suspend fun setCurrentListId(id: Int) =
-        dataStoreMgr.setPreferences(DataStoreKeys.CURRENT_LIST, id)
+        dataStoreMgr.setPreference(DataStoreKeys.CURRENT_LIST, id)
 
 }

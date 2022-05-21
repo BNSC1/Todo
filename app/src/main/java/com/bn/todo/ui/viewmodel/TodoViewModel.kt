@@ -23,8 +23,6 @@ class TodoViewModel @Inject constructor(
     val shouldGoToNewList = _shouldGoToNewList.asStateFlow()
     private val _shouldRefreshList = MutableSharedFlow<Boolean>(replay = 1)
     val shouldRefreshList = _shouldRefreshList.asSharedFlow()
-    private val _currentList = MutableSharedFlow<TodoList>(replay = 1)
-    val currentList = _currentList.asSharedFlow()
     private val _clickedTodo = MutableSharedFlow<Todo>(replay = 1)
     val clickedTodo get() = _clickedTodo
     private val _listCount = MutableSharedFlow<Int>(replay = 1)
@@ -51,14 +49,10 @@ class TodoViewModel @Inject constructor(
     private fun queryTodoList(name: String? = null) =
         todoRepository.queryTodoList(name).onEach { listCount.emit(it.size) }
 
-    fun updateTodoList(list: TodoList, name: String) = flow {
+    fun updateTodoList(list: TodoList, name: String) = stateFlow {
         todoRepository.updateTodoList(list, name)
         emit(Resource.success(null))
-    }.stateIn(
-        scope = viewModelScope,
-        started = SharingStarted.Lazily,
-        initialValue = Resource.loading()
-    )
+    }
 
     fun deleteTodoList(list: TodoList) = flow {
         todoRepository.deleteTodoList(list)
@@ -108,14 +102,10 @@ class TodoViewModel @Inject constructor(
         initialValue = Resource.loading()
     )
 
-    fun updateTodo(todo: Todo, isCompleted: Boolean) = flow {
+    fun updateTodo(todo: Todo, isCompleted: Boolean) = stateFlow {
         todoRepository.updateTodo(todo, isCompleted)
         emit(Resource.success(null))
-    }.stateIn(
-        scope = viewModelScope,
-        started = SharingStarted.Lazily,
-        initialValue = Resource.loading()
-    )
+    }
 
     fun deleteTodo(todo: Todo) = flow {
         todoRepository.deleteTodo(todo)

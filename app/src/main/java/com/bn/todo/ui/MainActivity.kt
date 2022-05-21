@@ -21,7 +21,7 @@ import com.bn.todo.ui.viewmodel.TodoViewModel
 import com.bn.todo.util.DialogUtil
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.flow.first
-import kotlinx.coroutines.launch
+import timber.log.Timber
 import javax.inject.Inject
 
 private const val MENU_ORDER = Menu.NONE
@@ -40,30 +40,33 @@ class MainActivity : NavigationActivity(), TodoClickCallback {
         with(binding) {
             setupToolbar()
             setupDrawer()
-            collectCurrentList()
-            collectLatestLifecycleFlow(viewModel.shouldGoToNewList) { shouldGo -> //todo: code rearrange.
-                if (shouldGo) {
-                    setList(viewModel.todoLists.first().lastIndex)
-                    viewModel.setShouldGoToNewList(false)
-                }
+            collectCurrentListId()
+            collectShouldGoToNewList()
+        }
+    }
+
+    private fun ActivityMainBinding.collectCurrentListId() =
+        collectLatestLifecycleFlow(viewModel.getCurrentListId()) { id ->
+            viewModel.todoLists.first().let { lists ->
+                setSelectedListItem(getIndexById(lists, id))
             }
-            collectLatestLifecycleFlow(viewModel.getCurrentListId()) {
-                viewModel.todoLists.first().let { list ->
-                    setSelectedListItem(list.indexOf(list.firstOrNull {
-                        viewModel.getCurrentListId().first() == it.id
-                    }))
-                }
+        }
+
+    private fun getIndexById(lists: List<TodoList>, id: Int): Int =
+        lists.indexOf(lists.firstOrNull {
+            id == it.id
+        })
+
+    private fun ActivityMainBinding.collectShouldGoToNewList() {
+        collectLatestLifecycleFlow(viewModel.shouldGoToNewList) { shouldGo ->
+            if (shouldGo) {
+                setList(viewModel.todoLists.first().lastIndex)
+                viewModel.setShouldGoToNewList(false)
             }
         }
     }
 
     private fun openBottomSheet() = TodoInfoFragment().show(supportFragmentManager, "bottom_sheet")
-
-    private fun ActivityMainBinding.collectCurrentList() {
-        collectLatestLifecycleFlow(viewModel.currentList) { list ->
-            layoutToolbar.toolbar.title = list.name
-        }
-    }
 
     private fun ActivityMainBinding.setupToolbar() {
         setSupportActionBar(layoutToolbar.toolbar)
@@ -126,13 +129,6 @@ class MainActivity : NavigationActivity(), TodoClickCallback {
         }
     }
 
-//    private fun ActivityMainBinding.goToNewList() {
-//        job = collectFirstLifecycleFlow(viewModel.todoLists) { lists ->
-//            setList(lists, lists.lastIndex)
-//            viewModel.setShouldGoToNewList(false)
-//        }
-//    }
-
     private fun ActivityMainBinding.updateDrawerNavigation() {
         supportActionBar?.let { actionBar ->
             if (isRootFragment) {
@@ -187,7 +183,7 @@ class MainActivity : NavigationActivity(), TodoClickCallback {
 
     private fun ActivityMainBinding.setSelectedListItem(menuId: Int) {
         if (menuId >= 0) {
-            job = lifecycleScope.launch {
+            job = lifecycleScope.launchWhenStarted {
                 viewModel.setCurrentListId(viewModel.todoLists.first()[menuId].id)
                 drawer.navigation.menu.getItem(menuId).isChecked = true
                 viewModel.setShouldRefreshList()
@@ -207,13 +203,19 @@ class MainActivity : NavigationActivity(), TodoClickCallback {
         resource: Resource<*>,
         successAction: () -> Unit,
         errorAction: () -> Unit = {},
-        loadingAction: () -> Unit = {}
+        loadingAction: () -> Unit = {},
     ) {
+        Timber.d("state is ${resource.state}")
         when (resource.state) {
             State.SUCCESS -> successAction()
             State.ERROR -> {
                 errorAction()
-                resource.message?.let { viewModel.errorMsg.tryEmit(it) }
+                job = lifecycleScope.launchWhenStarted {
+                    viewModel.errorMsg.emit(
+                        resource.message ?: resource.messageResId?.let { getString(it) }
+                        ?: getString(R.string.err_unknown)
+                    )
+                }
             }
             State.LOADING -> loadingAction()
         }

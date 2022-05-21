@@ -17,38 +17,41 @@ val Context.dataStore: DataStore<Preferences> by preferencesDataStore(DATASTORE_
 @Singleton
 class DataStoreMgr @Inject constructor(@ApplicationContext val context: Context) {
 
-    suspend inline fun <reified T> setPreferences(
+    suspend inline fun <reified T> clearPreference(key: Preferences.Key<T>) =
+        context.dataStore.edit { prefs -> prefs.remove(key) }
+
+    suspend inline fun <reified T> setPreference(
         key: Preferences.Key<T>,
-        vararg values: T
-    ) {
-        context.dataStore.edit { prefs ->
-            values.forEach { prefs[key] = it }
-        }
+        values: T
+    ) = context.dataStore.edit { prefs ->
+        prefs[key] = values
     }
 
-    inline fun <reified T> getPreferences(
+
+    inline fun <reified T> getPreference(
         key: Preferences.Key<T>,
-        default: T? = null
-    ) =
-        context.dataStore.data.catch {
-            if (it is IOException) {
-                it.printStackTrace()
-                emit(emptyPreferences())
-            } else throw it
-        }
-            .map { prefs ->
-                prefs[key] ?: run {
-                    default ?: {
-                        when (T::class) {
-                            Int::class -> 0
-                            Long::class -> 0L
-                            Float::class -> 0f
-                            Double::class -> 0.0
-                            else -> null
-                        }
-                    } as T
-                }
+        default: T? = null,
+    ) = context.dataStore.data.catch {
+        if (it is IOException) {
+            it.printStackTrace()
+            emit(emptyPreferences())
+        } else throw it
+    }
+        .map { prefs ->
+            prefs[key] ?: run {
+                default ?: {
+                    when (T::class) {
+                        Int::class -> 0
+                        Long::class -> 0L
+                        Float::class -> 0f
+                        Double::class -> 0.0
+                        Boolean::class -> false
+                        String::class -> ""
+                        else -> null
+                    }
+                } as T
             }
+        }
 }
 
 object DataStoreKeys {
