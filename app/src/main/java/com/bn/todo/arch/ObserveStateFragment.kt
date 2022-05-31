@@ -12,6 +12,7 @@ import com.bn.todo.data.Resource
 import com.bn.todo.data.State
 import com.bn.todo.ktx.collectLatestLifecycleFlow
 import com.bn.todo.ktx.showToast
+import kotlinx.coroutines.launch
 import timber.log.Timber
 
 abstract class ObserveStateFragment<Binding : ViewBinding> : BaseFragment<Binding>() {
@@ -27,7 +28,7 @@ abstract class ObserveStateFragment<Binding : ViewBinding> : BaseFragment<Bindin
     }
 
     private fun collectErrorMessage() {
-        collectLatestLifecycleFlow(viewModel.errorMsg) {
+        viewModel.errorMsg.collectLatestLifecycleFlow(viewLifecycleOwner) {
             if (it.isNotBlank()) {
                 showToast(message = it, Toast.LENGTH_LONG)
             }
@@ -46,7 +47,7 @@ abstract class ObserveStateFragment<Binding : ViewBinding> : BaseFragment<Bindin
             State.SUCCESS -> successAction()
             State.ERROR -> {
                 errorAction()
-                job = viewLifecycleOwner.lifecycleScope.launchWhenStarted {
+                job = viewLifecycleOwner.lifecycleScope.launch {
                     viewModel.errorMsg.emit(
                         resource.message ?: resource.messageResId?.let { getString(it) }
                         ?: getString(R.string.err_unknown)

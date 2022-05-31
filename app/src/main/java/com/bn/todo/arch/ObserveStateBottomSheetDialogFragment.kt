@@ -9,7 +9,9 @@ import androidx.viewbinding.ViewBinding
 import com.bn.todo.R
 import com.bn.todo.data.Resource
 import com.bn.todo.data.State
+import com.bn.todo.ktx.collectLifecycleFlow
 import com.bn.todo.ktx.showDialog
+import kotlinx.coroutines.launch
 import timber.log.Timber
 
 abstract class ObserveStateBottomSheetDialogFragment<Binding : ViewBinding> :
@@ -26,8 +28,8 @@ abstract class ObserveStateBottomSheetDialogFragment<Binding : ViewBinding> :
     }
 
     private fun observeErrorMsg() {
-        job = viewLifecycleOwner.lifecycleScope.launchWhenStarted {
-            viewModel.errorMsg.collect {
+        job = viewLifecycleOwner.lifecycleScope.launch {
+            viewModel.errorMsg.collectLifecycleFlow(viewLifecycleOwner) {
                 if (it.isNotBlank()) {
                     showDialog(message = it)
                 }
@@ -47,7 +49,7 @@ abstract class ObserveStateBottomSheetDialogFragment<Binding : ViewBinding> :
             State.SUCCESS -> successAction()
             State.ERROR -> {
                 errorAction()
-                job = viewLifecycleOwner.lifecycleScope.launchWhenStarted {
+                job = viewLifecycleOwner.lifecycleScope.launch {
                     viewModel.errorMsg.emit(
                         resource.message ?: resource.messageResId?.let { getString(it) }
                         ?: getString(R.string.err_unknown)

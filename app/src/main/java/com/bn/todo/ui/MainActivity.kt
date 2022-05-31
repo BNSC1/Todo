@@ -21,6 +21,7 @@ import com.bn.todo.ui.viewmodel.TodoViewModel
 import com.bn.todo.util.DialogUtil
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.flow.first
+import kotlinx.coroutines.launch
 import timber.log.Timber
 import javax.inject.Inject
 
@@ -46,7 +47,7 @@ class MainActivity : NavigationActivity(), TodoClickCallback {
     }
 
     private fun ActivityMainBinding.collectCurrentListId() =
-        collectLatestLifecycleFlow(viewModel.getCurrentListId()) { id ->
+        viewModel.getCurrentListId().collectLatestLifecycleFlow(this@MainActivity) { id ->
             viewModel.todoLists.first().let { lists ->
                 setSelectedListItem(getIndexById(lists, id))
             }
@@ -58,7 +59,7 @@ class MainActivity : NavigationActivity(), TodoClickCallback {
         })
 
     private fun ActivityMainBinding.collectShouldGoToNewList() {
-        collectLatestLifecycleFlow(viewModel.shouldGoToNewList) { shouldGo ->
+        viewModel.shouldGoToNewList.collectLatestLifecycleFlow(this@MainActivity) { shouldGo ->
             if (shouldGo) {
                 setList(viewModel.todoLists.first().lastIndex)
                 viewModel.setShouldGoToNewList(false)
@@ -102,7 +103,7 @@ class MainActivity : NavigationActivity(), TodoClickCallback {
     }
 
     private fun ActivityMainBinding.collectTodoList() {
-        collectLatestLifecycleFlow(viewModel.todoLists) { lists ->
+        viewModel.todoLists.collectLatestLifecycleFlow(this@MainActivity) { lists ->
             updateDrawerMenu(lists)
         }
     }
@@ -166,9 +167,10 @@ class MainActivity : NavigationActivity(), TodoClickCallback {
                         override fun receiveInput(input: String?) {
                             if (!input.isNullOrBlank()) {
                                 job =
-                                    collectFirstLifecycleFlow(viewModel.insertTodoList(input)) { res ->
-                                        handleState(res, {})
-                                    }
+                                    viewModel.insertTodoList(input)
+                                        .collectFirstLifecycleFlow(this@MainActivity) { res ->
+                                            handleState(res, {})
+                                        }
                             } else {
                                 showDialog(message = getString(R.string.title_input_name_for_list))
                             }
@@ -183,7 +185,7 @@ class MainActivity : NavigationActivity(), TodoClickCallback {
 
     private fun ActivityMainBinding.setSelectedListItem(menuId: Int) {
         if (menuId >= 0) {
-            job = lifecycleScope.launchWhenStarted {
+            job = lifecycleScope.launch {
                 viewModel.setCurrentListId(viewModel.todoLists.first()[menuId].id)
                 drawer.navigation.menu.getItem(menuId).isChecked = true
                 viewModel.setShouldRefreshList()
@@ -210,7 +212,7 @@ class MainActivity : NavigationActivity(), TodoClickCallback {
             State.SUCCESS -> successAction()
             State.ERROR -> {
                 errorAction()
-                job = lifecycleScope.launchWhenStarted {
+                job = lifecycleScope.launch {
                     viewModel.errorMsg.emit(
                         resource.message ?: resource.messageResId?.let { getString(it) }
                         ?: getString(R.string.err_unknown)

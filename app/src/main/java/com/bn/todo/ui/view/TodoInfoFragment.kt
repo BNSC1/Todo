@@ -34,7 +34,7 @@ class TodoInfoFragment : ObserveStateBottomSheetDialogFragment<FragmentTodoInfoB
         with(binding) {
             setupTodo()
             deleteBtn.setOnClickListener {
-                job = viewLifecycleOwner.lifecycleScope.launchWhenCreated {
+                job = viewLifecycleOwner.lifecycleScope.launch {
                     viewModel.deleteTodo(clickedTodo).collect { res ->
                         handleState(res, {
                             dismiss()
@@ -50,7 +50,7 @@ class TodoInfoFragment : ObserveStateBottomSheetDialogFragment<FragmentTodoInfoB
     }
 
     private fun FragmentTodoInfoBinding.setupTodo() {
-        viewLifecycleOwner.lifecycleScope.launchWhenCreated {
+        viewLifecycleOwner.lifecycleScope.launch {
             clickedTodo = viewModel.clickedTodo.first()
             titleText.text = clickedTodo.title
             bodyText.text = clickedTodo.body

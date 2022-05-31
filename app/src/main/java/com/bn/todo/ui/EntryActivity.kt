@@ -3,7 +3,7 @@ package com.bn.todo.ui
 import android.content.Intent
 import android.os.Bundle
 import com.bn.todo.arch.BaseActivity
-import com.bn.todo.ktx.collectLatestLifecycleFlow
+import com.bn.todo.ktx.collectFirstLifecycleFlow
 import com.bn.todo.ui.viewmodel.EntryViewModel
 import dagger.hilt.android.AndroidEntryPoint
 import javax.inject.Inject
@@ -15,7 +15,7 @@ class EntryActivity : BaseActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        collectLatestLifecycleFlow(viewModel.getIsNotFirstLaunch()) { isNotFirstLaunch ->
+        viewModel.getIsNotFirstLaunch().collectFirstLifecycleFlow(this) { isNotFirstLaunch ->
             val intent = Intent(
                 this@EntryActivity,
                 if (isNotFirstLaunch) MainActivity::class.java

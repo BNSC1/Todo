@@ -51,7 +51,7 @@ class CreateTodoFragment : ObserveStateFragment<FragmentCreateTodoBinding>() {
     }
 
     private fun FragmentCreateTodoBinding.fetchTodo() {
-        viewLifecycleOwner.lifecycleScope.launchWhenStarted {
+        viewLifecycleOwner.lifecycleScope.launch {
             clickedTodo = viewModel.clickedTodo.first()
             layoutTitleInput.input.setText(clickedTodo.title)
             layoutBodyInput.input.setText(clickedTodo.body)
@@ -69,7 +69,7 @@ class CreateTodoFragment : ObserveStateFragment<FragmentCreateTodoBinding>() {
                 val title = layoutTitleInput.input.text.toString()
                 val body = layoutBodyInput.input.text.toString()
                 if (isAllowed) {
-                    job = viewLifecycleOwner.lifecycleScope.launchWhenStarted {
+                    job = viewLifecycleOwner.lifecycleScope.launch {
                         if (isEditMode) {
                             viewModel.updateTodo(clickedTodo, title, body).collect {
                                 handleState(it, {

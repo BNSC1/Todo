@@ -25,7 +25,7 @@ class TodoViewModel @Inject constructor(
     val shouldRefreshList = _shouldRefreshList.asSharedFlow()
     private val _clickedTodo = MutableSharedFlow<Todo>(replay = 1)
     val clickedTodo get() = _clickedTodo
-    private val _listCount = MutableSharedFlow<Int>(replay = 1)
+    private val _listCount = MutableStateFlow(-1)
     val listCount get() = _listCount
     val todoLists get() = queryTodoList()
 
