@@ -49,10 +49,18 @@ class TodoViewModel @Inject constructor(
     private fun queryTodoList(name: String? = null) =
         todoRepository.queryTodoList(name).onEach { listCount.emit(it.size) }
 
-    fun updateTodoList(list: TodoList, name: String) = stateFlow {
+    fun updateTodoList(list: TodoList, name: String) = flow {
         todoRepository.updateTodoList(list, name)
         emit(Resource.success(null))
-    }
+    }.onEach {
+        if (it.state == State.SUCCESS) {
+            setShouldGoToNewList()
+        }
+    }.stateIn(
+        scope = viewModelScope,
+        started = SharingStarted.Lazily,
+        initialValue = Resource.loading()
+    )
 
     fun deleteTodoList(list: TodoList) = flow {
         todoRepository.deleteTodoList(list)
@@ -111,7 +119,9 @@ class TodoViewModel @Inject constructor(
         todoRepository.deleteTodo(todo)
         emit(Resource.success(null))
     }.onEach {
-        setShouldRefreshList()
+        if (it.state == State.SUCCESS) {
+            setShouldRefreshList()
+        }
     }.stateIn(
         scope = viewModelScope,
         started = SharingStarted.Lazily,
@@ -121,7 +131,11 @@ class TodoViewModel @Inject constructor(
     fun deleteCompletedTodos() = flow {
         val deleted = todoRepository.deleteCompletedTodo(getCurrentListId().first())
         emit(Resource.success(deleted))
-    }.onEach { setShouldRefreshList() }.stateIn(
+    }.onEach {
+        if (it.state == State.SUCCESS) {
+            setShouldRefreshList()
+        }
+    }.stateIn(
         scope = viewModelScope,
         started = SharingStarted.Lazily,
         initialValue = Resource.loading()

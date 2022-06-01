@@ -105,7 +105,7 @@ class TodoListFragment : ObserveStateFragment<FragmentTodoListBinding>() {
                 }
             }
             R.id.action_rename_list -> {
-                tryCurrentListAction({ list ->
+                tryCurrentListAction { list ->
                     DialogUtil.showInputDialog(
                         requireActivity(),
                         getString(R.string.title_input_name_for_list),
@@ -113,7 +113,7 @@ class TodoListFragment : ObserveStateFragment<FragmentTodoListBinding>() {
                         inputReceiver = object : DialogUtil.OnInputReceiver {
                             override fun receiveInput(input: String?) {
                                 if (!input.isNullOrBlank()) {
-                                    job = lifecycleScope.launch {
+                                    job = viewLifecycleOwner.lifecycleScope.launch {
                                         currentList?.let {
                                             viewModel.updateTodoList(it, input)
                                                 .collect { res ->
@@ -126,11 +126,11 @@ class TodoListFragment : ObserveStateFragment<FragmentTodoListBinding>() {
                                 }
                             }
                         })
-                })
+                }
             }
             R.id.action_delete_list -> {
                 if (viewModel.listCount.value > 1) {
-                    tryCurrentListAction({ list ->
+                    tryCurrentListAction { list ->
                         showConfirmDialog(
                             requireContext(),
                             msg = String.format(
@@ -138,23 +138,25 @@ class TodoListFragment : ObserveStateFragment<FragmentTodoListBinding>() {
                                 list.name
                             ),
                             okAction = {
-                                job =
+                                job = viewLifecycleOwner.lifecycleScope.launch {
                                     viewModel.deleteTodoList(list)
-                                        .collectLatestLifecycleFlow(viewLifecycleOwner) { res ->
+                                        .collect { res ->
                                             handleState(
                                                 res,
                                                 {})
                                         }
+                                }
                             }
                         )
-                    })
+                    }
                 } else {
                     showDialog(messageStringId = R.string.msg_cannot_delete_last_list)
                 }
             }
             R.id.action_clear_completed_todos -> {
-                tryCurrentListAction({ list ->
-                    showConfirmDialog(requireContext(),
+                tryCurrentListAction { list ->
+                    showConfirmDialog(
+                        requireContext(),
                         msg = String.format(
                             getString(R.string.msg_confirm_clear_completed_todos),
                             list.name
@@ -174,7 +176,7 @@ class TodoListFragment : ObserveStateFragment<FragmentTodoListBinding>() {
                             }
                         })
                         }
-                    )
+
             }
             R.id.action_show_completed_todos -> {
                 item.isChecked = !item.isChecked
@@ -190,8 +192,8 @@ class TodoListFragment : ObserveStateFragment<FragmentTodoListBinding>() {
     }
 
     private inline fun tryCurrentListAction(
-        action: (TodoList) -> Unit,
-        nullListAction: () -> Unit = { showToast(getString(R.string.msg_no_list_selected)) }
+        nullListAction: () -> Unit = { showToast(getString(R.string.msg_no_list_selected)) },
+        action: (TodoList) -> Unit
     ) =
         currentList?.let {
             action(it)
