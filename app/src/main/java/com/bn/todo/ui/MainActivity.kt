@@ -185,8 +185,8 @@ class MainActivity : NavigationActivity(), TodoClickCallback {
 
     private fun ActivityMainBinding.setSelectedListItem(menuId: Int) {
         if (menuId >= 0) {
-            job = lifecycleScope.launch {
-                viewModel.setCurrentListId(viewModel.todoLists.first()[menuId].id)
+            job = viewModel.todoLists.collectFirstLifecycleFlow(this@MainActivity) { lists ->
+                viewModel.setCurrentListId(lists[menuId].id)
                 drawer.navigation.menu.getItem(menuId).isChecked = true
                 viewModel.setShouldRefreshList()
             }

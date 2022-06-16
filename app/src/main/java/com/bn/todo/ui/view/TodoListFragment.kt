@@ -6,7 +6,6 @@ import android.view.Menu
 import android.view.MenuInflater
 import android.view.MenuItem
 import android.view.View
-import androidx.lifecycle.lifecycleScope
 import androidx.navigation.findNavController
 import androidx.navigation.ui.NavigationUI
 import com.bn.todo.R
@@ -16,6 +15,7 @@ import com.bn.todo.arch.recyclerview.OnItemClickListener
 import com.bn.todo.data.model.Todo
 import com.bn.todo.data.model.TodoList
 import com.bn.todo.databinding.FragmentTodoListBinding
+import com.bn.todo.ktx.collectFirstLifecycleFlow
 import com.bn.todo.ktx.collectLatestLifecycleFlow
 import com.bn.todo.ktx.showDialog
 import com.bn.todo.ktx.showToast
@@ -28,7 +28,6 @@ import com.bn.todo.util.DialogUtil.showConfirmDialog
 import com.bn.todo.util.DialogUtil.showRadioDialog
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.flow.first
-import kotlinx.coroutines.launch
 import timber.log.Timber
 import javax.inject.Inject
 
@@ -52,10 +51,8 @@ class TodoListFragment : ObserveStateFragment<FragmentTodoListBinding>() {
             list.adapter =
                 TodosAdapter(requireContext(), todos, object : OnItemClickListener {
                     override fun onItemClick(item: Clickable) {
-                        viewLifecycleOwner.lifecycleScope.launch {
-                            (requireActivity() as TodoClickCallback).onTodoClick()
-                            viewModel.clickedTodo.emit(item as Todo)
-                        }
+                        (requireActivity() as TodoClickCallback).onTodoClick()
+                        viewModel.setClickedTodo(item as Todo)
                     }
                 })
         }
@@ -68,7 +65,7 @@ class TodoListFragment : ObserveStateFragment<FragmentTodoListBinding>() {
                 Timber.d("should refresh list")
                 currentList = viewModel.getCurrentList()
                 (requireActivity() as MainActivity).supportActionBar?.title =
-                    currentList?.name ?: "Error"
+                    currentList?.name
                 todos.clear()
                 todos.addAll(viewModel.queryTodo().first())
                 binding.list.adapter!!.notifyDataSetChanged() //todo: optimize
@@ -90,19 +87,18 @@ class TodoListFragment : ObserveStateFragment<FragmentTodoListBinding>() {
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
         when (item.itemId) {
             R.id.action_sort -> {
-                job = viewLifecycleOwner.lifecycleScope.launch {
-                    (binding.list.adapter as TodosAdapter).apply {
-                        showRadioDialog(requireContext(),
-                            items = resources.getStringArray(R.array.sort_order_group),
-                            title = getString(R.string.title_sort_by),
-                            defaultIndex = viewModel.getSortPref().first(),
-                            okAction = { index ->
-                                job = viewLifecycleOwner.lifecycleScope.launch {
+                job = viewModel.getSortPref()
+                    .collectFirstLifecycleFlow(viewLifecycleOwner) { sortPref ->
+                        (binding.list.adapter as TodosAdapter).apply {
+                            showRadioDialog(requireContext(),
+                                items = resources.getStringArray(R.array.sort_order_group),
+                                title = getString(R.string.title_sort_by),
+                                defaultIndex = sortPref,
+                                okAction = { index ->
                                     viewModel.setSortPref(index)
-                                }
-                            })
+                                })
+                        }
                     }
-                }
             }
             R.id.action_rename_list -> {
                 tryCurrentListAction { list ->
@@ -113,14 +109,10 @@ class TodoListFragment : ObserveStateFragment<FragmentTodoListBinding>() {
                         inputReceiver = object : DialogUtil.OnInputReceiver {
                             override fun receiveInput(input: String?) {
                                 if (!input.isNullOrBlank()) {
-                                    job = viewLifecycleOwner.lifecycleScope.launch {
                                         currentList?.let {
-                                            viewModel.updateTodoList(it, input)
-                                                .collect { res ->
-                                                    handleState(res, {})
-                                                }
+                                            job = viewModel.updateTodoList(it, input)
+                                                .collectFirstLifecycleFlow(viewLifecycleOwner) {}
                                         }
-                                    }
                                 } else {
                                     showDialog(message = getString(R.string.title_input_name_for_list))
                                 }
@@ -138,14 +130,8 @@ class TodoListFragment : ObserveStateFragment<FragmentTodoListBinding>() {
                                 list.name
                             ),
                             okAction = {
-                                job = viewLifecycleOwner.lifecycleScope.launch {
-                                    viewModel.deleteTodoList(list)
-                                        .collect { res ->
-                                            handleState(
-                                                res,
-                                                {})
-                                        }
-                                }
+                                job = viewModel.deleteTodoList(list)
+                                    .collectFirstLifecycleFlow(viewLifecycleOwner) {}
                             }
                         )
                     }
@@ -162,27 +148,24 @@ class TodoListFragment : ObserveStateFragment<FragmentTodoListBinding>() {
                             list.name
                         ),
                         okAction = {
-                            job = viewLifecycleOwner.lifecycleScope.launch {
-                                viewModel.deleteCompletedTodos().collect { res ->
-                                    handleState(res, {
+                            job = viewModel.deleteCompletedTodos()
+                                .collectFirstLifecycleFlow(viewLifecycleOwner) { res ->
+                                    handleState(res) {
                                         showToast(
                                             String.format(
                                                 getString(R.string.msg_deleted_todos_format),
                                                 res.data
                                             )
                                         )
-                                    })
+                                    }
                                 }
-                            }
                         })
                         }
 
             }
             R.id.action_show_completed_todos -> {
                 item.isChecked = !item.isChecked
-                job = viewLifecycleOwner.lifecycleScope.launch {
-                    viewModel.setShowCompleted(item.isChecked)
-                }
+                viewModel.setShowCompleted(item.isChecked)
             }
         }
         return NavigationUI.onNavDestinationSelected(
@@ -200,11 +183,9 @@ class TodoListFragment : ObserveStateFragment<FragmentTodoListBinding>() {
         } ?: nullListAction()
 
     private fun initObserveShowCompleted(menu: Menu) {
-        viewLifecycleOwner.lifecycleScope.launch {
-            viewModel.getShowCompleted().collect {
-                menu.findItem(R.id.action_show_completed_todos).isChecked = it
-                menu.findItem(R.id.action_clear_completed_todos).isEnabled = it
-            }
+        job = viewModel.getShowCompleted().collectLatestLifecycleFlow(viewLifecycleOwner) {
+            menu.findItem(R.id.action_show_completed_todos).isChecked = it
+            menu.findItem(R.id.action_clear_completed_todos).isEnabled = it
         }
     }
 

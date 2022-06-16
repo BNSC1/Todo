@@ -2,15 +2,14 @@ package com.bn.todo.ui.view
 
 import android.os.Bundle
 import android.view.View
-import androidx.lifecycle.lifecycleScope
 import com.bn.todo.R
 import com.bn.todo.arch.ObserveStateFragment
 import com.bn.todo.databinding.FragmentCreateListBinding
+import com.bn.todo.ktx.collectFirstLifecycleFlow
 import com.bn.todo.ktx.getTextOrDefault
 import com.bn.todo.ui.viewmodel.TodoViewModel
 import com.bn.todo.util.TextInputUtil
 import dagger.hilt.android.AndroidEntryPoint
-import kotlinx.coroutines.launch
 import javax.inject.Inject
 
 @AndroidEntryPoint
@@ -34,13 +33,12 @@ class CreateListFragment : ObserveStateFragment<FragmentCreateListBinding>() {
     }
 
     private fun insertTodoList(listName: String) {
-        job = lifecycleScope.launch {
-            viewModel.insertTodoList(listName).collect { res ->
-                handleState(res, {
+        job = viewModel.insertTodoList(listName)
+            .collectFirstLifecycleFlow(viewLifecycleOwner) { res ->
+                handleState(res) {
                     CreateListFragmentDirections.actionToMainActivity().navigate()
                     requireActivity().finish()
-                })
+                }
             }
-        }
     }
 }

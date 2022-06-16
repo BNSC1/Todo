@@ -6,7 +6,6 @@ import android.view.Menu
 import android.view.MenuInflater
 import android.view.MenuItem
 import android.view.View
-import androidx.lifecycle.lifecycleScope
 import androidx.navigation.findNavController
 import androidx.navigation.fragment.findNavController
 import androidx.navigation.fragment.navArgs
@@ -16,13 +15,12 @@ import com.bn.todo.arch.ObserveStateFragment
 import com.bn.todo.data.model.Todo
 import com.bn.todo.databinding.FragmentCreateTodoBinding
 import com.bn.todo.databinding.LayoutTextInputBinding
+import com.bn.todo.ktx.collectFirstLifecycleFlow
 import com.bn.todo.ui.MainActivity
 import com.bn.todo.ui.viewmodel.TodoViewModel
 import com.bn.todo.util.TextInputUtil
 import com.google.android.material.textfield.TextInputEditText
 import dagger.hilt.android.AndroidEntryPoint
-import kotlinx.coroutines.flow.first
-import kotlinx.coroutines.launch
 import javax.inject.Inject
 
 @AndroidEntryPoint
@@ -51,11 +49,11 @@ class CreateTodoFragment : ObserveStateFragment<FragmentCreateTodoBinding>() {
     }
 
     private fun FragmentCreateTodoBinding.fetchTodo() {
-        viewLifecycleOwner.lifecycleScope.launch {
-            clickedTodo = viewModel.clickedTodo.first()
-            layoutTitleInput.input.setText(clickedTodo.title)
-            layoutBodyInput.input.setText(clickedTodo.body)
+        job = viewModel.clickedTodo.collectFirstLifecycleFlow(viewLifecycleOwner) {
+            clickedTodo = it
         }
+        layoutTitleInput.input.setText(clickedTodo.title)
+        layoutBodyInput.input.setText(clickedTodo.body)
     }
 
     override fun onCreateOptionsMenu(menu: Menu, inflater: MenuInflater) {
@@ -69,24 +67,20 @@ class CreateTodoFragment : ObserveStateFragment<FragmentCreateTodoBinding>() {
                 val title = layoutTitleInput.input.text.toString()
                 val body = layoutBodyInput.input.text.toString()
                 if (isAllowed) {
-                    job = viewLifecycleOwner.lifecycleScope.launch {
-                        if (isEditMode) {
-                            viewModel.updateTodo(clickedTodo, title, body).collect {
-                                handleState(it, {
-                                    viewLifecycleOwner.lifecycleScope.launch {
-                                        findNavController().popBackStack()
-                                    }
-                                })
+                    job = if (isEditMode) {
+                        viewModel.updateTodo(clickedTodo, title, body)
+                            .collectFirstLifecycleFlow(viewLifecycleOwner) {
+                                handleState(it) {
+                                    findNavController().popBackStack()
+                                }
                             }
-                        } else {
-                            viewModel.insertTodo(title, body).collect {
-                                handleState(it, {
-                                    viewLifecycleOwner.lifecycleScope.launch {
-                                        findNavController().popBackStack()
-                                    }
-                                })
+                    } else {
+                        viewModel.insertTodo(title, body)
+                            .collectFirstLifecycleFlow(viewLifecycleOwner) {
+                                handleState(it) {
+                                    findNavController().popBackStack()
+                                }
                             }
-                        }
                     }
                 } else {
                     layoutTitleInput.setTitleInputError()

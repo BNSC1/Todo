@@ -18,6 +18,7 @@
             android:label="@string/title_activity_settings" />
         <activity
             android:name=".ui.WelcomeActivity"
+            android:windowSoftInputMode="adjustResize"
             android:exported="false" />
         <activity
             android:name=".ui.MainActivity"

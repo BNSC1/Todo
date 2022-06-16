@@ -16,7 +16,7 @@ import kotlinx.coroutines.launch
 import timber.log.Timber
 
 abstract class ObserveStateFragment<Binding : ViewBinding> : BaseFragment<Binding>() {
-    abstract val viewModel: BaseViewModel
+    protected abstract val viewModel: BaseViewModel
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -38,9 +38,9 @@ abstract class ObserveStateFragment<Binding : ViewBinding> : BaseFragment<Bindin
 
     fun handleState(
         resource: Resource<*>,
-        successAction: () -> Unit,
         errorAction: () -> Unit = {},
         loadingAction: () -> Unit = {},
+        successAction: () -> Unit
     ) {
         Timber.d("state is ${resource.state}")
         when (resource.state) {

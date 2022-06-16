@@ -2,18 +2,16 @@ package com.bn.todo.ui.view
 
 import android.os.Bundle
 import android.view.View
-import androidx.lifecycle.lifecycleScope
 import com.bn.todo.R
 import com.bn.todo.arch.ObserveStateBottomSheetDialogFragment
 import com.bn.todo.data.model.Todo
 import com.bn.todo.databinding.FragmentTodoInfoBinding
+import com.bn.todo.ktx.collectFirstLifecycleFlow
 import com.bn.todo.ktx.setInvisible
 import com.bn.todo.ktx.setVisible
 import com.bn.todo.ui.viewmodel.TodoViewModel
 import com.bn.todo.util.ResUtil
 import dagger.hilt.android.AndroidEntryPoint
-import kotlinx.coroutines.flow.first
-import kotlinx.coroutines.launch
 import javax.inject.Inject
 
 @AndroidEntryPoint
@@ -34,13 +32,12 @@ class TodoInfoFragment : ObserveStateBottomSheetDialogFragment<FragmentTodoInfoB
         with(binding) {
             setupTodo()
             deleteBtn.setOnClickListener {
-                job = viewLifecycleOwner.lifecycleScope.launch {
-                    viewModel.deleteTodo(clickedTodo).collect { res ->
+                job = viewModel.deleteTodo(clickedTodo)
+                    .collectFirstLifecycleFlow(viewLifecycleOwner) { res ->
                         handleState(res, {
                             dismiss()
                         })
                     }
-                }
             }
             editBtn.setOnClickListener {
                 TodoListFragmentDirections.actionCreateTodo(TAG).navigate()
@@ -50,37 +47,33 @@ class TodoInfoFragment : ObserveStateBottomSheetDialogFragment<FragmentTodoInfoB
     }
 
     private fun FragmentTodoInfoBinding.setupTodo() {
-        viewLifecycleOwner.lifecycleScope.launch {
-            clickedTodo = viewModel.clickedTodo.first()
-            titleText.text = clickedTodo.title
-            bodyText.text = clickedTodo.body
-            if (clickedTodo.isCompleted) {
-                completeBtn.setInvisible()
-                undoCompleteBtn.setVisible()
+        job = viewModel.clickedTodo.collectFirstLifecycleFlow(viewLifecycleOwner) {
+            clickedTodo = it
+        }
+        titleText.text = clickedTodo.title
+        bodyText.text = clickedTodo.body
+        if (clickedTodo.isCompleted) {
+            completeBtn.setInvisible()
+            undoCompleteBtn.setVisible()
 
-                undoCompleteBtn.setOnClickListener {
-                    setTodoComplete(false)
-                }
-            } else {
-                completeBtn.setOnClickListener {
-                    setTodoComplete(true)
-                }
-                setNotCompletedText()
+            undoCompleteBtn.setOnClickListener {
+                setTodoComplete(false)
             }
+        } else {
+            completeBtn.setOnClickListener {
+                setTodoComplete(true)
+            }
+            setNotCompletedText()
         }
     }
 
     private fun setTodoComplete(isCompleted: Boolean) {
-        job = viewLifecycleOwner.lifecycleScope.launch {
-            viewModel.updateTodo(clickedTodo, isCompleted).collect { res ->
+        job = viewModel.updateTodo(clickedTodo, isCompleted)
+            .collectFirstLifecycleFlow(viewLifecycleOwner) { res ->
                 handleState(res, {
-                    viewLifecycleOwner.lifecycleScope.launch {
-                        viewModel.setShouldRefreshList()
-                    }
                     dismiss()
                 })
             }
-        }
     }
 
     private fun FragmentTodoInfoBinding.setNotCompletedText() {
