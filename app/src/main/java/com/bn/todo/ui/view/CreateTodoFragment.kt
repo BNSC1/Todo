@@ -6,6 +6,8 @@ import android.view.Menu
 import android.view.MenuInflater
 import android.view.MenuItem
 import android.view.View
+import androidx.core.view.MenuProvider
+import androidx.lifecycle.Lifecycle
 import androidx.navigation.findNavController
 import androidx.navigation.fragment.findNavController
 import androidx.navigation.fragment.navArgs
@@ -35,7 +37,36 @@ class CreateTodoFragment : ObserveStateFragment<FragmentCreateTodoBinding>() {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        setHasOptionsMenu(true)
+        requireActivity().addMenuProvider(object : MenuProvider {
+            override fun onCreateMenu(menu: Menu, menuInflater: MenuInflater) {
+                menuInflater.inflate(R.menu.menu_create_todo, menu)
+            }
+
+            override fun onMenuItemSelected(menuItem: MenuItem): Boolean {
+                if (menuItem.itemId == R.id.action_add) {
+                    with(binding) {
+                        val title = layoutTitleInput.input.text.toString()
+                        val body = layoutBodyInput.input.text.toString()
+                        if (isAllowed) {
+                            if (isEditMode) {
+                                viewModel.updateTodo(clickedTodo, title, body)
+                                findNavController().popBackStack()
+                            } else {
+                                viewModel.insertTodo(title, body)
+                                findNavController().popBackStack()
+                            }
+                        } else {
+                            layoutTitleInput.setTitleInputError()
+                            TextInputUtil.showKeyboard(requireActivity(), layoutTitleInput.input)
+                        }
+                    }
+                }
+                return NavigationUI.onNavDestinationSelected(
+                    menuItem,
+                    requireView().findNavController()
+                )
+            }
+        }, viewLifecycleOwner, Lifecycle.State.STARTED)
         isEditMode = sourceFragment == TodoInfoFragment.TAG
 
         with(binding) {
@@ -56,36 +87,6 @@ class CreateTodoFragment : ObserveStateFragment<FragmentCreateTodoBinding>() {
         }
         layoutTitleInput.input.setText(clickedTodo.title)
         layoutBodyInput.input.setText(clickedTodo.body)
-    }
-
-    override fun onCreateOptionsMenu(menu: Menu, inflater: MenuInflater) {
-        super.onCreateOptionsMenu(menu, inflater)
-        inflater.inflate(R.menu.menu_create_todo, menu)
-    }
-
-    override fun onOptionsItemSelected(item: MenuItem): Boolean {
-        if (item.itemId == R.id.action_add) {
-            with(binding) {
-                val title = layoutTitleInput.input.text.toString()
-                val body = layoutBodyInput.input.text.toString()
-                if (isAllowed) {
-                    if (isEditMode) {
-                        viewModel.updateTodo(clickedTodo, title, body)
-                        findNavController().popBackStack()
-                    } else {
-                        viewModel.insertTodo(title, body)
-                        findNavController().popBackStack()
-                    }
-                } else {
-                    layoutTitleInput.setTitleInputError()
-                    TextInputUtil.showKeyboard(requireActivity(), layoutTitleInput.input)
-                }
-            }
-        }
-        return NavigationUI.onNavDestinationSelected(
-            item,
-            requireView().findNavController()
-        ) || super.onOptionsItemSelected(item)
     }
 
     private fun FragmentCreateTodoBinding.setupLayout() {

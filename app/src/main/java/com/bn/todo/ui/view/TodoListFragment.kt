@@ -6,6 +6,8 @@ import android.view.Menu
 import android.view.MenuInflater
 import android.view.MenuItem
 import android.view.View
+import androidx.core.view.MenuProvider
+import androidx.lifecycle.Lifecycle
 import androidx.navigation.findNavController
 import androidx.navigation.ui.NavigationUI
 import com.bn.todo.R
@@ -24,8 +26,6 @@ import com.bn.todo.ui.callback.TodoClickCallback
 import com.bn.todo.ui.view.adapter.TodosAdapter
 import com.bn.todo.ui.viewmodel.TodoViewModel
 import com.bn.todo.util.DialogUtil
-import com.bn.todo.util.DialogUtil.showConfirmDialog
-import com.bn.todo.util.DialogUtil.showRadioDialog
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.flow.first
 import timber.log.Timber
@@ -41,7 +41,100 @@ class TodoListFragment : ObserveStateFragment<FragmentTodoListBinding>() {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        setHasOptionsMenu(true)
+        requireActivity().addMenuProvider(object : MenuProvider {
+            override fun onCreateMenu(menu: Menu, menuInflater: MenuInflater) {
+                menuInflater.inflate(R.menu.menu_todo_list, menu)
+                initObserveShowCompleted(menu)
+            }
+
+            override fun onMenuItemSelected(menuItem: MenuItem): Boolean {
+                when (menuItem.itemId) {
+                    R.id.action_sort -> {
+                        job = viewModel.getSortPref()
+                            .collectFirstLifecycleFlow(viewLifecycleOwner) { sortPref ->
+                                (binding.list.adapter as TodosAdapter).apply {
+                                    DialogUtil.showRadioDialog(requireContext(),
+                                        items = resources.getStringArray(R.array.sort_order_group),
+                                        title = getString(R.string.title_sort_by),
+                                        defaultIndex = sortPref,
+                                        okAction = { index ->
+                                            viewModel.setSortPref(index)
+                                        })
+                                }
+                            }
+                    }
+                    R.id.action_rename_list -> {
+                        tryCurrentListAction { list ->
+                            DialogUtil.showInputDialog(
+                                requireActivity(),
+                                getString(R.string.title_input_name_for_list),
+                                defaultValue = list.name,
+                                inputReceiver = object : DialogUtil.OnInputReceiver {
+                                    override fun receiveInput(input: String?) {
+                                        if (!input.isNullOrBlank()) {
+                                            currentList?.let {
+                                                viewModel.updateTodoList(it, input)
+                                            }
+                                        } else {
+                                            showDialog(message = getString(R.string.title_input_name_for_list))
+                                        }
+                                    }
+                                })
+                        }
+                    }
+                    R.id.action_delete_list -> {
+                        if (viewModel.listCount.value > 1) {
+                            tryCurrentListAction { list ->
+                                DialogUtil.showConfirmDialog(
+                                    requireContext(),
+                                    msg = String.format(
+                                        getString(R.string.msg_confirm_delete_list_format),
+                                        list.name
+                                    ),
+                                    okAction = {
+                                        viewModel.deleteTodoList(list)
+                                    }
+                                )
+                            }
+                        } else {
+                            showDialog(messageStringId = R.string.msg_cannot_delete_last_list)
+                        }
+                    }
+                    R.id.action_clear_completed_todos -> {
+                        tryCurrentListAction { list ->
+                            DialogUtil.showConfirmDialog(
+                                requireContext(),
+                                msg = String.format(
+                                    getString(R.string.msg_confirm_clear_completed_todos),
+                                    list.name
+                                ),
+                                okAction = {
+                                    job = viewModel.deleteCompletedTodos()
+                                        .collectFirstLifecycleFlow(viewLifecycleOwner) { res ->
+                                            handleState(res) {
+                                                showToast(
+                                                    String.format(
+                                                        getString(R.string.msg_deleted_todos_format),
+                                                        res.data
+                                                    )
+                                                )
+                                            }
+                                        }
+                                })
+                        }
+
+                    }
+                    R.id.action_show_completed_todos -> {
+                        menuItem.isChecked = !menuItem.isChecked
+                        viewModel.setShowCompleted(menuItem.isChecked)
+                    }
+                }
+                return NavigationUI.onNavDestinationSelected(
+                    menuItem,
+                    requireView().findNavController()
+                )
+            }
+        }, viewLifecycleOwner, Lifecycle.State.STARTED)
 
         with(binding) {
             addTodoBtn.setOnClickListener {
@@ -72,104 +165,6 @@ class TodoListFragment : ObserveStateFragment<FragmentTodoListBinding>() {
                 viewModel.setShouldRefreshList(false)
             }
         }
-    }
-
-    override fun onCreateOptionsMenu(menu: Menu, inflater: MenuInflater) {
-        super.onCreateOptionsMenu(menu, inflater)
-        inflater.inflate(R.menu.menu_todo_list, menu)
-    }
-
-    override fun onPrepareOptionsMenu(menu: Menu) {
-        super.onPrepareOptionsMenu(menu)
-        initObserveShowCompleted(menu)
-    }
-
-    override fun onOptionsItemSelected(item: MenuItem): Boolean {
-        when (item.itemId) {
-            R.id.action_sort -> {
-                job = viewModel.getSortPref()
-                    .collectFirstLifecycleFlow(viewLifecycleOwner) { sortPref ->
-                        (binding.list.adapter as TodosAdapter).apply {
-                            showRadioDialog(requireContext(),
-                                items = resources.getStringArray(R.array.sort_order_group),
-                                title = getString(R.string.title_sort_by),
-                                defaultIndex = sortPref,
-                                okAction = { index ->
-                                    viewModel.setSortPref(index)
-                                })
-                        }
-                    }
-            }
-            R.id.action_rename_list -> {
-                tryCurrentListAction { list ->
-                    DialogUtil.showInputDialog(
-                        requireActivity(),
-                        getString(R.string.title_input_name_for_list),
-                        defaultValue = list.name,
-                        inputReceiver = object : DialogUtil.OnInputReceiver {
-                            override fun receiveInput(input: String?) {
-                                if (!input.isNullOrBlank()) {
-                                        currentList?.let {
-                                            viewModel.updateTodoList(it, input)
-                                        }
-                                } else {
-                                    showDialog(message = getString(R.string.title_input_name_for_list))
-                                }
-                            }
-                        })
-                }
-            }
-            R.id.action_delete_list -> {
-                if (viewModel.listCount.value > 1) {
-                    tryCurrentListAction { list ->
-                        showConfirmDialog(
-                            requireContext(),
-                            msg = String.format(
-                                getString(R.string.msg_confirm_delete_list_format),
-                                list.name
-                            ),
-                            okAction = {
-                                viewModel.deleteTodoList(list)
-                            }
-                        )
-                    }
-                } else {
-                    showDialog(messageStringId = R.string.msg_cannot_delete_last_list)
-                }
-            }
-            R.id.action_clear_completed_todos -> {
-                tryCurrentListAction { list ->
-                    showConfirmDialog(
-                        requireContext(),
-                        msg = String.format(
-                            getString(R.string.msg_confirm_clear_completed_todos),
-                            list.name
-                        ),
-                        okAction = {
-                            job = viewModel.deleteCompletedTodos()
-                                .collectFirstLifecycleFlow(viewLifecycleOwner) { res ->
-                                    handleState(res) {
-                                        showToast(
-                                            String.format(
-                                                getString(R.string.msg_deleted_todos_format),
-                                                res.data
-                                            )
-                                        )
-                                    }
-                                }
-                        })
-                        }
-
-            }
-            R.id.action_show_completed_todos -> {
-                item.isChecked = !item.isChecked
-                viewModel.setShowCompleted(item.isChecked)
-            }
-        }
-        return NavigationUI.onNavDestinationSelected(
-            item,
-            requireView().findNavController()
-        ) || super.onOptionsItemSelected(item)
     }
 
     private inline fun tryCurrentListAction(
