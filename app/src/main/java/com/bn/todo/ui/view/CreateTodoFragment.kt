@@ -50,7 +50,9 @@ class CreateTodoFragment : ObserveStateFragment<FragmentCreateTodoBinding>() {
 
     private fun FragmentCreateTodoBinding.fetchTodo() {
         job = viewModel.clickedTodo.collectFirstLifecycleFlow(viewLifecycleOwner) {
-            clickedTodo = it
+            if (it != null) {
+                clickedTodo = it
+            }
         }
         layoutTitleInput.input.setText(clickedTodo.title)
         layoutBodyInput.input.setText(clickedTodo.body)
@@ -67,20 +69,12 @@ class CreateTodoFragment : ObserveStateFragment<FragmentCreateTodoBinding>() {
                 val title = layoutTitleInput.input.text.toString()
                 val body = layoutBodyInput.input.text.toString()
                 if (isAllowed) {
-                    job = if (isEditMode) {
+                    if (isEditMode) {
                         viewModel.updateTodo(clickedTodo, title, body)
-                            .collectFirstLifecycleFlow(viewLifecycleOwner) {
-                                handleState(it) {
-                                    findNavController().popBackStack()
-                                }
-                            }
+                        findNavController().popBackStack()
                     } else {
                         viewModel.insertTodo(title, body)
-                            .collectFirstLifecycleFlow(viewLifecycleOwner) {
-                                handleState(it) {
-                                    findNavController().popBackStack()
-                                }
-                            }
+                        findNavController().popBackStack()
                     }
                 } else {
                     layoutTitleInput.setTitleInputError()

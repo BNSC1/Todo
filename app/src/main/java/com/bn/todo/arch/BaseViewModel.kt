@@ -6,12 +6,13 @@ import com.bn.todo.data.Resource
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.flow.*
+import kotlinx.coroutines.launch
 import kotlin.experimental.ExperimentalTypeInference
 
 abstract class BaseViewModel : ViewModel() {
     protected var job: Job? = null
-    private val _errorMsg: MutableSharedFlow<String> by lazy { MutableSharedFlow() }
-    val errorMsg get() = _errorMsg
+    protected val _errorMsg = MutableStateFlow("")
+    val errorMsg = _errorMsg.asStateFlow()
 
     @OptIn(ExperimentalTypeInference::class)
     inline fun <T> ViewModel.stateFlow(
@@ -27,4 +28,17 @@ abstract class BaseViewModel : ViewModel() {
             started = started,
             initialValue = initValue
         )
+
+    protected fun tryLaunchAction(
+        scope: CoroutineScope = viewModelScope,
+        failureAction: suspend (Throwable) -> Unit = {},
+        action: suspend () -> Unit
+    ) = scope.launch {
+        runCatching {
+            action()
+        }.onFailure {
+            _errorMsg.value = it.message.toString()
+            failureAction(it)
+        }
+    }
 }

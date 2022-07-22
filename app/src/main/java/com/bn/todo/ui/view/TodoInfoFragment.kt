@@ -32,12 +32,8 @@ class TodoInfoFragment : ObserveStateBottomSheetDialogFragment<FragmentTodoInfoB
         with(binding) {
             setupTodo()
             deleteBtn.setOnClickListener {
-                job = viewModel.deleteTodo(clickedTodo)
-                    .collectFirstLifecycleFlow(viewLifecycleOwner) { res ->
-                        handleState(res, {
-                            dismiss()
-                        })
-                    }
+                viewModel.deleteTodo(clickedTodo)
+                dismiss()
             }
             editBtn.setOnClickListener {
                 TodoListFragmentDirections.actionCreateTodo(TAG).navigate()
@@ -48,7 +44,9 @@ class TodoInfoFragment : ObserveStateBottomSheetDialogFragment<FragmentTodoInfoB
 
     private fun FragmentTodoInfoBinding.setupTodo() {
         job = viewModel.clickedTodo.collectFirstLifecycleFlow(viewLifecycleOwner) {
-            clickedTodo = it
+            if (it != null) {
+                clickedTodo = it
+            }
         }
         titleText.text = clickedTodo.title
         bodyText.text = clickedTodo.body
@@ -58,22 +56,19 @@ class TodoInfoFragment : ObserveStateBottomSheetDialogFragment<FragmentTodoInfoB
 
             undoCompleteBtn.setOnClickListener {
                 setTodoComplete(false)
+                dismiss()
             }
         } else {
             completeBtn.setOnClickListener {
                 setTodoComplete(true)
+                dismiss()
             }
             setNotCompletedText()
         }
     }
 
     private fun setTodoComplete(isCompleted: Boolean) {
-        job = viewModel.updateTodo(clickedTodo, isCompleted)
-            .collectFirstLifecycleFlow(viewLifecycleOwner) { res ->
-                handleState(res, {
-                    dismiss()
-                })
-            }
+        viewModel.updateTodo(clickedTodo, isCompleted)
     }
 
     private fun FragmentTodoInfoBinding.setNotCompletedText() {

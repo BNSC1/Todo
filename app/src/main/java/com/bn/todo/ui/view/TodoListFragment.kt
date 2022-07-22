@@ -110,8 +110,7 @@ class TodoListFragment : ObserveStateFragment<FragmentTodoListBinding>() {
                             override fun receiveInput(input: String?) {
                                 if (!input.isNullOrBlank()) {
                                         currentList?.let {
-                                            job = viewModel.updateTodoList(it, input)
-                                                .collectFirstLifecycleFlow(viewLifecycleOwner) {}
+                                            viewModel.updateTodoList(it, input)
                                         }
                                 } else {
                                     showDialog(message = getString(R.string.title_input_name_for_list))
@@ -130,8 +129,7 @@ class TodoListFragment : ObserveStateFragment<FragmentTodoListBinding>() {
                                 list.name
                             ),
                             okAction = {
-                                job = viewModel.deleteTodoList(list)
-                                    .collectFirstLifecycleFlow(viewLifecycleOwner) {}
+                                viewModel.deleteTodoList(list)
                             }
                         )
                     }
