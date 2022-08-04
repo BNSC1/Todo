@@ -27,6 +27,8 @@ class CreateListFragment : ObserveStateFragment<FragmentCreateListBinding>() {
                     listNameInputLayout.input.text.getTextOrDefault(getString(R.string.default_list_name))
                         .toString()
                 insertTodoList(listName)
+                CreateListFragmentDirections.actionToMainActivity().navigate()
+                requireActivity().finish()
             }
         }
     }
