@@ -134,7 +134,7 @@ class TodoListFragment : ObserveStateFragment<FragmentTodoListBinding>() {
                     requireView().findNavController()
                 )
             }
-        }, viewLifecycleOwner, Lifecycle.State.STARTED)
+        }, viewLifecycleOwner, Lifecycle.State.CREATED)
 
         with(binding) {
             addTodoBtn.setOnClickListener {
