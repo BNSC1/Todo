@@ -50,7 +50,7 @@ class TodoListFragment : ObserveStateFragment<FragmentTodoListBinding>() {
             override fun onMenuItemSelected(menuItem: MenuItem): Boolean {
                 when (menuItem.itemId) {
                     R.id.action_sort -> {
-                        job = viewModel.getSortPref()
+                        viewModel.getSortPref()
                             .collectFirstLifecycleFlow(viewLifecycleOwner) { sortPref ->
                                 (binding.list.adapter as TodosAdapter).apply {
                                     DialogUtil.showRadioDialog(requireContext(),
@@ -109,7 +109,7 @@ class TodoListFragment : ObserveStateFragment<FragmentTodoListBinding>() {
                                     list.name
                                 ),
                                 okAction = {
-                                    job = viewModel.deleteCompletedTodos()
+                                    viewModel.deleteCompletedTodos()
                                         .collectFirstLifecycleFlow(viewLifecycleOwner) { res ->
                                             handleState(res) {
                                                 showToast(
@@ -176,7 +176,7 @@ class TodoListFragment : ObserveStateFragment<FragmentTodoListBinding>() {
         } ?: nullListAction()
 
     private fun initObserveShowCompleted(menu: Menu) {
-        job = viewModel.getShowCompleted().collectLatestLifecycleFlow(viewLifecycleOwner) {
+        viewModel.getShowCompleted().collectLatestLifecycleFlow(viewLifecycleOwner) {
             menu.findItem(R.id.action_show_completed_todos).isChecked = it
             menu.findItem(R.id.action_clear_completed_todos).isEnabled = it
         }

@@ -80,7 +80,7 @@ class CreateTodoFragment : ObserveStateFragment<FragmentCreateTodoBinding>() {
     }
 
     private fun FragmentCreateTodoBinding.fetchTodo() {
-        job = viewModel.clickedTodo.collectFirstLifecycleFlow(viewLifecycleOwner) {
+        viewModel.clickedTodo.collectFirstLifecycleFlow(viewLifecycleOwner) {
             if (it != null) {
                 clickedTodo = it
             }
