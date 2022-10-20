@@ -12,9 +12,6 @@ import androidx.navigation.findNavController
 import androidx.navigation.ui.NavigationUI
 import com.bn.todo.R
 import com.bn.todo.arch.ObserveStateFragment
-import com.bn.todo.arch.recyclerview.Clickable
-import com.bn.todo.arch.recyclerview.OnItemClickListener
-import com.bn.todo.data.model.Todo
 import com.bn.todo.data.model.TodoList
 import com.bn.todo.databinding.FragmentTodoListBinding
 import com.bn.todo.ktx.collectFirstLifecycleFlow
@@ -37,10 +34,20 @@ class TodoListFragment : ObserveStateFragment<FragmentTodoListBinding>() {
 
     @Inject
     override lateinit var viewModel: TodoViewModel
-    private val todos = ArrayList<Todo>()
+    private lateinit var todosAdapter: TodosAdapter
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
+        setupMenu()
+
+        with(binding) {
+            setupAddTodoButton()
+            collectTodos()
+            setupTodos()
+        }
+    }
+
+    private fun setupMenu() {
         requireActivity().addMenuProvider(object : MenuProvider {
             override fun onCreateMenu(menu: Menu, menuInflater: MenuInflater) {
                 menuInflater.inflate(R.menu.menu_todo_list, menu)
@@ -135,19 +142,19 @@ class TodoListFragment : ObserveStateFragment<FragmentTodoListBinding>() {
                 )
             }
         }, viewLifecycleOwner, Lifecycle.State.CREATED)
+    }
 
-        with(binding) {
-            addTodoBtn.setOnClickListener {
-                TodoListFragmentDirections.actionCreateTodo().navigate()
-            }
-            collectTodos()
-            list.adapter =
-                TodosAdapter(requireContext(), todos, object : OnItemClickListener {
-                    override fun onItemClick(item: Clickable) {
-                        (requireActivity() as TodoClickCallback).onTodoClick()
-                        viewModel.setClickedTodo(item as Todo)
-                    }
-                })
+    private fun FragmentTodoListBinding.setupTodos() {
+        todosAdapter = TodosAdapter(requireContext()) {
+            (requireActivity() as TodoClickCallback).onTodoClick()
+            viewModel.setClickedTodo(it)
+        }
+        list.adapter = todosAdapter
+    }
+
+    private fun FragmentTodoListBinding.setupAddTodoButton() {
+        addTodoBtn.setOnClickListener {
+            TodoListFragmentDirections.actionCreateTodo().navigate()
         }
     }
 

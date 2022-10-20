@@ -3,7 +3,6 @@ package com.bn.todo.ui.view.adapter
 import android.content.Context
 import com.bn.todo.R
 import com.bn.todo.arch.recyclerview.BaseListAdapter
-import com.bn.todo.arch.recyclerview.OnItemClickListener
 import com.bn.todo.data.model.Todo
 import com.bn.todo.databinding.ItemTodoBinding
 import com.bn.todo.ktx.setStrikeThrough
@@ -11,8 +10,7 @@ import com.bn.todo.ktx.unsetStrikeThrough
 
 class TodosAdapter(
     private val context: Context,
-    todos: List<Todo>,
-    private val onItemClickListener: OnItemClickListener
+    private val onItemClick: (Todo) -> Unit
 ) : BaseListAdapter<ItemTodoBinding, Todo>() {
 
     override val items: List<Todo> = todos
@@ -40,7 +38,7 @@ class TodosAdapter(
                 unsetAppearanceCompleted()
             }
             itemLayout.setOnClickListener {
-                onItemClickListener.onItemClick(todo)
+                onItemClick(todo)
             }
         }
     }
