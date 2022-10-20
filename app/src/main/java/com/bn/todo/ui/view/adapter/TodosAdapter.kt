@@ -13,8 +13,6 @@ class TodosAdapter(
     private val onItemClick: (Todo) -> Unit
 ) : BaseListAdapter<ItemTodoBinding, Todo>() {
 
-    override val items: List<Todo> = todos
-
     override val bindAction = { binding: ItemTodoBinding, todo: Todo ->
         val defaultTextColor = context.getColor(R.color.text_highlight)
         fun ItemTodoBinding.unsetAppearanceCompleted() {

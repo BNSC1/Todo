@@ -9,7 +9,7 @@ import java.lang.reflect.ParameterizedType
 
 abstract class BaseListAdapter<Binding : ViewBinding, Item : Any> :
     RecyclerView.Adapter<BaseViewHolder<Binding, Item>>(), ListUpdateCallback {
-    protected abstract val items: List<Item>
+    protected val items = mutableListOf<Item>()
     protected abstract val bindAction: (binding: Binding, item: Item) -> Unit
 
     override fun onCreateViewHolder(
@@ -38,6 +38,14 @@ abstract class BaseListAdapter<Binding : ViewBinding, Item : Any> :
             Boolean::class.java
         )
         return method.invoke(null, LayoutInflater.from(parent.context), parent, false) as Binding
+    }
+
+    fun updateItems(items: List<Item>) {
+        this.items.apply {
+            clear()
+            addAll(items)
+        }
+        notifyDataSetChanged()
     }
 
     override fun onInserted(position: Int, count: Int) {

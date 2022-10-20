@@ -166,9 +166,7 @@ class TodoListFragment : ObserveStateFragment<FragmentTodoListBinding>() {
                 currentList = viewModel.getCurrentList()
                 (requireActivity() as MainActivity).supportActionBar?.title =
                     currentList?.name
-                todos.clear()
-                todos.addAll(viewModel.queryTodo().first())
-                binding.list.adapter!!.notifyDataSetChanged() //todo: optimize
+                todosAdapter.updateItems(viewModel.queryTodo().first())
                 viewModel.setShouldRefreshList(false)
             }
         }
