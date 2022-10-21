@@ -2,6 +2,7 @@ package com.bn.todo.ui.view
 
 import android.os.Bundle
 import android.view.View
+import androidx.fragment.app.activityViewModels
 import com.bn.todo.R
 import com.bn.todo.arch.ObserveStateFragment
 import com.bn.todo.databinding.FragmentCreateListBinding
@@ -13,8 +14,7 @@ import javax.inject.Inject
 
 @AndroidEntryPoint
 class CreateListFragment : ObserveStateFragment<FragmentCreateListBinding>() {
-    @Inject
-    override lateinit var viewModel: TodoViewModel
+    override val viewModel: TodoViewModel by activityViewModels()
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)

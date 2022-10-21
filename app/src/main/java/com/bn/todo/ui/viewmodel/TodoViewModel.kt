@@ -9,12 +9,12 @@ import com.bn.todo.data.model.TodoFilter
 import com.bn.todo.data.model.TodoList
 import com.bn.todo.data.repository.TodoRepository
 import com.bn.todo.data.repository.UserPrefRepository
+import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.launch
 import javax.inject.Inject
-import javax.inject.Singleton
 
-@Singleton
+@HiltViewModel
 class TodoViewModel @Inject constructor(
     private val todoRepository: TodoRepository,
     private val userPrefRepository: UserPrefRepository

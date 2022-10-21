@@ -2,17 +2,18 @@ package com.bn.todo.ui.view
 
 import android.os.Bundle
 import android.view.View
+import androidx.fragment.app.activityViewModels
 import com.bn.todo.R
 import com.bn.todo.arch.ObserveStateBottomSheetDialogFragment
 import com.bn.todo.data.model.Todo
 import com.bn.todo.databinding.FragmentTodoInfoBinding
+import com.bn.todo.ktx.TAG
 import com.bn.todo.ktx.collectFirstLifecycleFlow
 import com.bn.todo.ktx.setInvisible
 import com.bn.todo.ktx.setVisible
 import com.bn.todo.ui.viewmodel.TodoViewModel
 import com.bn.todo.util.ResUtil
 import dagger.hilt.android.AndroidEntryPoint
-import javax.inject.Inject
 
 @AndroidEntryPoint
 class TodoInfoFragment : ObserveStateBottomSheetDialogFragment<FragmentTodoInfoBinding>() {
@@ -20,8 +21,7 @@ class TodoInfoFragment : ObserveStateBottomSheetDialogFragment<FragmentTodoInfoB
         const val TAG = "TodoInfoFragment"
     }
 
-    @Inject
-    override lateinit var viewModel: TodoViewModel
+    override val viewModel: TodoViewModel by activityViewModels()
     private lateinit var clickedTodo: Todo
     private val colorAccent: Int by lazy {
         ResUtil.getAttribute(requireContext(), androidx.appcompat.R.attr.colorAccent)
@@ -36,7 +36,7 @@ class TodoInfoFragment : ObserveStateBottomSheetDialogFragment<FragmentTodoInfoB
                 dismiss()
             }
             editBtn.setOnClickListener {
-                TodoListFragmentDirections.actionCreateTodo(TAG).navigate()
+                TodoListFragmentDirections.actionCreateTodo(this::class.TAG).navigate()
                 dismiss()
             }
         }

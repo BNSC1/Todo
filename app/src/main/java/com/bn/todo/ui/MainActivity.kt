@@ -4,6 +4,7 @@ import android.content.Intent
 import android.os.Bundle
 import android.view.Menu
 import android.view.MenuItem
+import androidx.activity.viewModels
 import androidx.appcompat.app.ActionBarDrawerToggle
 import androidx.core.view.isNotEmpty
 import androidx.navigation.ui.NavigationUI
@@ -21,14 +22,12 @@ import com.bn.todo.util.DialogUtil
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.flow.first
 import timber.log.Timber
-import javax.inject.Inject
 
 private const val MENU_ORDER = Menu.NONE
 
 @AndroidEntryPoint
 class MainActivity : NavigationActivity(), TodoClickCallback {
-    @Inject
-    lateinit var viewModel: TodoViewModel
+    private val viewModel: TodoViewModel by viewModels()
     private val binding: ActivityMainBinding by viewBinding()
     override val navHostId by lazy { binding.navHost.id }
     private lateinit var toggle: ActionBarDrawerToggle

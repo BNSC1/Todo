@@ -7,6 +7,7 @@ import android.view.MenuInflater
 import android.view.MenuItem
 import android.view.View
 import androidx.core.view.MenuProvider
+import androidx.fragment.app.activityViewModels
 import androidx.lifecycle.Lifecycle
 import androidx.navigation.findNavController
 import androidx.navigation.fragment.findNavController
@@ -17,26 +18,38 @@ import com.bn.todo.arch.ObserveStateFragment
 import com.bn.todo.data.model.Todo
 import com.bn.todo.databinding.FragmentCreateTodoBinding
 import com.bn.todo.databinding.LayoutTextInputBinding
-import com.bn.todo.ktx.collectFirstLifecycleFlow
+import com.bn.todo.ktx.TAG
 import com.bn.todo.ui.MainActivity
 import com.bn.todo.ui.viewmodel.TodoViewModel
 import com.bn.todo.util.TextInputUtil
 import com.google.android.material.textfield.TextInputEditText
 import dagger.hilt.android.AndroidEntryPoint
-import javax.inject.Inject
 
 @AndroidEntryPoint
 class CreateTodoFragment : ObserveStateFragment<FragmentCreateTodoBinding>() {
-    @Inject
-    override lateinit var viewModel: TodoViewModel
+    override val viewModel: TodoViewModel by activityViewModels()
     private var isAllowed = false
     private val args by navArgs<CreateTodoFragmentArgs>()
-    private val sourceFragment: String by lazy { args.sourceFragment }
-    private var isEditMode = false
-    private lateinit var clickedTodo: Todo
+    private lateinit var sourceFragment: String
+    private lateinit var strategy: TodoStrategy
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
+        sourceFragment = args.sourceFragment
+        strategy =
+            if (sourceFragment == TodoInfoFragment::class.TAG) TodoStrategy.EditStrategy()
+            else TodoStrategy.AddStrategy
+        setupMenu()
+
+        with(binding) {
+            setupLayout()
+            strategy.apply {
+                setupAction()
+            }
+        }
+    }
+
+    private fun setupMenu() {
         requireActivity().addMenuProvider(object : MenuProvider {
             override fun onCreateMenu(menu: Menu, menuInflater: MenuInflater) {
                 menuInflater.inflate(R.menu.menu_create_todo, menu)
@@ -44,22 +57,7 @@ class CreateTodoFragment : ObserveStateFragment<FragmentCreateTodoBinding>() {
 
             override fun onMenuItemSelected(menuItem: MenuItem): Boolean {
                 if (menuItem.itemId == R.id.action_add) {
-                    with(binding) {
-                        val title = layoutTitleInput.input.text.toString()
-                        val body = layoutBodyInput.input.text.toString()
-                        if (isAllowed) {
-                            if (isEditMode) {
-                                viewModel.updateTodo(clickedTodo, title, body)
-                                findNavController().popBackStack()
-                            } else {
-                                viewModel.insertTodo(title, body)
-                                findNavController().popBackStack()
-                            }
-                        } else {
-                            layoutTitleInput.setTitleInputError()
-                            TextInputUtil.showKeyboard(requireActivity(), layoutTitleInput.input)
-                        }
-                    }
+                    binding.setupAddAction()
                 }
                 return NavigationUI.onNavDestinationSelected(
                     menuItem,
@@ -67,26 +65,20 @@ class CreateTodoFragment : ObserveStateFragment<FragmentCreateTodoBinding>() {
                 )
             }
         }, viewLifecycleOwner, Lifecycle.State.STARTED)
-        isEditMode = sourceFragment == TodoInfoFragment.TAG
-
-        with(binding) {
-            setupLayout()
-            if (isEditMode) {
-                (requireActivity() as MainActivity).supportActionBar?.title =
-                    getString(R.string.title_edit_todo)
-                fetchTodo()
-            }
-        }
     }
 
-    private fun FragmentCreateTodoBinding.fetchTodo() {
-        viewModel.clickedTodo.collectFirstLifecycleFlow(viewLifecycleOwner) {
-            if (it != null) {
-                clickedTodo = it
+    private fun FragmentCreateTodoBinding.setupAddAction() {
+        val title = layoutTitleInput.input.text.toString()
+        val body = layoutBodyInput.input.text.toString()
+        if (isAllowed) {
+            strategy.apply {
+                viewModel.finishAction(title, body)
             }
+            findNavController().popBackStack()
+        } else {
+            layoutTitleInput.setTitleInputError()
+            TextInputUtil.showKeyboard(requireActivity(), layoutTitleInput.input)
         }
-        layoutTitleInput.input.setText(clickedTodo.title)
-        layoutBodyInput.input.setText(clickedTodo.body)
     }
 
     private fun FragmentCreateTodoBinding.setupLayout() {
@@ -111,5 +103,38 @@ class CreateTodoFragment : ObserveStateFragment<FragmentCreateTodoBinding>() {
 
     private fun LayoutTextInputBinding.setTitleInputError() {
         root.error = getString(R.string.error_title_required)
+    }
+
+    sealed class TodoStrategy {
+        abstract fun CreateTodoFragment.setupAction()
+        abstract fun TodoViewModel.finishAction(title: String, body: String)
+
+        class EditStrategy : TodoStrategy() {
+            private var clickedTodo: Todo? = null
+            override fun CreateTodoFragment.setupAction() {
+                (requireActivity() as MainActivity).supportActionBar?.title =
+                    getString(R.string.title_edit_todo)
+                clickedTodo = viewModel.clickedTodo.value
+
+                with(binding) {
+                    layoutTitleInput.input.setText(clickedTodo?.title)
+                    layoutBodyInput.input.setText(clickedTodo?.body)
+                }
+            }
+
+            override fun TodoViewModel.finishAction(title: String, body: String) {
+                this@EditStrategy.clickedTodo?.let { updateTodo(it, title, body) }
+            }
+
+        }
+
+        object AddStrategy : TodoStrategy() {
+            override fun CreateTodoFragment.setupAction() {}
+
+            override fun TodoViewModel.finishAction(title: String, body: String) {
+                insertTodo(title, body)
+            }
+
+        }
     }
 }

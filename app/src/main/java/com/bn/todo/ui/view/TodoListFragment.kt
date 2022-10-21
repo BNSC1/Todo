@@ -8,6 +8,7 @@ import android.view.MenuItem
 import android.view.View
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.view.MenuProvider
+import androidx.fragment.app.activityViewModels
 import androidx.lifecycle.Lifecycle
 import androidx.navigation.findNavController
 import androidx.navigation.ui.NavigationUI
@@ -26,14 +27,12 @@ import com.bn.todo.util.DialogUtil
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.flow.first
 import timber.log.Timber
-import javax.inject.Inject
 
 @AndroidEntryPoint
 class TodoListFragment : ObserveStateFragment<FragmentTodoListBinding>() {
     private var currentList: TodoList? = null
 
-    @Inject
-    override lateinit var viewModel: TodoViewModel
+    override val viewModel: TodoViewModel by activityViewModels()
     private lateinit var todosAdapter: TodosAdapter
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
