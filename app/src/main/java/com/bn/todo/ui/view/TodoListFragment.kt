@@ -6,6 +6,7 @@ import android.view.Menu
 import android.view.MenuInflater
 import android.view.MenuItem
 import android.view.View
+import androidx.appcompat.app.AppCompatActivity
 import androidx.core.view.MenuProvider
 import androidx.lifecycle.Lifecycle
 import androidx.navigation.findNavController
@@ -18,7 +19,6 @@ import com.bn.todo.ktx.collectFirstLifecycleFlow
 import com.bn.todo.ktx.collectLatestLifecycleFlow
 import com.bn.todo.ktx.showDialog
 import com.bn.todo.ktx.showToast
-import com.bn.todo.ui.MainActivity
 import com.bn.todo.ui.callback.TodoClickCallback
 import com.bn.todo.ui.view.adapter.TodosAdapter
 import com.bn.todo.ui.viewmodel.TodoViewModel
@@ -59,7 +59,7 @@ class TodoListFragment : ObserveStateFragment<FragmentTodoListBinding>() {
                     R.id.action_sort -> {
                         viewModel.getSortPref()
                             .collectFirstLifecycleFlow(viewLifecycleOwner) { sortPref ->
-                                (binding.list.adapter as TodosAdapter).apply {
+                                todosAdapter.apply {
                                     DialogUtil.showRadioDialog(requireContext(),
                                         items = resources.getStringArray(R.array.sort_order_group),
                                         title = getString(R.string.title_sort_by),
@@ -164,9 +164,9 @@ class TodoListFragment : ObserveStateFragment<FragmentTodoListBinding>() {
             if (shouldRefresh) {
                 Timber.d("should refresh list")
                 currentList = viewModel.getCurrentList()
-                (requireActivity() as MainActivity).supportActionBar?.title =
+                (requireActivity() as AppCompatActivity).supportActionBar?.title =
                     currentList?.name
-                todosAdapter.updateItems(viewModel.queryTodo().first())
+                todosAdapter.replaceItems(viewModel.queryTodo().first())
                 viewModel.setShouldRefreshList(false)
             }
         }
