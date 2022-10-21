@@ -34,9 +34,10 @@ class TodosAdapter(
     }
 
     fun replaceItems(todos: List<Todo>) {
+        val size = this.todos.size
         this.todos.clear()
         this.todos.addAll(todos)
-        notifyItemRangeChanged(0, this.todos.size)
+        notifyItemRangeChanged(0, if (size != 0) size else this.todos.size)
     }
 
     companion object {
