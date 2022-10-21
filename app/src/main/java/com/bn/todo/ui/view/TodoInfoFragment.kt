@@ -17,10 +17,6 @@ import dagger.hilt.android.AndroidEntryPoint
 
 @AndroidEntryPoint
 class TodoInfoFragment : ObserveStateBottomSheetDialogFragment<FragmentTodoInfoBinding>() {
-    companion object {
-        const val TAG = "TodoInfoFragment"
-    }
-
     override val viewModel: TodoViewModel by activityViewModels()
     private lateinit var clickedTodo: Todo
     private val colorAccent: Int by lazy {
@@ -36,7 +32,7 @@ class TodoInfoFragment : ObserveStateBottomSheetDialogFragment<FragmentTodoInfoB
                 dismiss()
             }
             editBtn.setOnClickListener {
-                TodoListFragmentDirections.actionCreateTodo(this::class.TAG).navigate()
+                TodoListFragmentDirections.actionCreateTodo(TAG).navigate()
                 dismiss()
             }
         }
