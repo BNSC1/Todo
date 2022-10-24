@@ -22,11 +22,11 @@ class UserPrefRepository @Inject constructor(
     fun getShowCompleted(default: Boolean) =
         dataStoreMgr.getPreference(DataStoreKeys.SHOW_COMPLETED, default)
 
-    suspend fun setNotFirstTimeLaunch(isNotFirstTimeLaunch: Boolean) =
-        dataStoreMgr.setPreference(DataStoreKeys.NOT_FIRST_LAUNCH, isNotFirstTimeLaunch)
+    suspend fun setIsFirstTimeLaunch(isFirstTimeLaunch: Boolean) =
+        dataStoreMgr.setPreference(DataStoreKeys.IS_FIRST_LAUNCH, isFirstTimeLaunch)
 
-    fun getNotFirstTimeLaunch(default: Boolean = false) =
-        dataStoreMgr.getPreference(DataStoreKeys.NOT_FIRST_LAUNCH, default)
+    fun getIsFirstTimeLaunch(default: Boolean = true) =
+        dataStoreMgr.getPreference(DataStoreKeys.IS_FIRST_LAUNCH, default)
 
 
     fun getCurrentListId(default: Int) =

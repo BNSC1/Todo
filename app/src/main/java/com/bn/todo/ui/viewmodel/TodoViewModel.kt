@@ -29,10 +29,10 @@ class TodoViewModel @Inject constructor(
     private val _listCount = MutableStateFlow(-1)
     val listCount get() = _listCount
 
-    fun insertTodoList(name: String) = tryLaunchAction {
+    fun insertTodoList(name: String) = tryRun {
         todoRepository.insertTodoList(name)
-        if (!userPrefRepository.getNotFirstTimeLaunch().first()) {
-            userPrefRepository.setNotFirstTimeLaunch(true)
+        if (userPrefRepository.getIsFirstTimeLaunch().first()) {
+            userPrefRepository.setIsFirstTimeLaunch(false)
         }
         setShouldGoToNewList()
     }
@@ -40,17 +40,17 @@ class TodoViewModel @Inject constructor(
     fun queryTodoList(name: String? = null) =
         todoRepository.queryTodoList(name).onEach { _listCount.value = it.size }
 
-    fun updateTodoList(list: TodoList, name: String) = tryLaunchAction {
+    fun updateTodoList(list: TodoList, name: String) = tryRun {
         todoRepository.updateTodoList(list, name)
         setShouldRefreshList()
     }
 
-    fun deleteTodoList(list: TodoList) = tryLaunchAction {
+    fun deleteTodoList(list: TodoList) = tryRun {
         todoRepository.deleteTodoList(list)
         setShouldGoToNewList()
     }
 
-    fun insertTodo(title: String, body: String?) = tryLaunchAction {
+    fun insertTodo(title: String, body: String?) = tryRun {
         todoRepository.insertTodo(title, body, getCurrentListId().first())
         setShouldRefreshList()
     }
@@ -64,17 +64,17 @@ class TodoViewModel @Inject constructor(
             getSortPref().first()
         )
 
-    fun updateTodo(todo: Todo, name: String, body: String) = tryLaunchAction {
+    fun updateTodo(todo: Todo, name: String, body: String) = tryRun {
         todoRepository.updateTodo(todo, name, body)
         setShouldRefreshList()
     }
 
-    fun updateTodo(todo: Todo, isCompleted: Boolean) = tryLaunchAction {
+    fun updateTodo(todo: Todo, isCompleted: Boolean) = tryRun {
         todoRepository.updateTodo(todo, isCompleted)
         setShouldRefreshList()
     }
 
-    fun deleteTodo(todo: Todo) = tryLaunchAction {
+    fun deleteTodo(todo: Todo) = tryRun {
         todoRepository.deleteTodo(todo)
         setShouldRefreshList()
     }
