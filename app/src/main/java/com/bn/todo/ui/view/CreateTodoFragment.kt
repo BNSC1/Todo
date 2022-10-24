@@ -35,10 +35,7 @@ class CreateTodoFragment : ObserveStateFragment<FragmentCreateTodoBinding>() {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        sourceFragment = args.sourceFragment
-        strategy =
-            if (sourceFragment == TodoInfoFragment::class.TAG) TodoStrategy.EditStrategy()
-            else TodoStrategy.AddStrategy
+        setupStrategy()
         setupMenu()
 
         with(binding) {
@@ -47,6 +44,13 @@ class CreateTodoFragment : ObserveStateFragment<FragmentCreateTodoBinding>() {
                 setupAction()
             }
         }
+    }
+
+    private fun setupStrategy() {
+        sourceFragment = args.sourceFragment
+        strategy =
+            if (sourceFragment == TodoInfoFragment::class.TAG) TodoStrategy.EditStrategy()
+            else TodoStrategy.AddStrategy
     }
 
     private fun setupMenu() {
