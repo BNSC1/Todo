@@ -18,7 +18,7 @@ import dagger.hilt.android.AndroidEntryPoint
 @AndroidEntryPoint
 class TodoInfoFragment : ObserveStateBottomSheetDialogFragment<FragmentTodoInfoBinding>() {
     override val viewModel: TodoViewModel by activityViewModels()
-    private lateinit var clickedTodo: Todo
+    private var clickedTodo: Todo? = null
     private val colorAccent: Int by lazy {
         ResUtil.getAttribute(requireContext(), androidx.appcompat.R.attr.colorAccent)
     }
@@ -27,44 +27,60 @@ class TodoInfoFragment : ObserveStateBottomSheetDialogFragment<FragmentTodoInfoB
         super.onViewCreated(view, savedInstanceState)
         with(binding) {
             setupTodo()
-            deleteBtn.setOnClickListener {
-                viewModel.deleteTodo(clickedTodo)
-                dismiss()
+            setupCompleteBtn()
+            setupDeleteBtn()
+            setupEditBtn()
+        }
+    }
+
+    private fun FragmentTodoInfoBinding.setupCompleteBtn() {
+        clickedTodo?.apply {
+            if (isCompleted) {
+                completeBtn.setInvisible()
+                undoCompleteBtn.setVisible()
+
+                undoCompleteBtn.setOnClickListener {
+                    setTodoComplete(false)
+                    dismiss()
+                }
+            } else {
+                completeBtn.setOnClickListener {
+                    setTodoComplete(true)
+                    dismiss()
+                }
+                setNotCompletedText()
             }
-            editBtn.setOnClickListener {
-                TodoListFragmentDirections.actionCreateTodo(TAG).navigate()
-                dismiss()
-            }
+        }
+    }
+
+    private fun FragmentTodoInfoBinding.setupEditBtn() {
+        editBtn.setOnClickListener {
+            TodoListFragmentDirections.actionCreateTodo(TAG).navigate()
+            dismiss()
+        }
+    }
+
+    private fun FragmentTodoInfoBinding.setupDeleteBtn(
+    ) {
+        deleteBtn.setOnClickListener {
+            clickedTodo?.let { todo -> viewModel.deleteTodo(todo) }
+            dismiss()
         }
     }
 
     private fun FragmentTodoInfoBinding.setupTodo() {
-        job = viewModel.clickedTodo.collectFirstLifecycleFlow(viewLifecycleOwner) {
-            if (it != null) {
-                clickedTodo = it
-            }
+        viewModel.clickedTodo.collectFirstLifecycleFlow(viewLifecycleOwner) {
+            clickedTodo = it
         }
-        titleText.text = clickedTodo.title
-        bodyText.text = clickedTodo.body
-        if (clickedTodo.isCompleted) {
-            completeBtn.setInvisible()
-            undoCompleteBtn.setVisible()
 
-            undoCompleteBtn.setOnClickListener {
-                setTodoComplete(false)
-                dismiss()
-            }
-        } else {
-            completeBtn.setOnClickListener {
-                setTodoComplete(true)
-                dismiss()
-            }
-            setNotCompletedText()
+        clickedTodo?.apply {
+            titleText.text = title
+            bodyText.text = body
         }
     }
 
     private fun setTodoComplete(isCompleted: Boolean) {
-        viewModel.updateTodo(clickedTodo, isCompleted)
+        clickedTodo?.let { viewModel.updateTodo(it, isCompleted) }
     }
 
     private fun FragmentTodoInfoBinding.setNotCompletedText() {
