@@ -10,8 +10,6 @@ import androidx.core.view.isNotEmpty
 import androidx.navigation.ui.NavigationUI
 import com.bn.todo.R
 import com.bn.todo.arch.NavigationActivity
-import com.bn.todo.data.Resource
-import com.bn.todo.data.State
 import com.bn.todo.data.model.TodoList
 import com.bn.todo.databinding.ActivityMainBinding
 import com.bn.todo.ktx.*
@@ -20,8 +18,6 @@ import com.bn.todo.ui.view.TodoInfoFragment
 import com.bn.todo.ui.viewmodel.TodoViewModel
 import com.bn.todo.util.DialogUtil
 import dagger.hilt.android.AndroidEntryPoint
-import kotlinx.coroutines.flow.first
-import timber.log.Timber
 
 private const val MENU_ORDER = Menu.NONE
 
@@ -45,9 +41,7 @@ class MainActivity : NavigationActivity(), TodoClickCallback {
 
     private fun ActivityMainBinding.collectCurrentListId() =
         viewModel.getCurrentListId().collectLatestLifecycleFlow(this@MainActivity) { id ->
-            viewModel.queryTodoList().first().let { lists ->
-                setSelectedListItem(getIndexById(lists, id))
-            }
+            setSelectedListItem(getIndexById(viewModel.todoLists.value, id))
         }
 
     private fun getIndexById(lists: List<TodoList>, id: Int): Int =
@@ -56,11 +50,9 @@ class MainActivity : NavigationActivity(), TodoClickCallback {
         })
 
     private fun ActivityMainBinding.collectShouldGoToNewList() {
-        viewModel.shouldGoToNewList.collectLatestLifecycleFlow(this@MainActivity) { shouldGo ->
-            if (shouldGo) {
-                setList(viewModel.queryTodoList().first().lastIndex)
-                viewModel.setShouldGoToNewList(false)
-            }
+        viewModel.todoLists.collectLatestLifecycleFlow(this@MainActivity) { lists ->
+            updateDrawerMenu(lists)
+            setList(lists.lastIndex)
         }
     }
 
@@ -95,14 +87,7 @@ class MainActivity : NavigationActivity(), TodoClickCallback {
     }
 
     private fun ActivityMainBinding.setupDrawer() {
-        collectTodoList()
         drawer.navigation.setNavigationItemSelectedListener { onNavigationItemSelected(it) }
-    }
-
-    private fun ActivityMainBinding.collectTodoList() {
-        viewModel.queryTodoList().collectLatestLifecycleFlow(this@MainActivity) { lists ->
-            updateDrawerMenu(lists)
-        }
     }
 
     private fun ActivityMainBinding.updateDrawerMenu(lists: List<TodoList>) {
@@ -178,7 +163,7 @@ class MainActivity : NavigationActivity(), TodoClickCallback {
 
     private fun ActivityMainBinding.setSelectedListItem(menuId: Int) {
         if (menuId >= 0) {
-            job = viewModel.queryTodoList().collectFirstLifecycleFlow(this@MainActivity) { lists ->
+            viewModel.todoLists.collectFirstLifecycleFlow(this@MainActivity) { lists ->
                 viewModel.setCurrentListId(lists[menuId].id)
                 drawer.navigation.menu.getItem(menuId).isChecked = true
                 viewModel.setShouldRefreshList()
@@ -191,22 +176,6 @@ class MainActivity : NavigationActivity(), TodoClickCallback {
             R.id.action_settings -> {
                 startActivity(Intent(this, SettingsActivity::class.java))
             }
-        }
-    }
-
-    private fun handleState(
-        resource: Resource<*>,
-        successAction: () -> Unit,
-        errorAction: () -> Unit = {},
-        loadingAction: () -> Unit = {},
-    ) {
-        Timber.d("state is ${resource.state}")
-        when (resource.state) {
-            State.SUCCESS -> successAction()
-            State.ERROR -> {
-                errorAction()
-            }
-            State.LOADING -> loadingAction()
         }
     }
 
