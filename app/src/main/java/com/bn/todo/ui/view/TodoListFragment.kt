@@ -1,6 +1,5 @@
 package com.bn.todo.ui.view
 
-import android.annotation.SuppressLint
 import android.os.Bundle
 import android.view.Menu
 import android.view.MenuInflater
@@ -26,7 +25,6 @@ import com.bn.todo.ui.viewmodel.TodoViewModel
 import com.bn.todo.util.DialogUtil
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.flow.first
-import timber.log.Timber
 
 @AndroidEntryPoint
 class TodoListFragment : ObserveStateFragment<FragmentTodoListBinding>() {
@@ -41,6 +39,7 @@ class TodoListFragment : ObserveStateFragment<FragmentTodoListBinding>() {
 
         with(binding) {
             setupAddTodoButton()
+            collectCurrentList()
             collectTodos()
             setupTodos()
         }
@@ -147,17 +146,18 @@ class TodoListFragment : ObserveStateFragment<FragmentTodoListBinding>() {
         }
     }
 
-    @SuppressLint("NotifyDataSetChanged")
-    private fun collectTodos() {
-        viewModel.shouldRefreshList.collectLatestLifecycleFlow(viewLifecycleOwner) { shouldRefresh ->
-            if (shouldRefresh) {
-                Timber.d("should refresh list")
-                currentList = viewModel.getCurrentList()
+    private fun collectCurrentList() {
+        viewModel.currentList.collectLatestLifecycleFlow(viewLifecycleOwner) { list ->
+            list?.let {
                 (requireActivity() as AppCompatActivity).supportActionBar?.title =
-                    currentList?.name
-                todosAdapter.replaceItems(viewModel.queryTodo().first())
-                viewModel.setShouldRefreshList(false)
+                    it.name
             }
+        }
+    }
+
+    private fun collectTodos() {
+        viewModel.currentList.collectLatestLifecycleFlow(viewLifecycleOwner) {
+            todosAdapter.replaceItems(viewModel.queryTodo().first())
         }
     }
 

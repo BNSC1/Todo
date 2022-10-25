@@ -166,7 +166,6 @@ class MainActivity : NavigationActivity(), TodoClickCallback {
             viewModel.todoLists.collectFirstLifecycleFlow(this@MainActivity) { lists ->
                 viewModel.setCurrentListId(lists[menuId].id)
                 drawer.navigation.menu.getItem(menuId).isChecked = true
-                viewModel.setShouldRefreshList()
             }
         }
     }
