@@ -2,8 +2,7 @@ package com.bn.todo.ui.viewmodel
 
 import androidx.lifecycle.viewModelScope
 import com.bn.todo.arch.BaseViewModel
-import com.bn.todo.data.Resource
-import com.bn.todo.data.State
+import com.bn.todo.arch.ViewModelMessage
 import com.bn.todo.data.model.Todo
 import com.bn.todo.data.model.TodoFilter
 import com.bn.todo.data.model.TodoList
@@ -85,13 +84,9 @@ class TodoViewModel @Inject constructor(
         setShouldRefreshList()
     }
 
-    fun deleteCompletedTodos() = flow {
-        val deleted = todoRepository.deleteCompletedTodo(getCurrentListId().first())
-        emit(Resource.success(deleted))
-    }.onEach {
-        if (it.state == State.SUCCESS) {
-            setShouldRefreshList()
-        }
+    fun deleteCompletedTodos() = tryRun {
+        val deletedTodoCount = todoRepository.deleteCompletedTodo(getCurrentListId().first())
+        _message.emit(ViewModelMessage.Info.CompletedTodoDeletion(deletedTodoCount))
     }
 
     fun setClickedTodo(todo: Todo) {

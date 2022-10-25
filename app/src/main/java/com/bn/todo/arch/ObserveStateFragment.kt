@@ -4,11 +4,12 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.widget.Toast
 import androidx.viewbinding.ViewBinding
+import com.bn.todo.R
 import com.bn.todo.data.Resource
 import com.bn.todo.data.State
 import com.bn.todo.ktx.collectLatestLifecycleFlow
+import com.bn.todo.ktx.showDialog
 import com.bn.todo.ktx.showToast
 import timber.log.Timber
 
@@ -25,9 +26,11 @@ abstract class ObserveStateFragment<Binding : ViewBinding> : BaseFragment<Bindin
     }
 
     private fun collectErrorMessage() {
-        viewModel.errorMsg.collectLatestLifecycleFlow(viewLifecycleOwner) {
-            if (it.isNotBlank()) {
-                showToast(message = it, Toast.LENGTH_LONG)
+        viewModel.message.collectLatestLifecycleFlow(viewLifecycleOwner) {
+            when (it) {
+                is ViewModelMessage.Error -> showDialog(message = it.msg)
+                is ViewModelMessage.Info.CompletedTodoDeletion ->
+                    showToast(getString(R.string.msg_deleted_todos_format).format(it.count))
             }
         }
     }

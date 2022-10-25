@@ -10,8 +10,8 @@ import kotlinx.coroutines.launch
 
 abstract class BaseViewModel : ViewModel() {
     protected var job: Job? = null
-    protected val _errorMsg = MutableSharedFlow<String>(replay = 0)
-    val errorMsg = _errorMsg.asSharedFlow()
+    protected val _message = MutableSharedFlow<ViewModelMessage>(replay = 0)
+    val message = _message.asSharedFlow()
 
     protected fun tryRun(
         scope: CoroutineScope = viewModelScope,
@@ -21,7 +21,7 @@ abstract class BaseViewModel : ViewModel() {
         runCatching {
             action()
         }.onFailure {
-            _errorMsg.emit(it.message.toString())
+            _message.emit(ViewModelMessage.Error(it.message.toString()))
             failureAction(it)
         }
     }

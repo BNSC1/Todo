@@ -116,16 +116,6 @@ class TodoListFragment : ObserveStateFragment<FragmentTodoListBinding>() {
                                 ),
                                 okAction = {
                                     viewModel.deleteCompletedTodos()
-                                        .collectFirstLifecycleFlow(viewLifecycleOwner) { res ->
-                                            handleState(res) {
-                                                showToast(
-                                                    String.format(
-                                                        getString(R.string.msg_deleted_todos_format),
-                                                        res.data
-                                                    )
-                                                )
-                                            }
-                                        }
                                 })
                         }
 
