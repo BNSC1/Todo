@@ -35,7 +35,7 @@ class MainActivity : NavigationActivity(), TodoClickCallback {
             setupToolbar()
             setupDrawer()
             collectCurrentListId()
-            collectShouldGoToNewList()
+            collectTodoLists()
         }
     }
 
@@ -49,12 +49,11 @@ class MainActivity : NavigationActivity(), TodoClickCallback {
             id == it.id
         })
 
-    private fun ActivityMainBinding.collectShouldGoToNewList() {
+    private fun ActivityMainBinding.collectTodoLists() =
         viewModel.todoLists.collectLatestLifecycleFlow(this@MainActivity) { lists ->
             updateDrawerMenu(lists)
             setList(lists.lastIndex)
         }
-    }
 
     private fun openBottomSheet() = TodoInfoFragment().show(supportFragmentManager, "bottom_sheet")
 
@@ -163,10 +162,8 @@ class MainActivity : NavigationActivity(), TodoClickCallback {
 
     private fun ActivityMainBinding.setSelectedListItem(menuId: Int) {
         if (menuId >= 0) {
-            viewModel.todoLists.collectFirstLifecycleFlow(this@MainActivity) { lists ->
-                viewModel.setCurrentListId(lists[menuId].id)
-                drawer.navigation.menu.getItem(menuId).isChecked = true
-            }
+            viewModel.setCurrentListId(viewModel.todoLists.value[menuId].id)
+            drawer.navigation.menu.getItem(menuId).isChecked = true
         }
     }
 

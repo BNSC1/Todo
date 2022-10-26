@@ -9,6 +9,7 @@ import com.bn.todo.data.model.TodoList
 import com.bn.todo.data.repository.TodoRepository
 import com.bn.todo.data.repository.UserPrefRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.FlowPreview
 import kotlinx.coroutines.flow.*
 import javax.inject.Inject
 
@@ -59,14 +60,18 @@ class TodoViewModel @Inject constructor(
         todoRepository.insertTodo(title, body, getCurrentListId().first())
     }
 
-    suspend fun queryTodo(name: String? = null) =
-        todoRepository.queryTodo(
-            TodoFilter(
-                getCurrentListId().first(),
-                getShowCompleted().first()
-            ).apply { this.name = name },
-            getSortPref().first()
-        )
+    @OptIn(FlowPreview::class)
+    fun queryTodo(name: String? = null) =
+        getFilterFlow().combine(getSortPrefFlow()) { filter, sortPref ->
+            todoRepository.queryTodo(filter, sortPref)
+        }.catch {
+            _message.emit(ViewModelMessage.Error(it.message.toString()))
+        }.flattenMerge(Int.MAX_VALUE)
+
+    private fun getFilterFlow() =
+        getCurrentListId().combine(getShowCompleted()) { id, showCompleted ->
+            TodoFilter(id, showCompleted)
+        }
 
     fun updateTodo(todo: Todo, name: String, body: String) = tryRun {
         todoRepository.updateTodo(todo, name, body)
@@ -115,6 +120,6 @@ class TodoViewModel @Inject constructor(
         userPrefRepository.setSortPref(sortPref)
     }
 
-    fun getSortPref(default: Int = 0) =
+    fun getSortPrefFlow(default: Int = 0) =
         userPrefRepository.getSortPref(default)
 }

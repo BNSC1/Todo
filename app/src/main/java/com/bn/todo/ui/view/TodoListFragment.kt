@@ -55,7 +55,7 @@ class TodoListFragment : ObserveStateFragment<FragmentTodoListBinding>() {
             override fun onMenuItemSelected(menuItem: MenuItem): Boolean {
                 when (menuItem.itemId) {
                     R.id.action_sort -> {
-                        viewModel.getSortPref()
+                        viewModel.getSortPrefFlow()
                             .collectFirstLifecycleFlow(viewLifecycleOwner) { sortPref ->
                                 todosAdapter.apply {
                                     DialogUtil.showRadioDialog(requireContext(),
@@ -148,15 +148,14 @@ class TodoListFragment : ObserveStateFragment<FragmentTodoListBinding>() {
 
     private fun collectCurrentList() {
         viewModel.currentList.collectLatestLifecycleFlow(viewLifecycleOwner) { list ->
-            list?.let {
-                (requireActivity() as AppCompatActivity).supportActionBar?.title =
-                    it.name
-            }
+            currentList = list
+            (requireActivity() as AppCompatActivity).supportActionBar?.title =
+                currentList?.name
         }
     }
 
     private fun collectTodos() {
-        viewModel.currentList.collectLatestLifecycleFlow(viewLifecycleOwner) {
+        viewModel.queryTodo().collectLatestLifecycleFlow(viewLifecycleOwner) {
             todosAdapter.replaceItems(viewModel.queryTodo().first())
         }
     }
