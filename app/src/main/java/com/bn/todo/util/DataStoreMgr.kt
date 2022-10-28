@@ -56,7 +56,7 @@ class DataStoreMgr @Inject constructor(@ApplicationContext val context: Context)
 
 object DataStoreKeys {
     internal const val DATASTORE_NAME = "preferences"
-    val CURRENT_LIST = intPreferencesKey("current_list")
+    val CURRENT_LIST = longPreferencesKey("current_list")
     val IS_FIRST_LAUNCH = booleanPreferencesKey("is_first_launch")
     val SHOW_COMPLETED = booleanPreferencesKey("show_completed")
     val SORT_PREF = intPreferencesKey("sort_pref")

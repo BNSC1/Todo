@@ -25,13 +25,13 @@ interface TodoDao {
                 "when $ORDER_NOT_COMPLETED then isCompleted end asc"
     )
     fun query(
-        listId: Int,
+        listId: Long,
         queryString: String? = null,
         sortField: Int = ORDER_ADDED
     ): Flow<List<Todo>>
 
     @Query("Select * from `Todo` where `listId` = :listId and not `isCompleted`")
-    fun queryNotCompleted(listId: Int): Flow<List<Todo>>
+    fun queryNotCompleted(listId: Long): Flow<List<Todo>>
 
     @Update
     suspend fun update(todo: Todo)
@@ -40,5 +40,5 @@ interface TodoDao {
     suspend fun delete(todo: Todo)
 
     @Query("delete from `Todo` where `listId` = :listId and isCompleted")
-    suspend fun deleteCompleted(listId: Int): Int
+    suspend fun deleteCompleted(listId: Long): Int
 }

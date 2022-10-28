@@ -29,10 +29,10 @@ class UserPrefRepository @Inject constructor(
         dataStoreMgr.getPreference(DataStoreKeys.IS_FIRST_LAUNCH, default)
 
 
-    fun getCurrentListId(default: Int) =
+    fun getCurrentListId(default: Long) =
         dataStoreMgr.getPreference(DataStoreKeys.CURRENT_LIST, default)
 
-    suspend fun setCurrentListId(id: Int) =
+    suspend fun setCurrentListId(id: Long) =
         dataStoreMgr.setPreference(DataStoreKeys.CURRENT_LIST, id)
 
 }

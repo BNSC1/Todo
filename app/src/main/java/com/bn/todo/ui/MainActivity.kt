@@ -18,6 +18,7 @@ import com.bn.todo.ui.view.TodoInfoFragment
 import com.bn.todo.ui.viewmodel.TodoViewModel
 import com.bn.todo.util.DialogUtil
 import dagger.hilt.android.AndroidEntryPoint
+import kotlinx.coroutines.flow.combine
 
 private const val MENU_ORDER = Menu.NONE
 
@@ -34,26 +35,23 @@ class MainActivity : NavigationActivity(), TodoClickCallback {
         with(binding) {
             setupToolbar()
             setupDrawer()
-            collectCurrentListId()
             collectTodoLists()
         }
     }
 
-    private fun ActivityMainBinding.collectCurrentListId() =
-        viewModel.getCurrentListId().collectLatestLifecycleFlow(this@MainActivity) { id ->
-            setSelectedListItem(getIndexById(viewModel.todoLists.value, id))
-        }
-
-    private fun getIndexById(lists: List<TodoList>, id: Int): Int =
+    private fun getIndexById(lists: List<TodoList>, id: Long): Int =
         lists.indexOf(lists.firstOrNull {
             id == it.id
         })
 
     private fun ActivityMainBinding.collectTodoLists() =
-        viewModel.todoLists.collectLatestLifecycleFlow(this@MainActivity) { lists ->
+        viewModel.todoLists.combine(viewModel.currentList) { lists, currentList ->
             updateDrawerMenu(lists)
-            setList(lists.lastIndex)
-        }
+            currentList?.id?.let { getIndexById(viewModel.todoLists.value, it) }
+                ?.let {
+                    setSelectedListItem(it)
+                }
+        }.collectLatestLifecycleFlow(this@MainActivity) {}
 
     private fun openBottomSheet() = TodoInfoFragment().show(supportFragmentManager, "bottom_sheet")
 
@@ -76,12 +74,6 @@ class MainActivity : NavigationActivity(), TodoClickCallback {
                 else -> false
             }
             updateDrawerNavigation()
-        }
-    }
-
-    private fun ActivityMainBinding.setList(menuId: Int?) {
-        menuId?.let {
-            setSelectedListItem(menuId)
         }
     }
 
@@ -155,14 +147,14 @@ class MainActivity : NavigationActivity(), TodoClickCallback {
                     })
             }
             else -> {
+                viewModel.setCurrentList(viewModel.todoLists.value[item.itemId])
                 setSelectedListItem(item.itemId)
             }
         }
     }
 
     private fun ActivityMainBinding.setSelectedListItem(menuId: Int) {
-        if (menuId >= 0) {
-            viewModel.setCurrentListId(viewModel.todoLists.value[menuId].id)
+        if (menuId >= 0 && menuId < drawer.navigation.menu.size()) {
             drawer.navigation.menu.getItem(menuId).isChecked = true
         }
     }

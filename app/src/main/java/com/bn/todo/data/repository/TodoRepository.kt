@@ -26,7 +26,7 @@ class TodoRepository @Inject constructor(
     suspend fun deleteTodoList(list: TodoList) = todoListDao.delete(list)
 
 
-    suspend fun insertTodo(title: String, body: String?, listId: Int) =
+    suspend fun insertTodo(title: String, body: String?, listId: Long) =
         todoDao.insert(Todo(title, body, listId))
 
     fun queryTodo(todoFilter: TodoFilter, sortField: Int): Flow<List<Todo>> {
@@ -47,5 +47,5 @@ class TodoRepository @Inject constructor(
 
     suspend fun deleteTodo(todo: Todo) = todoDao.delete(todo)
 
-    suspend fun deleteCompletedTodo(listId: Int) = todoDao.deleteCompleted(listId)
+    suspend fun deleteCompletedTodo(listId: Long) = todoDao.deleteCompleted(listId)
 }

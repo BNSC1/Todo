@@ -35,7 +35,7 @@ class TodoViewModel @Inject constructor(
     }
 
     fun insertTodoList(name: String) = tryRun {
-        todoRepository.insertTodoList(name)
+        setCurrentList(id = todoRepository.insertTodoList(name))
         if (userPrefRepository.getIsFirstTimeLaunch().first()) {
             userPrefRepository.setIsFirstTimeLaunch(false)
         }
@@ -53,11 +53,12 @@ class TodoViewModel @Inject constructor(
     }
 
     fun deleteTodoList(list: TodoList) = tryRun {
+        setCurrentList()
         todoRepository.deleteTodoList(list)
     }
 
     fun insertTodo(title: String, body: String?) = tryRun {
-        todoRepository.insertTodo(title, body, getCurrentListId().first())
+        currentList.value?.id?.let { todoRepository.insertTodo(title, body, it) }
     }
 
     @OptIn(FlowPreview::class)
@@ -69,7 +70,7 @@ class TodoViewModel @Inject constructor(
         }.flattenMerge(Int.MAX_VALUE)
 
     private fun getFilterFlow() =
-        getCurrentListId().combine(getShowCompleted()) { id, showCompleted ->
+        getCurrentListIdFlow().combine(getShowCompleted()) { id, showCompleted ->
             TodoFilter(id, showCompleted)
         }
 
@@ -86,7 +87,7 @@ class TodoViewModel @Inject constructor(
     }
 
     fun deleteCompletedTodos() = tryRun {
-        val deletedTodoCount = todoRepository.deleteCompletedTodo(getCurrentListId().first())
+        val deletedTodoCount = todoRepository.deleteCompletedTodo(getCurrentListIdFlow().first())
         _message.emit(ViewModelMessage.Info.CompletedTodoDeletion(deletedTodoCount))
     }
 
@@ -94,11 +95,16 @@ class TodoViewModel @Inject constructor(
         _clickedTodo.value = todo
     }
 
-    fun getCurrentListId() = userPrefRepository.getCurrentListId(0)
+    private fun getCurrentListIdFlow() = userPrefRepository.getCurrentListId(0).stateIn(
+        scope = viewModelScope,
+        started = SharingStarted.WhileSubscribed(),
+        initialValue = 0
+    )
 
-    fun setCurrentListId(id: Int? = null) = tryRun {
-        id?.let { userPrefRepository.setCurrentListId(it) } ?: getTodoListFlow().first()
-            .firstOrNull()
+    fun setCurrentList(list: TodoList? = null, id: Long? = null) = tryRun {
+        (list?.id ?: id ?: todoLists.value.firstOrNull()?.id)?.let {
+            userPrefRepository.setCurrentListId(it)
+        }
     }
 
     fun getShowCompleted(default: Boolean = true) =
@@ -108,7 +114,7 @@ class TodoViewModel @Inject constructor(
         userPrefRepository.setShowCompleted(showCompleted)
     }
 
-    private fun getCurrentListFlow() = todoLists.combine(getCurrentListId()) { list, id ->
+    private fun getCurrentListFlow() = todoLists.combine(getCurrentListIdFlow()) { list, id ->
         list.firstOrNull { it.id == id }
     }.stateIn(
         scope = viewModelScope,

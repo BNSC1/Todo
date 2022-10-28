@@ -7,7 +7,7 @@ import kotlinx.coroutines.flow.Flow
 @Dao
 interface TodoListDao {
     @Insert(onConflict = OnConflictStrategy.ABORT)
-    suspend fun insert(list: TodoList)
+    suspend fun insert(list: TodoList): Long
 
     @Query("Select * from `TodoList`")
     fun query(): Flow<List<TodoList>>

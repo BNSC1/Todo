@@ -16,9 +16,9 @@ import androidx.room.PrimaryKey
 data class Todo(
     @ColumnInfo val title: String,
     @ColumnInfo val body: String?,
-    @ColumnInfo val listId: Int,
+    @ColumnInfo val listId: Long,
     @ColumnInfo val isCompleted: Boolean = false,
 //    val locationName: String?,
 //    val imageUri: Uri?,
-    @PrimaryKey(autoGenerate = true) val id: Int = 0
+    @PrimaryKey(autoGenerate = true) val id: Long = 0
 )
