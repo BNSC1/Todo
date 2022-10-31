@@ -53,11 +53,13 @@ class TodoViewModel @Inject constructor(
     }
 
     private fun getTodoListFlow(name: String? = null) =
-        todoRepository.queryTodoList(name).onEach { _listCount.value = it.size }.stateIn(
-            scope = viewModelScope,
-            started = SharingStarted.WhileSubscribed(),
-            initialValue = emptyList()
-        )
+        todoRepository.queryTodoList(name).onEach { _listCount.value = it.size }
+            .distinctUntilChanged()
+            .stateIn(
+                scope = viewModelScope,
+                started = SharingStarted.WhileSubscribed(),
+                initialValue = emptyList()
+            )
 
     fun updateTodoList(list: TodoList, name: String) = tryRun {
         todoRepository.updateTodoList(list, name)
@@ -76,7 +78,8 @@ class TodoViewModel @Inject constructor(
     private fun queryTodo(name: String? = null) =
         getFilterFlow().flatMapLatest { filter ->
             todoRepository.queryTodoFlow(filter)
-            }
+        }
+            .distinctUntilChanged()
             .catch {
                 _message.emit(ViewModelMessage.Error(it.message.toString()))
             }
@@ -89,7 +92,7 @@ class TodoViewModel @Inject constructor(
     private fun getFilterFlow() =
         getCurrentListIdFlow().combine(getShowCompletedFlow()) { id, showCompleted ->
             TodoFilter(id, showCompleted)
-        }
+        }.distinctUntilChanged()
 
 
     fun updateTodo(todo: Todo, name: String, body: String) = tryRun {
@@ -118,11 +121,13 @@ class TodoViewModel @Inject constructor(
         _clickedTodo.value = todo
     }
 
-    private fun getCurrentListIdFlow() = userPrefRepository.getCurrentListId(0).stateIn(
-        scope = viewModelScope,
-        started = SharingStarted.WhileSubscribed(),
-        initialValue = 0
-    )
+    private fun getCurrentListIdFlow() = userPrefRepository.getCurrentListId(0)
+        .distinctUntilChanged()
+        .stateIn(
+            scope = viewModelScope,
+            started = SharingStarted.WhileSubscribed(),
+            initialValue = 0
+        )
 
     fun setCurrentList(list: TodoList? = null, id: Long? = null) = tryRun {
         (list?.id ?: id)?.let {
@@ -131,11 +136,13 @@ class TodoViewModel @Inject constructor(
     }
 
     private fun getShowCompletedFlow(default: Boolean = true) =
-        userPrefRepository.getShowCompleted(default).stateIn(
-            scope = viewModelScope,
-            started = SharingStarted.WhileSubscribed(),
-            initialValue = false
-        )
+        userPrefRepository.getShowCompleted(default)
+            .distinctUntilChanged()
+            .stateIn(
+                scope = viewModelScope,
+                started = SharingStarted.WhileSubscribed(),
+                initialValue = false
+            )
 
     fun setShowCompleted(showCompleted: Boolean) = tryRun {
         userPrefRepository.setShowCompleted(showCompleted)
@@ -143,11 +150,13 @@ class TodoViewModel @Inject constructor(
 
     private fun getCurrentListFlow() = todoLists.combine(getCurrentListIdFlow()) { list, id ->
         list.firstOrNull { it.id == id } ?: todoLists.value.firstOrNull()
-    }.stateIn(
-        scope = viewModelScope,
-        started = SharingStarted.WhileSubscribed(),
-        initialValue = null
-    )
+    }
+        .distinctUntilChanged()
+        .stateIn(
+            scope = viewModelScope,
+            started = SharingStarted.WhileSubscribed(),
+            initialValue = null
+        )
 
     fun setSortPref(sortPref: Int) = tryRun {
         userPrefRepository.setSortPref(sortPref)
@@ -156,9 +165,10 @@ class TodoViewModel @Inject constructor(
     private fun getSortPrefFlow(default: Int = 0) =
         userPrefRepository.getSortPref(default).map { pref ->
             TodoSort.values().first { it.ordinal == pref }
-        }.stateIn(
-            scope = viewModelScope,
-            started = SharingStarted.WhileSubscribed(),
-            initialValue = TodoSort.values()[0]
-        )
+        }.distinctUntilChanged()
+            .stateIn(
+                scope = viewModelScope,
+                started = SharingStarted.WhileSubscribed(),
+                initialValue = TodoSort.values()[0]
+            )
 }
