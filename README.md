@@ -35,6 +35,6 @@ Deleting all completed todos.
 📝To-do's (for this project)
 
 
-1. Implement start time/end time for to-do items.
-2. Implement push notifications.
-3. Implement sorting for to-do items.
+- [] Implement start time/end time for to-do items.
+- [] Implement push notifications.
+- [X] Implement sorting for to-do items.
