@@ -42,7 +42,6 @@ class TodoListFragment : ObserveStateFragment<FragmentTodoListBinding>() {
             setupAddTodoButton()
             setupTodos()
             collectCurrentList()
-//            collectSortPref()
             collectTodos()
         }
     }
@@ -51,74 +50,28 @@ class TodoListFragment : ObserveStateFragment<FragmentTodoListBinding>() {
         requireActivity().addMenuProvider(object : MenuProvider {
             override fun onCreateMenu(menu: Menu, menuInflater: MenuInflater) {
                 menuInflater.inflate(R.menu.menu_todo_list, menu)
-                initObserveShowCompleted(menu)
+                collectShowCompleted(menu)
             }
 
             override fun onMenuItemSelected(menuItem: MenuItem): Boolean {
                 when (menuItem.itemId) {
                     R.id.action_sort -> {
-                        DialogUtil.showRadioDialog(requireContext(),
-                            items = resources.getStringArray(R.array.sort_order_group),
-                            title = getString(R.string.title_sort_by),
-                            defaultIndex = sortPref.ordinal,
-                            okAction = { index ->
-                                viewModel.setSortPref(index)
-                            })
+                        onActionSort()
                     }
                     R.id.action_rename_list -> {
                         tryCurrentListAction { list ->
-                            DialogUtil.showInputDialog(
-                                requireActivity(),
-                                getString(R.string.title_input_name_for_list),
-                                defaultValue = list.name,
-                                inputReceiver = object : DialogUtil.OnInputReceiver {
-                                    override fun receiveInput(input: String?) {
-                                        if (!input.isNullOrBlank()) {
-                                            currentList?.let {
-                                                viewModel.updateTodoList(it, input)
-                                            }
-                                        } else {
-                                            showDialog(message = getString(R.string.title_input_name_for_list))
-                                        }
-                                    }
-                                })
+                            onActionRename(list)
                         }
                     }
                     R.id.action_delete_list -> {
-                        if (viewModel.listCount.value > 1) {
-                            tryCurrentListAction { list ->
-                                DialogUtil.showConfirmDialog(
-                                    requireContext(),
-                                    msg = String.format(
-                                        getString(R.string.msg_confirm_delete_list_format),
-                                        list.name
-                                    ),
-                                    okAction = {
-                                        viewModel.deleteTodoList(list)
-                                    }
-                                )
-                            }
-                        } else {
-                            showDialog(messageStringId = R.string.msg_cannot_delete_last_list)
-                        }
+                        onActionDelete()
                     }
                     R.id.action_clear_completed_todos -> {
-                        tryCurrentListAction { list ->
-                            DialogUtil.showConfirmDialog(
-                                requireContext(),
-                                msg = String.format(
-                                    getString(R.string.msg_confirm_clear_completed_todos),
-                                    list.name
-                                ),
-                                okAction = {
-                                    viewModel.deleteCompletedTodos()
-                                })
-                        }
+                        onActionClearCompleted()
 
                     }
                     R.id.action_show_completed_todos -> {
-                        menuItem.isChecked = !menuItem.isChecked
-                        viewModel.setShowCompleted(menuItem.isChecked)
+                        onActionShowCompleted(menuItem)
                     }
                 }
                 return NavigationUI.onNavDestinationSelected(
@@ -127,6 +80,72 @@ class TodoListFragment : ObserveStateFragment<FragmentTodoListBinding>() {
                 )
             }
         }, viewLifecycleOwner, Lifecycle.State.CREATED)
+    }
+
+    private fun onActionShowCompleted(menuItem: MenuItem) {
+        menuItem.isChecked = !menuItem.isChecked
+        viewModel.setShowCompleted(menuItem.isChecked)
+    }
+
+    private fun onActionClearCompleted() {
+        tryCurrentListAction { list ->
+            DialogUtil.showConfirmDialog(
+                requireContext(),
+                msg = String.format(
+                    getString(R.string.msg_confirm_clear_completed_todos),
+                    list.name
+                ),
+                okAction = {
+                    viewModel.deleteCompletedTodos()
+                })
+        }
+    }
+
+    private fun onActionDelete() {
+        if (viewModel.listCount.value > 1) {
+            tryCurrentListAction { list ->
+                DialogUtil.showConfirmDialog(
+                    requireContext(),
+                    msg = String.format(
+                        getString(R.string.msg_confirm_delete_list_format),
+                        list.name
+                    ),
+                    okAction = {
+                        viewModel.deleteTodoList(list)
+                    }
+                )
+            }
+        } else {
+            showDialog(messageStringId = R.string.msg_cannot_delete_last_list)
+        }
+    }
+
+    private fun onActionRename(list: TodoList) {
+        DialogUtil.showInputDialog(
+            requireActivity(),
+            getString(R.string.title_input_name_for_list),
+            defaultValue = list.name,
+            inputReceiver = object : DialogUtil.OnInputReceiver {
+                override fun receiveInput(input: String?) {
+                    if (!input.isNullOrBlank()) {
+                        currentList?.let {
+                            viewModel.updateTodoList(it, input)
+                        }
+                    } else {
+                        showDialog(message = getString(R.string.title_input_name_for_list))
+                    }
+                }
+            })
+    }
+
+    private fun onActionSort() {
+        DialogUtil.showRadioDialog(requireContext(),
+            items = resources.getStringArray(R.array.sort_order_group),
+            title = getString(R.string.title_sort_by),
+            defaultIndex = sortPref.ordinal,
+            okAction = { index ->
+                viewModel.setSortPref(index)
+            })
     }
 
     private fun FragmentTodoListBinding.setupTodos() {
@@ -174,7 +193,7 @@ class TodoListFragment : ObserveStateFragment<FragmentTodoListBinding>() {
             action(it)
         } ?: nullListAction()
 
-    private fun initObserveShowCompleted(menu: Menu) {
+    private fun collectShowCompleted(menu: Menu) {
         viewModel.showCompleted.collectLatestLifecycleFlow(viewLifecycleOwner) {
             menu.findItem(R.id.action_show_completed_todos).isChecked = it
             menu.findItem(R.id.action_clear_completed_todos).isEnabled = it
