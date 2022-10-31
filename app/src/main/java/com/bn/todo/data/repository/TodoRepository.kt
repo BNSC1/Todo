@@ -29,7 +29,7 @@ class TodoRepository @Inject constructor(
     suspend fun insertTodo(title: String, body: String?, listId: Long) =
         todoDao.insert(Todo(title, body, listId))
 
-    fun queryTodo(todoFilter: TodoFilter, sortField: Int): Flow<List<Todo>> {
+    fun queryTodoFlow(todoFilter: TodoFilter, sortField: Int): Flow<List<Todo>> {
         todoFilter.apply {
             return if (showCompleted) {
                 todoDao.query(todoFilter.listId, name, sortField)

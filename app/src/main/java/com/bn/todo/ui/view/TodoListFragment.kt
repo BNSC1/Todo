@@ -24,7 +24,6 @@ import com.bn.todo.ui.view.adapter.TodosAdapter
 import com.bn.todo.ui.viewmodel.TodoViewModel
 import com.bn.todo.util.DialogUtil
 import dagger.hilt.android.AndroidEntryPoint
-import kotlinx.coroutines.flow.first
 
 @AndroidEntryPoint
 class TodoListFragment : ObserveStateFragment<FragmentTodoListBinding>() {
@@ -39,9 +38,9 @@ class TodoListFragment : ObserveStateFragment<FragmentTodoListBinding>() {
 
         with(binding) {
             setupAddTodoButton()
+            setupTodos()
             collectCurrentList()
             collectTodos()
-            setupTodos()
         }
     }
 
@@ -155,8 +154,10 @@ class TodoListFragment : ObserveStateFragment<FragmentTodoListBinding>() {
     }
 
     private fun collectTodos() {
-        viewModel.queryTodo().collectLatestLifecycleFlow(viewLifecycleOwner) {
-            todosAdapter.replaceItems(viewModel.queryTodo().first())
+        viewModel.currentTodos.collectLatestLifecycleFlow(viewLifecycleOwner) { todos ->
+            todos?.let {
+                todosAdapter.replaceItems(it)
+            }
         }
     }
 

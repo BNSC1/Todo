@@ -23,11 +23,16 @@ abstract class ObserveStateFragment<Binding : ViewBinding> : BaseFragment<Bindin
     }
 
     private fun collectMessage() {
-        viewModel.message.collectLatestLifecycleFlow(viewLifecycleOwner) {
-            when (it) {
-                is ViewModelMessage.Error -> showDialog(message = it.msg)
+        viewModel.message.collectLatestLifecycleFlow(viewLifecycleOwner) { msg ->
+            when (msg) {
+                is ViewModelMessage.Error -> {
+                    showDialog(message = msg.msg ?:
+                    msg.msgStringId?.let { getString(it) } ?:
+                    getString(R.string.err_unknown)
+                    )
+                }
                 is ViewModelMessage.Info.CompletedTodoDeletion ->
-                    showToast(getString(R.string.msg_deleted_todos_format).format(it.count))
+                    showToast(getString(R.string.msg_deleted_todos_format).format(msg.count))
             }
         }
     }

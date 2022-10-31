@@ -36,6 +36,7 @@
     <string name="attachment_summary_off">Only download attachments when manually requested</string>
     <string name="action_save">Save</string>
     <string name="error_title_required">Title is required</string>
+    <string name="error_missing_current_list">Cannot find current list</string>
     <string name="action_delete">Delete</string>
     <string name="action_edit">Edit</string>
     <string name="action_complete">Complete</string>

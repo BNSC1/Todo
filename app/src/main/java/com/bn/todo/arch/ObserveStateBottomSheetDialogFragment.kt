@@ -27,11 +27,16 @@ abstract class ObserveStateBottomSheetDialogFragment<Binding : ViewBinding> :
 
     private fun collectMessage() {
         job = viewLifecycleOwner.lifecycleScope.launch {
-            viewModel.message.collectLifecycleFlow(viewLifecycleOwner) {
-                when (it) {
-                    is ViewModelMessage.Error -> showDialog(message = it.msg)
+            viewModel.message.collectLifecycleFlow(viewLifecycleOwner) { msg ->
+                when (msg) {
+                    is ViewModelMessage.Error -> {
+                        showDialog(message = msg.msg ?:
+                        msg.msgStringId?.let { getString(it) } ?:
+                        getString(R.string.err_unknown)
+                        )
+                    }
                     is ViewModelMessage.Info.CompletedTodoDeletion ->
-                        showToast(getString(R.string.msg_deleted_todos_format).format(it.count))
+                        showToast(getString(R.string.msg_deleted_todos_format).format(msg.count))
                 }
             }
         }
