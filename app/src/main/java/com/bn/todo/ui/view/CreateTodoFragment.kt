@@ -18,7 +18,6 @@ import com.bn.todo.arch.ObserveStateFragment
 import com.bn.todo.data.model.Todo
 import com.bn.todo.databinding.FragmentCreateTodoBinding
 import com.bn.todo.databinding.LayoutTextInputBinding
-import com.bn.todo.ktx.TAG
 import com.bn.todo.ui.MainActivity
 import com.bn.todo.ui.viewmodel.TodoViewModel
 import com.bn.todo.util.TextInputUtil
@@ -49,7 +48,7 @@ class CreateTodoFragment : ObserveStateFragment<FragmentCreateTodoBinding>() {
     private fun setupStrategy() {
         sourceFragment = args.sourceFragment
         strategy =
-            if (sourceFragment == TodoInfoFragment::class.TAG) TodoStrategy.EditStrategy()
+            if (sourceFragment == TodoInfoFragment::class.java.name) TodoStrategy.EditStrategy()
             else TodoStrategy.AddStrategy
     }
 

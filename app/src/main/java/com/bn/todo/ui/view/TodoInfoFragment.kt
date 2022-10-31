@@ -55,7 +55,7 @@ class TodoInfoFragment : ObserveStateBottomSheetDialogFragment<FragmentTodoInfoB
 
     private fun FragmentTodoInfoBinding.setupEditBtn() {
         editBtn.setOnClickListener {
-            TodoListFragmentDirections.actionCreateTodo(TAG).navigate()
+            TodoListFragmentDirections.actionCreateTodo(this@TodoInfoFragment.TAG).navigate()
             dismiss()
         }
     }
