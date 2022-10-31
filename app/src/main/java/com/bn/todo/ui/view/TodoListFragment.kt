@@ -158,7 +158,7 @@ class TodoListFragment : ObserveStateFragment<FragmentTodoListBinding>() {
                 todosAdapter.submitList(
                     when (sortPref) {
                         TodoSort.ORDER_ADDED -> sortedBy { it.id }
-                        TodoSort.ORDER_NOT_COMPLETED -> sortedBy { !it.isCompleted }
+                        TodoSort.ORDER_NOT_COMPLETED -> sortedBy { it.isCompleted }
                         TodoSort.ORDER_ALPHABET -> sortedBy { it.title }
                     }
                 )
