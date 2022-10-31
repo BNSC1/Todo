@@ -24,11 +24,12 @@ import com.bn.todo.ui.view.adapter.TodosAdapter
 import com.bn.todo.ui.viewmodel.TodoViewModel
 import com.bn.todo.util.DialogUtil
 import dagger.hilt.android.AndroidEntryPoint
+import kotlinx.coroutines.flow.combine
 
 @AndroidEntryPoint
 class TodoListFragment : ObserveStateFragment<FragmentTodoListBinding>() {
     private var currentList: TodoList? = null
-    private var sortPref: TodoSort? = null
+    private var sortPref = TodoSort.values()[0]
 
     override val viewModel: TodoViewModel by activityViewModels()
     private lateinit var todosAdapter: TodosAdapter
@@ -41,7 +42,7 @@ class TodoListFragment : ObserveStateFragment<FragmentTodoListBinding>() {
             setupAddTodoButton()
             setupTodos()
             collectCurrentList()
-            collectSortPref()
+//            collectSortPref()
             collectTodos()
         }
     }
@@ -59,7 +60,7 @@ class TodoListFragment : ObserveStateFragment<FragmentTodoListBinding>() {
                         DialogUtil.showRadioDialog(requireContext(),
                             items = resources.getStringArray(R.array.sort_order_group),
                             title = getString(R.string.title_sort_by),
-                            defaultIndex = sortPref?.ordinal ?: 0,
+                            defaultIndex = sortPref.ordinal,
                             okAction = { index ->
                                 viewModel.setSortPref(index)
                             })
@@ -150,19 +151,19 @@ class TodoListFragment : ObserveStateFragment<FragmentTodoListBinding>() {
         }
     }
 
-    private fun collectSortPref() {
-        viewModel.sortPref.collectLatestLifecycleFlow(viewLifecycleOwner) { pref ->
-            sortPref = pref
-            todosAdapter.setSort(pref)
-        }
-    }
-
     private fun collectTodos() {
-        viewModel.currentTodos.collectLatestLifecycleFlow(viewLifecycleOwner) { todos ->
-            todos?.let {
-                todosAdapter.replaceItems(it)
+        viewModel.currentTodos.combine(viewModel.sortPref) { todos, pref ->
+            sortPref = pref
+            todos?.apply {
+                todosAdapter.submitList(
+                    when (sortPref) {
+                        TodoSort.ORDER_ADDED -> sortedBy { it.id }
+                        TodoSort.ORDER_NOT_COMPLETED -> sortedBy { !it.isCompleted }
+                        TodoSort.ORDER_ALPHABET -> sortedBy { it.title }
+                    }
+                )
             }
-        }
+        }.collectLatestLifecycleFlow(viewLifecycleOwner) {}
     }
 
     private inline fun tryCurrentListAction(
@@ -179,5 +180,4 @@ class TodoListFragment : ObserveStateFragment<FragmentTodoListBinding>() {
             menu.findItem(R.id.action_clear_completed_todos).isEnabled = it
         }
     }
-
 }
