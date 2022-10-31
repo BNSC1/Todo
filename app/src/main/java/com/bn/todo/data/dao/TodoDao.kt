@@ -2,9 +2,6 @@ package com.bn.todo.data.dao
 
 import androidx.room.*
 import com.bn.todo.data.model.Todo
-import com.bn.todo.data.model.TodoSort.ORDER_ADDED
-import com.bn.todo.data.model.TodoSort.ORDER_ALPHABET
-import com.bn.todo.data.model.TodoSort.ORDER_NOT_COMPLETED
 import kotlinx.coroutines.flow.Flow
 
 @Dao
@@ -17,17 +14,11 @@ interface TodoDao {
         "Select * from `Todo` where " +
                 "case :queryString " +
                 "when null then `title` = :queryString and `listId` = :listId " +
-                "else `listId` = :listId end " +
-                "order by " +
-                "case :sortField " +
-                "when $ORDER_ADDED then id " +
-                "when $ORDER_ALPHABET then title " +
-                "when $ORDER_NOT_COMPLETED then isCompleted end asc"
+                "else `listId` = :listId end "
     )
     fun query(
         listId: Long,
         queryString: String? = null,
-        sortField: Int = ORDER_ADDED
     ): Flow<List<Todo>>
 
     @Query("Select * from `Todo` where `listId` = :listId and not `isCompleted`")

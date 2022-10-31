@@ -7,6 +7,7 @@ import com.bn.todo.arch.ViewModelMessage
 import com.bn.todo.data.model.Todo
 import com.bn.todo.data.model.TodoFilter
 import com.bn.todo.data.model.TodoList
+import com.bn.todo.data.model.TodoSort
 import com.bn.todo.data.repository.TodoRepository
 import com.bn.todo.data.repository.UserPrefRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -24,8 +25,12 @@ class TodoViewModel @Inject constructor(
     val todoLists get() = _todoLists
     private val _currentList: StateFlow<TodoList?>
     val currentList get() = _currentList
+    private val _sortPref: StateFlow<TodoSort>
+    val sortPref get() = _sortPref
     private val _currentTodos: StateFlow<List<Todo>?>
     val currentTodos get() = _currentTodos
+    private val _showCompleted: StateFlow<Boolean>
+    val showCompleted get() = _showCompleted
 
     private val _clickedTodo = MutableStateFlow<Todo?>(null)
     val clickedTodo get() = _clickedTodo
@@ -35,7 +40,9 @@ class TodoViewModel @Inject constructor(
     init {
         _todoLists = getTodoListFlow()
         _currentList = getCurrentListFlow()
+        _sortPref = getSortPrefFlow()
         _currentTodos = queryTodo()
+        _showCompleted = getShowCompletedFlow()
     }
 
     fun insertTodoList(name: String) = tryRun {
@@ -67,8 +74,8 @@ class TodoViewModel @Inject constructor(
 
     @OptIn(ExperimentalCoroutinesApi::class)
     private fun queryTodo(name: String? = null) =
-        getTodoOperationsFlow().flatMapLatest { op ->
-            todoRepository.queryTodoFlow(op.filter, op.sortPref)
+        getFilterFlow().flatMapLatest { filter ->
+            todoRepository.queryTodoFlow(filter)
             }
             .catch {
                 _message.emit(ViewModelMessage.Error(it.message.toString()))
@@ -80,14 +87,10 @@ class TodoViewModel @Inject constructor(
             )
 
     private fun getFilterFlow() =
-        getCurrentListIdFlow().combine(getShowCompleted()) { id, showCompleted ->
+        getCurrentListIdFlow().combine(getShowCompletedFlow()) { id, showCompleted ->
             TodoFilter(id, showCompleted)
         }
 
-    private fun getTodoOperationsFlow() =
-        getFilterFlow().combine(getSortPrefFlow()) { filter, sortPref ->
-            TodoOperations(filter, sortPref)
-        }
 
     fun updateTodo(todo: Todo, name: String, body: String) = tryRun {
         todoRepository.updateTodo(todo, name, body)
@@ -127,8 +130,12 @@ class TodoViewModel @Inject constructor(
         }
     }
 
-    fun getShowCompleted(default: Boolean = true) =
-        userPrefRepository.getShowCompleted(default)
+    private fun getShowCompletedFlow(default: Boolean = true) =
+        userPrefRepository.getShowCompleted(default).stateIn(
+            scope = viewModelScope,
+            started = SharingStarted.WhileSubscribed(),
+            initialValue = false
+        )
 
     fun setShowCompleted(showCompleted: Boolean) = tryRun {
         userPrefRepository.setShowCompleted(showCompleted)
@@ -146,11 +153,12 @@ class TodoViewModel @Inject constructor(
         userPrefRepository.setSortPref(sortPref)
     }
 
-    fun getSortPrefFlow(default: Int = 0) =
-        userPrefRepository.getSortPref(default)
-
-    data class TodoOperations(
-        val filter: TodoFilter,
-        val sortPref: Int
-    )
+    private fun getSortPrefFlow(default: Int = 0) =
+        userPrefRepository.getSortPref(default).map { pref ->
+            TodoSort.values().first { it.ordinal == pref }
+        }.stateIn(
+            scope = viewModelScope,
+            started = SharingStarted.WhileSubscribed(),
+            initialValue = TodoSort.values()[0]
+        )
 }

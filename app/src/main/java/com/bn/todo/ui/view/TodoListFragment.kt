@@ -14,8 +14,8 @@ import androidx.navigation.ui.NavigationUI
 import com.bn.todo.R
 import com.bn.todo.arch.ObserveStateFragment
 import com.bn.todo.data.model.TodoList
+import com.bn.todo.data.model.TodoSort
 import com.bn.todo.databinding.FragmentTodoListBinding
-import com.bn.todo.ktx.collectFirstLifecycleFlow
 import com.bn.todo.ktx.collectLatestLifecycleFlow
 import com.bn.todo.ktx.showDialog
 import com.bn.todo.ktx.showToast
@@ -28,6 +28,7 @@ import dagger.hilt.android.AndroidEntryPoint
 @AndroidEntryPoint
 class TodoListFragment : ObserveStateFragment<FragmentTodoListBinding>() {
     private var currentList: TodoList? = null
+    private var sortPref: TodoSort? = null
 
     override val viewModel: TodoViewModel by activityViewModels()
     private lateinit var todosAdapter: TodosAdapter
@@ -40,6 +41,7 @@ class TodoListFragment : ObserveStateFragment<FragmentTodoListBinding>() {
             setupAddTodoButton()
             setupTodos()
             collectCurrentList()
+            collectSortPref()
             collectTodos()
         }
     }
@@ -54,18 +56,13 @@ class TodoListFragment : ObserveStateFragment<FragmentTodoListBinding>() {
             override fun onMenuItemSelected(menuItem: MenuItem): Boolean {
                 when (menuItem.itemId) {
                     R.id.action_sort -> {
-                        viewModel.getSortPrefFlow()
-                            .collectFirstLifecycleFlow(viewLifecycleOwner) { sortPref ->
-                                todosAdapter.apply {
-                                    DialogUtil.showRadioDialog(requireContext(),
-                                        items = resources.getStringArray(R.array.sort_order_group),
-                                        title = getString(R.string.title_sort_by),
-                                        defaultIndex = sortPref,
-                                        okAction = { index ->
-                                            viewModel.setSortPref(index)
-                                        })
-                                }
-                            }
+                        DialogUtil.showRadioDialog(requireContext(),
+                            items = resources.getStringArray(R.array.sort_order_group),
+                            title = getString(R.string.title_sort_by),
+                            defaultIndex = sortPref?.ordinal ?: 0,
+                            okAction = { index ->
+                                viewModel.setSortPref(index)
+                            })
                     }
                     R.id.action_rename_list -> {
                         tryCurrentListAction { list ->
@@ -153,6 +150,13 @@ class TodoListFragment : ObserveStateFragment<FragmentTodoListBinding>() {
         }
     }
 
+    private fun collectSortPref() {
+        viewModel.sortPref.collectLatestLifecycleFlow(viewLifecycleOwner) { pref ->
+            sortPref = pref
+            todosAdapter.setSort(pref)
+        }
+    }
+
     private fun collectTodos() {
         viewModel.currentTodos.collectLatestLifecycleFlow(viewLifecycleOwner) { todos ->
             todos?.let {
@@ -170,7 +174,7 @@ class TodoListFragment : ObserveStateFragment<FragmentTodoListBinding>() {
         } ?: nullListAction()
 
     private fun initObserveShowCompleted(menu: Menu) {
-        viewModel.getShowCompleted().collectLatestLifecycleFlow(viewLifecycleOwner) {
+        viewModel.showCompleted.collectLatestLifecycleFlow(viewLifecycleOwner) {
             menu.findItem(R.id.action_show_completed_todos).isChecked = it
             menu.findItem(R.id.action_clear_completed_todos).isEnabled = it
         }
