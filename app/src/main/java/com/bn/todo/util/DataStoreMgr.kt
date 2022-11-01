@@ -23,34 +23,25 @@ class DataStoreMgr @Inject constructor(@ApplicationContext val context: Context)
     suspend inline fun <reified T> setPreference(
         key: Preferences.Key<T>,
         values: T
-    ) = context.dataStore.edit { prefs ->
-        prefs[key] = values
+    ) {
+        context.dataStore.edit { prefs ->
+            prefs[key] = values
+        }
     }
 
 
     inline fun <reified T> getPreference(
         key: Preferences.Key<T>,
-        default: T? = null,
-    ) = context.dataStore.data.catch {
+        default: T
+    ) = context.dataStore.data
+        .catch {
         if (it is IOException) {
             it.printStackTrace()
             emit(emptyPreferences())
         } else throw it
     }
         .map { prefs ->
-            prefs[key] ?: run {
-                default ?: {
-                    when (T::class) {
-                        Int::class -> 0
-                        Long::class -> 0L
-                        Float::class -> 0f
-                        Double::class -> 0.0
-                        Boolean::class -> false
-                        String::class -> ""
-                        else -> null
-                    }
-                } as T
-            }
+            prefs[key] ?: default
         }
 }
 
