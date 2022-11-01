@@ -23,8 +23,10 @@ class DataStoreMgr @Inject constructor(@ApplicationContext val context: Context)
     suspend inline fun <reified T> setPreference(
         key: Preferences.Key<T>,
         values: T
-    ) = context.dataStore.edit { prefs ->
-        prefs[key] = values
+    ) {
+        context.dataStore.edit { prefs ->
+            prefs[key] = values
+        }
     }
 
 
