@@ -9,6 +9,7 @@ buildscript {
         junit5_version = '5.9.1'
         kluent_version = '1.72'
         kotlin_version = '1.7.10'
+        mockk_version = '1.13.2'
     }
     repositories {
         google()
