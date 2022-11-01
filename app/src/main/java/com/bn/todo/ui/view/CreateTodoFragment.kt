@@ -14,7 +14,8 @@ import androidx.navigation.fragment.findNavController
 import androidx.navigation.fragment.navArgs
 import androidx.navigation.ui.NavigationUI
 import com.bn.todo.R
-import com.bn.todo.arch.ObserveStateFragment
+import com.bn.todo.arch.BaseFragment
+import com.bn.todo.arch.CollectsViewModelMessage
 import com.bn.todo.data.model.Todo
 import com.bn.todo.databinding.FragmentCreateTodoBinding
 import com.bn.todo.databinding.LayoutTextInputBinding
@@ -25,7 +26,7 @@ import com.google.android.material.textfield.TextInputEditText
 import dagger.hilt.android.AndroidEntryPoint
 
 @AndroidEntryPoint
-class CreateTodoFragment : ObserveStateFragment<FragmentCreateTodoBinding>() {
+class CreateTodoFragment : BaseFragment<FragmentCreateTodoBinding>(), CollectsViewModelMessage {
     override val viewModel: TodoViewModel by activityViewModels()
     private var isAllowed = false
     private val args by navArgs<CreateTodoFragmentArgs>()
@@ -34,6 +35,7 @@ class CreateTodoFragment : ObserveStateFragment<FragmentCreateTodoBinding>() {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
+        collectMessage()
         setupStrategy()
         setupMenu()
 
