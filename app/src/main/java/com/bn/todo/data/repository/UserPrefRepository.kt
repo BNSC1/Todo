@@ -1,38 +1,18 @@
 package com.bn.todo.data.repository
 
-import com.bn.todo.util.DataStoreKeys
-import com.bn.todo.util.DataStoreMgr
-import javax.inject.Inject
-import javax.inject.Singleton
+import androidx.datastore.preferences.core.Preferences
+import kotlinx.coroutines.flow.Flow
 
-@Singleton
-class UserPrefRepository @Inject constructor(
-    private val dataStoreMgr: DataStoreMgr
-) {
+interface UserPrefRepository {
+    suspend fun setSortPref(sortPref: Int): Preferences
+    fun getSortPref(default: Int): Flow<Int>
 
-    suspend fun setSortPref(sortPref: Int) =
-        dataStoreMgr.setPreference(DataStoreKeys.SORT_PREF, sortPref)
+    suspend fun setShowCompleted(showCompleted: Boolean): Preferences
+    fun getShowCompleted(default: Boolean): Flow<Boolean>
 
-    fun getSortPref(default: Int) =
-        dataStoreMgr.getPreference(DataStoreKeys.SORT_PREF, default)
+    suspend fun setIsFirstTimeLaunch(isFirstTimeLaunch: Boolean): Preferences
+    fun getIsFirstTimeLaunch(default: Boolean = true): Flow<Boolean>
+    fun getCurrentListId(default: Long): Flow<Long>
 
-    suspend fun setShowCompleted(showCompleted: Boolean) =
-        dataStoreMgr.setPreference(DataStoreKeys.SHOW_COMPLETED, showCompleted)
-
-    fun getShowCompleted(default: Boolean) =
-        dataStoreMgr.getPreference(DataStoreKeys.SHOW_COMPLETED, default)
-
-    suspend fun setIsFirstTimeLaunch(isFirstTimeLaunch: Boolean) =
-        dataStoreMgr.setPreference(DataStoreKeys.IS_FIRST_LAUNCH, isFirstTimeLaunch)
-
-    fun getIsFirstTimeLaunch(default: Boolean = true) =
-        dataStoreMgr.getPreference(DataStoreKeys.IS_FIRST_LAUNCH, default)
-
-
-    fun getCurrentListId(default: Long) =
-        dataStoreMgr.getPreference(DataStoreKeys.CURRENT_LIST, default)
-
-    suspend fun setCurrentListId(id: Long) =
-        dataStoreMgr.setPreference(DataStoreKeys.CURRENT_LIST, id)
-
+    suspend fun setCurrentListId(id: Long): Preferences
 }
