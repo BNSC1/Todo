@@ -4,7 +4,7 @@ import android.content.Intent
 import android.os.Bundle
 import androidx.activity.viewModels
 import com.bn.todo.arch.BaseActivity
-import com.bn.todo.ktx.collectFirstLifecycleFlow
+import com.bn.todo.ktx.collectLatestLifecycleFlow
 import com.bn.todo.ui.viewmodel.EntryViewModel
 import dagger.hilt.android.AndroidEntryPoint
 
@@ -14,7 +14,7 @@ class EntryActivity : BaseActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        viewModel.isFirstLaunch.collectFirstLifecycleFlow(this) { isFirstLaunch ->
+        viewModel.isFirstLaunch.collectLatestLifecycleFlow(this) { isFirstLaunch ->
             val intent = Intent(
                 this@EntryActivity,
                 if (isFirstLaunch) WelcomeActivity::class.java
