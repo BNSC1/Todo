@@ -7,11 +7,9 @@ import android.view.ViewGroup
 import androidx.navigation.NavDirections
 import androidx.viewbinding.ViewBinding
 import com.google.android.material.bottomsheet.BottomSheetDialogFragment
-import kotlinx.coroutines.Job
 import java.lang.reflect.ParameterizedType
 
 abstract class BaseBottomSheetDialogFragment<Binding : ViewBinding> : BottomSheetDialogFragment() {
-    protected var job: Job? = null
     private val mActivity get() = activity as? NavigationActivity
     private var _binding: Binding? = null
     protected val binding get() = _binding!!

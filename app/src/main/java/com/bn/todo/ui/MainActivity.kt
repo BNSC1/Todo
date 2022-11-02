@@ -115,7 +115,7 @@ class MainActivity : NavigationActivity(), TodoClickCallback {
             } else {
                 layoutDrawer.setLockState(true)
                 actionBar.setDisplayHomeAsUpEnabled(true)
-                layoutToolbar.toolbar.setNavigationOnClickListener { onBackPressed() }
+                layoutToolbar.toolbar.setNavigationOnClickListener { onBackPressedDispatcher.onBackPressed() }
             }
         }
     }
@@ -133,24 +133,28 @@ class MainActivity : NavigationActivity(), TodoClickCallback {
     private fun ActivityMainBinding.onOptionListsSelected(item: MenuItem) {
         when (item.itemId) {
             R.id.action_add_list -> {
-                DialogUtil.showInputDialog(
-                    this@MainActivity,
-                    getString(R.string.title_input_name_for_list),
-                    inputReceiver = object : DialogUtil.OnInputReceiver {
-                        override fun receiveInput(input: String?) {
-                            if (!input.isNullOrBlank()) {
-                                viewModel.insertTodoList(input)
-                            } else {
-                                showDialog(message = getString(R.string.title_input_name_for_list))
-                            }
-                        }
-                    })
+                onActionAddList()
             }
             else -> {
                 viewModel.setCurrentList(viewModel.todoLists.value[item.itemId])
                 setSelectedListItem(item.itemId)
             }
         }
+    }
+
+    private fun onActionAddList() {
+        DialogUtil.showInputDialog(
+            this@MainActivity,
+            getString(R.string.title_input_name_for_list),
+            inputReceiver = object : DialogUtil.OnInputReceiver {
+                override fun receiveInput(input: String?) {
+                    if (!input.isNullOrBlank()) {
+                        viewModel.insertTodoList(input)
+                    } else {
+                        showDialog(message = getString(R.string.title_input_name_for_list))
+                    }
+                }
+            })
     }
 
     private fun ActivityMainBinding.setSelectedListItem(menuId: Int) {

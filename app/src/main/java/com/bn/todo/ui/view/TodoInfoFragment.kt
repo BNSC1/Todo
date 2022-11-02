@@ -4,7 +4,8 @@ import android.os.Bundle
 import android.view.View
 import androidx.fragment.app.activityViewModels
 import com.bn.todo.R
-import com.bn.todo.arch.ObserveStateBottomSheetDialogFragment
+import com.bn.todo.arch.BaseBottomSheetDialogFragment
+import com.bn.todo.arch.CollectsViewModelMessage
 import com.bn.todo.data.model.Todo
 import com.bn.todo.databinding.FragmentTodoInfoBinding
 import com.bn.todo.ktx.TAG
@@ -16,7 +17,7 @@ import com.bn.todo.util.ResUtil
 import dagger.hilt.android.AndroidEntryPoint
 
 @AndroidEntryPoint
-class TodoInfoFragment : ObserveStateBottomSheetDialogFragment<FragmentTodoInfoBinding>() {
+class TodoInfoFragment : BaseBottomSheetDialogFragment<FragmentTodoInfoBinding>(), CollectsViewModelMessage {
     override val viewModel: TodoViewModel by activityViewModels()
     private var clickedTodo: Todo? = null
     private val colorAccent: Int by lazy {
@@ -25,6 +26,7 @@ class TodoInfoFragment : ObserveStateBottomSheetDialogFragment<FragmentTodoInfoB
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
+        collectMessage()
         with(binding) {
             setupTodo()
             setupCompleteBtn()

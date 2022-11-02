@@ -12,7 +12,8 @@ import androidx.lifecycle.Lifecycle
 import androidx.navigation.findNavController
 import androidx.navigation.ui.NavigationUI
 import com.bn.todo.R
-import com.bn.todo.arch.ObserveStateFragment
+import com.bn.todo.arch.BaseFragment
+import com.bn.todo.arch.CollectsViewModelMessage
 import com.bn.todo.data.model.TodoList
 import com.bn.todo.data.model.TodoSort
 import com.bn.todo.databinding.FragmentTodoListBinding
@@ -27,7 +28,7 @@ import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.flow.combine
 
 @AndroidEntryPoint
-class TodoListFragment : ObserveStateFragment<FragmentTodoListBinding>() {
+class TodoListFragment : BaseFragment<FragmentTodoListBinding>(), CollectsViewModelMessage {
     private var currentList: TodoList? = null
     private var sortPref = TodoSort.values()[0]
 
@@ -36,6 +37,7 @@ class TodoListFragment : ObserveStateFragment<FragmentTodoListBinding>() {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
+        collectMessage()
         setupMenu()
 
         with(binding) {

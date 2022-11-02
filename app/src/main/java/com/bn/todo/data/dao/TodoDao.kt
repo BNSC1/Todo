@@ -12,13 +12,14 @@ interface TodoDao {
 
     @Query(
         "Select * from `Todo` where " +
-                "case :queryString " +
-                "when null then `title` = :queryString and `listId` = :listId " +
+                "case " +
+                "when :queryString != '' then " +
+                "`title` like '%' || :queryString || '%' and `listId` = :listId " +
                 "else `listId` = :listId end "
     )
     fun query(
         listId: Long,
-        queryString: String? = null,
+        queryString: String = "",
     ): Flow<List<Todo>>
 
     @Query("Select * from `Todo` where `listId` = :listId and not `isCompleted`")
