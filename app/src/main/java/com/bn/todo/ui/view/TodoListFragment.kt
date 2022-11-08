@@ -104,7 +104,7 @@ class TodoListFragment : BaseFragment<FragmentTodoListBinding>(), CollectsViewMo
     }
 
     private fun onActionDelete() {
-        if (viewModel.listCount.value > 1) {
+        if (viewModel.todoLists.value.size > 1) {
             tryCurrentListAction { list ->
                 DialogUtil.showConfirmDialog(
                     requireContext(),
