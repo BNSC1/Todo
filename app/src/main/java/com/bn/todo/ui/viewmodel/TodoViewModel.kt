@@ -27,7 +27,7 @@ class TodoViewModel @Inject constructor(
     val currentList get() = _currentList
     private val _sortPref: StateFlow<TodoSort>
     val sortPref get() = _sortPref
-    private val _currentTodos: StateFlow<List<Todo>?>
+    private val _currentTodos: StateFlow<List<Todo>>
     val currentTodos get() = _currentTodos
     private val _showCompleted: StateFlow<Boolean>
     val showCompleted get() = _showCompleted
@@ -63,10 +63,12 @@ class TodoViewModel @Inject constructor(
     }
 
     fun deleteTodoList(list: TodoList) = tryRun {
-        todoRepository.deleteTodoList(list)
+        if (todoLists.value.size > 1) {
+            todoRepository.deleteTodoList(list)
+        } else throw IllegalStateException("Attempting to delete last todo list")
     }
 
-    fun insertTodo(title: String, body: String?) = tryRun {
+    fun insertTodo(title: String, body: String? = null) = tryRun {
         currentList.value?.id?.let { todoRepository.insertTodo(title, body, it) }
     }
 
@@ -91,7 +93,7 @@ class TodoViewModel @Inject constructor(
         }.distinctUntilChanged()
 
 
-    fun updateTodo(todo: Todo, name: String, body: String) = tryRun {
+    fun updateTodo(todo: Todo, name: String, body: String?) = tryRun {
         todoRepository.updateTodo(todo, name, body)
     }
 

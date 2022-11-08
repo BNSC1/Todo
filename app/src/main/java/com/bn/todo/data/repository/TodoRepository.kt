@@ -12,7 +12,7 @@ interface TodoRepository {
     suspend fun deleteTodoList(list: TodoList)
     suspend fun insertTodo(title: String, body: String?, listId: Long)
     fun queryTodoFlow(todoFilter: TodoFilter): Flow<List<Todo>>
-    suspend fun updateTodo(todo: Todo, title: String, body: String)
+    suspend fun updateTodo(todo: Todo, title: String, body: String?)
     suspend fun updateTodo(todo: Todo, isCompleted: Boolean)
     suspend fun deleteTodo(todo: Todo)
     suspend fun deleteCompletedTodo(listId: Long): Int
