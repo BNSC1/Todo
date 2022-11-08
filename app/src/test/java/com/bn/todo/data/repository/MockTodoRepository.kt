@@ -3,11 +3,11 @@ package com.bn.todo.data.repository
 import com.bn.todo.data.model.Todo
 import com.bn.todo.data.model.TodoFilter
 import com.bn.todo.data.model.TodoList
-import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flow
 
 class MockTodoRepository : TodoRepository {
     val todoLists = mutableListOf<TodoList>()
+    val todos = mutableListOf<Todo>()
 
     override suspend fun insertTodoList(name: String) =
         (todoLists.size.toLong() + 1).also {
@@ -32,23 +32,37 @@ class MockTodoRepository : TodoRepository {
     }
 
     override suspend fun insertTodo(title: String, body: String?, listId: Long) {
-        TODO("Not yet implemented")
+        (todos.size.toLong() + 1).also {
+            todos.add(Todo(title, body, listId, id = it))
+        }
     }
 
-    override fun queryTodoFlow(todoFilter: TodoFilter): Flow<List<Todo>> {
-        TODO("Not yet implemented")
+    override fun queryTodoFlow(todoFilter: TodoFilter) = flow {
+        emit(todos.filter {
+            todoFilter.listId == it.listId
+        })
     }
 
-    override suspend fun updateTodo(todo: Todo, title: String, body: String) {
-        TODO("Not yet implemented")
+    override suspend fun updateTodo(todo: Todo, title: String, body: String?) {
+        todos.apply {
+            set(
+                indexOfFirst { it == todo },
+                todo.copy(title = title, body = body)
+            )
+        }
     }
 
     override suspend fun updateTodo(todo: Todo, isCompleted: Boolean) {
-        TODO("Not yet implemented")
+        todos.apply {
+            set(
+                indexOfFirst { it == todo },
+                todo.copy(isCompleted = isCompleted)
+            )
+        }
     }
 
     override suspend fun deleteTodo(todo: Todo) {
-        TODO("Not yet implemented")
+        todos.remove(todo)
     }
 
     override suspend fun deleteCompletedTodo(listId: Long): Int {
