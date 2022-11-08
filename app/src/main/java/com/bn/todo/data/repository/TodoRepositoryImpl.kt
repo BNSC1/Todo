@@ -39,7 +39,7 @@ class TodoRepositoryImpl @Inject constructor(
         }
     }
 
-    override suspend fun updateTodo(todo: Todo, title: String, body: String) =
+    override suspend fun updateTodo(todo: Todo, title: String, body: String?) =
         todoDao.update(todo.copy(title = title, body = body))
 
     override suspend fun updateTodo(todo: Todo, isCompleted: Boolean) =
