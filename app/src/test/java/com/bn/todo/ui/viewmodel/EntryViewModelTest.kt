@@ -3,7 +3,6 @@ package com.bn.todo.ui.viewmodel
 import com.bn.todo.MainCoroutineExtension
 import com.bn.todo.data.repository.MockUserPrefRepository
 import kotlinx.coroutines.ExperimentalCoroutinesApi
-import kotlinx.coroutines.async
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.test.runTest
 import org.amshove.kluent.`should be equal to`
@@ -25,14 +24,14 @@ class EntryViewModelTest {
 
     @Test
     fun `first launch`() = runTest {
-        val isFirstLaunch = async { viewModel.isFirstLaunch.first() }
-        isFirstLaunch.await() `should be equal to` true
+        val isFirstLaunch = viewModel.isFirstLaunch.first()
+        isFirstLaunch `should be equal to` true
     }
 
     @Test
     fun `not first launch`() = runTest {
         repository.setIsFirstTimeLaunch(false)
-        val isFirstLaunch = async { viewModel.isFirstLaunch.first() }
-        isFirstLaunch.await() `should be equal to` false
+        val isFirstLaunch = viewModel.isFirstLaunch.first()
+        isFirstLaunch `should be equal to` false
     }
 }
