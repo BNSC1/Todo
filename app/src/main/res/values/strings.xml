@@ -62,5 +62,6 @@
     <string name="msg_cannot_delete_last_list">You cannot delete the last todo list!</string>
 
     <string name="err_unknown">Unknown error occurred.</string>
+    <string name="action_search">Search Todo</string>
 
 </resources>

@@ -16,7 +16,7 @@ interface CollectsViewModelMessage {
 
     fun AppCompatActivity.collectMessage() = collectMessage(this, this)
 
-    fun collectMessage(context: Context, lifecycleOwner: LifecycleOwner) {
+    private fun collectMessage(context: Context, lifecycleOwner: LifecycleOwner) {
         viewModel.message.collectLatestLifecycleFlow(lifecycleOwner) { msg ->
             when (msg) {
                 is ViewModelMessage.Error -> {

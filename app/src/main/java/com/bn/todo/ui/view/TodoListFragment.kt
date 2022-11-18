@@ -5,7 +5,10 @@ import android.view.Menu
 import android.view.MenuInflater
 import android.view.MenuItem
 import android.view.View
+import android.widget.EditText
+import androidx.appcompat.R.id.search_src_text
 import androidx.appcompat.app.AppCompatActivity
+import androidx.appcompat.widget.SearchView
 import androidx.core.view.MenuProvider
 import androidx.fragment.app.activityViewModels
 import androidx.lifecycle.Lifecycle
@@ -15,7 +18,6 @@ import com.bn.todo.R
 import com.bn.todo.arch.BaseFragment
 import com.bn.todo.arch.CollectsViewModelMessage
 import com.bn.todo.data.model.TodoList
-import com.bn.todo.data.model.TodoSort
 import com.bn.todo.databinding.FragmentTodoListBinding
 import com.bn.todo.ktx.collectLatestLifecycleFlow
 import com.bn.todo.ktx.showDialog
@@ -25,12 +27,10 @@ import com.bn.todo.ui.view.adapter.TodosAdapter
 import com.bn.todo.ui.viewmodel.TodoViewModel
 import com.bn.todo.util.DialogUtil
 import dagger.hilt.android.AndroidEntryPoint
-import kotlinx.coroutines.flow.combine
 
 @AndroidEntryPoint
 class TodoListFragment : BaseFragment<FragmentTodoListBinding>(), CollectsViewModelMessage {
     private var currentList: TodoList? = null
-    private var sortPref = TodoSort.values()[0]
 
     override val viewModel: TodoViewModel by activityViewModels()
     private lateinit var todosAdapter: TodosAdapter
@@ -52,6 +52,7 @@ class TodoListFragment : BaseFragment<FragmentTodoListBinding>(), CollectsViewMo
         requireActivity().addMenuProvider(object : MenuProvider {
             override fun onCreateMenu(menu: Menu, menuInflater: MenuInflater) {
                 menuInflater.inflate(R.menu.menu_todo_list, menu)
+                setupQuery(menu.findItem(R.id.action_search).actionView as SearchView)
                 collectShowCompleted(menu)
             }
 
@@ -82,6 +83,32 @@ class TodoListFragment : BaseFragment<FragmentTodoListBinding>(), CollectsViewMo
                 )
             }
         }, viewLifecycleOwner, Lifecycle.State.CREATED)
+    }
+
+    private fun setupQuery(searchView: SearchView) {
+        searchView.apply {
+            findViewById<EditText>(search_src_text).apply {
+                hint = getString(R.string.action_search)
+            }
+            setOnCloseListener {
+                viewModel.searchTodo("")
+                false
+            }
+            setOnSearchClickListener {
+                (it as SearchView).setQuery(
+                    viewModel.todoQuery.value,
+                    false
+                )
+            }
+            setOnQueryTextListener(object : SearchView.OnQueryTextListener {
+                override fun onQueryTextChange(newText: String?): Boolean {
+                    viewModel.searchTodo(newText ?: "")
+                    return false
+                }
+
+                override fun onQueryTextSubmit(query: String?) = true
+            })
+        }
     }
 
     private fun onActionShowCompleted(menuItem: MenuItem) {
@@ -144,7 +171,7 @@ class TodoListFragment : BaseFragment<FragmentTodoListBinding>(), CollectsViewMo
         DialogUtil.showRadioDialog(requireContext(),
             items = resources.getStringArray(R.array.sort_order_group),
             title = getString(R.string.title_sort_by),
-            defaultIndex = sortPref.ordinal,
+            defaultIndex = viewModel.sortPref.value.ordinal,
             okAction = { index ->
                 viewModel.setSortPref(index)
             })
@@ -173,18 +200,9 @@ class TodoListFragment : BaseFragment<FragmentTodoListBinding>(), CollectsViewMo
     }
 
     private fun collectTodos() {
-        viewModel.currentTodos.combine(viewModel.sortPref) { todos, pref ->
-            sortPref = pref
-            todos?.apply {
-                todosAdapter.submitList(
-                    when (sortPref) {
-                        TodoSort.ORDER_ADDED -> sortedBy { it.id }
-                        TodoSort.ORDER_NOT_COMPLETED -> sortedBy { it.isCompleted }
-                        TodoSort.ORDER_ALPHABET -> sortedBy { it.title }
-                    }
-                )
-            }
-        }.collectLatestLifecycleFlow(viewLifecycleOwner) {}
+        viewModel.currentTodos.collectLatestLifecycleFlow(viewLifecycleOwner) { todos ->
+            todosAdapter.submitList(todos)
+        }
     }
 
     private inline fun tryCurrentListAction(
