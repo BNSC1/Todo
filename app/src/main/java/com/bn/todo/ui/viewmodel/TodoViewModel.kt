@@ -31,6 +31,8 @@ class TodoViewModel @Inject constructor(
     val currentTodos get() = _currentTodos
     private val _showCompleted: StateFlow<Boolean>
     val showCompleted get() = _showCompleted
+    private val _todoQuery = MutableStateFlow("")
+    val todoQuery get() = _todoQuery
 
     private val _clickedTodo = MutableStateFlow<Todo?>(null)
     val clickedTodo get() = _clickedTodo
@@ -74,9 +76,17 @@ class TodoViewModel @Inject constructor(
 
 
     @OptIn(ExperimentalCoroutinesApi::class)
-    private fun queryTodo(name: String? = null) =
+    private fun queryTodo() =
         getFilterFlow().flatMapLatest { filter ->
             todoRepository.queryTodoFlow(filter)
+        }.combine(sortPref) { todos, sortPref ->
+            with(todos) {
+                when (sortPref) {
+                    TodoSort.ORDER_ADDED -> sortedBy { it.id }
+                    TodoSort.ORDER_NOT_COMPLETED -> sortedBy { it.isCompleted }
+                    TodoSort.ORDER_ALPHABET -> sortedBy { it.title }
+                }
+            }
         }
             .catch {
                 _message.emit(ViewModelMessage.Error(it.message.toString()))
@@ -88,8 +98,9 @@ class TodoViewModel @Inject constructor(
             )
 
     private fun getFilterFlow() =
-        getCurrentListIdFlow().combine(getShowCompletedFlow()) { id, showCompleted ->
-            TodoFilter(id, showCompleted)
+        combine(getCurrentListIdFlow(), getShowCompletedFlow(), todoQuery)
+        { id, showCompleted, query ->
+            TodoFilter(id, showCompleted, query)
         }.distinctUntilChanged()
 
 
@@ -117,6 +128,10 @@ class TodoViewModel @Inject constructor(
 
     fun setClickedTodo(todo: Todo) {
         _clickedTodo.value = todo
+    }
+
+    fun searchTodo(query: String) {
+        _todoQuery.value = query
     }
 
     private fun getCurrentListIdFlow() = userPrefRepository.getCurrentListId(0)

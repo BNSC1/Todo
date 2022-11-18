@@ -11,19 +11,20 @@ interface TodoDao {
 
 
     @Query(
-        "Select * from `Todo` where " +
-                "case " +
-                "when :queryString != '' then " +
-                "`title` like '%' || :queryString || '%' and `listId` = :listId " +
+        "with completed as (" +
+                "select * from `Todo` where case " +
+                "when :showCompleted = 0 then isCompleted = 0 " +
+                "else 1 end) " +
+                "select * from completed where case " +
+                "when :queryString != '' " +
+                "then (`title` like '%' || :queryString || '%' or `body` like '%' || :queryString || '%') and `listId` = :listId " +
                 "else `listId` = :listId end "
     )
     fun query(
         listId: Long,
         queryString: String = "",
+        showCompleted: Boolean
     ): Flow<List<Todo>>
-
-    @Query("Select * from `Todo` where `listId` = :listId and not `isCompleted`")
-    fun queryNotCompleted(listId: Long): Flow<List<Todo>>
 
     @Update
     suspend fun update(todo: Todo)

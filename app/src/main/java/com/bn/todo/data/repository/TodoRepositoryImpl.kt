@@ -31,11 +31,7 @@ class TodoRepositoryImpl @Inject constructor(
 
     override fun queryTodoFlow(todoFilter: TodoFilter): Flow<List<Todo>> {
         todoFilter.apply {
-            return if (showCompleted) {
-                todoDao.query(todoFilter.listId, name)
-            } else {
-                todoDao.queryNotCompleted(todoFilter.listId)
-            }
+            return todoDao.query(listId, query, showCompleted)
         }
     }
 
