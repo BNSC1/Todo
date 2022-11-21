@@ -18,6 +18,7 @@ import androidx.navigation.ui.NavigationUI
 import com.bn.todo.R
 import com.bn.todo.arch.BaseFragment
 import com.bn.todo.arch.CollectsViewModelMessage
+import com.bn.todo.data.model.Todo
 import com.bn.todo.data.model.TodoList
 import com.bn.todo.databinding.FragmentTodoListBinding
 import com.bn.todo.ktx.*
@@ -101,11 +102,11 @@ class TodoListFragment : BaseFragment<FragmentTodoListBinding>(), CollectsViewMo
 
     private fun collectQuery() {
         viewModel.todoQuery.collectLatestLifecycleFlow(viewLifecycleOwner) {
-            showQueryNotice(it)
+            handleQueryNotice(it)
         }
     }
 
-    private fun showQueryNotice(query: String) =
+    private fun handleQueryNotice(query: String) =
         binding.queryNoticeText.apply {
             if (query.isNotEmpty()) {
                 text = String.format(getString(R.string.format_query_notice), query)
@@ -233,6 +234,15 @@ class TodoListFragment : BaseFragment<FragmentTodoListBinding>(), CollectsViewMo
     private fun collectTodos() {
         viewModel.currentTodos.collectLatestLifecycleFlow(viewLifecycleOwner) { todos ->
             todosAdapter.submitList(todos)
+            handleNoResultView(todos)
+        }
+    }
+
+    private fun handleNoResultView(todos: List<Todo>) {
+        binding.noResultText.apply {
+            if (todos.isEmpty()) {
+                setVisible()
+            } else setInvisible()
         }
     }
 

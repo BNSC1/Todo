@@ -64,5 +64,6 @@
     <string name="err_unknown">Unknown error occurred.</string>
     <string name="action_search">Search Todo</string>
     <string name="format_query_notice">Showing search result \'%s\'</string>
+    <string name="text_todo_no_result">Nothing here!</string>
 
 </resources>
