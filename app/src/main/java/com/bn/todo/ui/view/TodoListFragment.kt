@@ -6,6 +6,7 @@ import android.view.MenuInflater
 import android.view.MenuItem
 import android.view.View
 import android.widget.EditText
+import androidx.activity.OnBackPressedCallback
 import androidx.appcompat.R.id.search_src_text
 import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.widget.SearchView
@@ -34,9 +35,12 @@ class TodoListFragment : BaseFragment<FragmentTodoListBinding>(), CollectsViewMo
 
     override val viewModel: TodoViewModel by activityViewModels()
     private lateinit var todosAdapter: TodosAdapter
+    private lateinit var searchView: SearchView
+    private lateinit var onBackPressedCancelSearchCallback: OnBackPressedCallback
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
+        setupOnBackPressedCallback()
         collectMessage()
         setupMenu()
 
@@ -48,11 +52,24 @@ class TodoListFragment : BaseFragment<FragmentTodoListBinding>(), CollectsViewMo
         }
     }
 
+    private fun setupOnBackPressedCallback() {
+        onBackPressedCancelSearchCallback = object : OnBackPressedCallback(false) {
+            override fun handleOnBackPressed() {
+                searchView.isIconified = true
+            }
+        }
+        requireActivity().onBackPressedDispatcher.addCallback(
+            viewLifecycleOwner,
+            onBackPressedCancelSearchCallback
+        )
+    }
+
     private fun setupMenu() {
         requireActivity().addMenuProvider(object : MenuProvider {
             override fun onCreateMenu(menu: Menu, menuInflater: MenuInflater) {
                 menuInflater.inflate(R.menu.menu_todo_list, menu)
-                setupQuery(menu.findItem(R.id.action_search).actionView as SearchView)
+                searchView = menu.findItem(R.id.action_search).actionView as SearchView
+                setupQuery(searchView)
                 collectShowCompleted(menu)
             }
 
@@ -92,6 +109,7 @@ class TodoListFragment : BaseFragment<FragmentTodoListBinding>(), CollectsViewMo
             }
             setOnCloseListener {
                 viewModel.searchTodo("")
+                onBackPressedCancelSearchCallback.isEnabled = false
                 false
             }
             setOnSearchClickListener {
@@ -99,6 +117,7 @@ class TodoListFragment : BaseFragment<FragmentTodoListBinding>(), CollectsViewMo
                     viewModel.todoQuery.value,
                     false
                 )
+                onBackPressedCancelSearchCallback.isEnabled = true
             }
             setOnQueryTextListener(object : SearchView.OnQueryTextListener {
                 override fun onQueryTextChange(newText: String?): Boolean {
