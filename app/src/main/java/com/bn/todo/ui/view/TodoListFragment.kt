@@ -20,9 +20,7 @@ import com.bn.todo.arch.BaseFragment
 import com.bn.todo.arch.CollectsViewModelMessage
 import com.bn.todo.data.model.TodoList
 import com.bn.todo.databinding.FragmentTodoListBinding
-import com.bn.todo.ktx.collectLatestLifecycleFlow
-import com.bn.todo.ktx.showDialog
-import com.bn.todo.ktx.showToast
+import com.bn.todo.ktx.*
 import com.bn.todo.ui.callback.TodoClickCallback
 import com.bn.todo.ui.view.adapter.TodosAdapter
 import com.bn.todo.ui.viewmodel.TodoViewModel
@@ -69,6 +67,7 @@ class TodoListFragment : BaseFragment<FragmentTodoListBinding>(), CollectsViewMo
                 searchView = menu.findItem(R.id.action_search).actionView as SearchView
                 setupQuery(searchView)
                 collectShowCompleted(menu)
+                collectQuery()
             }
 
             override fun onMenuItemSelected(menuItem: MenuItem): Boolean {
@@ -100,6 +99,22 @@ class TodoListFragment : BaseFragment<FragmentTodoListBinding>(), CollectsViewMo
         }, viewLifecycleOwner, Lifecycle.State.CREATED)
     }
 
+    private fun collectQuery() {
+        viewModel.todoQuery.collectLatestLifecycleFlow(viewLifecycleOwner) {
+            showQueryNotice(it)
+        }
+    }
+
+    private fun showQueryNotice(query: String) =
+        binding.queryNoticeText.apply {
+            if (query.isNotEmpty()) {
+                text = String.format(getString(R.string.format_query_notice), query)
+                setVisible()
+            } else {
+                setGone()
+            }
+        }
+
     private fun setupQuery(searchView: SearchView) {
         searchView.apply {
             findViewById<EditText>(search_src_text).apply {
@@ -123,7 +138,7 @@ class TodoListFragment : BaseFragment<FragmentTodoListBinding>(), CollectsViewMo
                     return false
                 }
 
-                override fun onQueryTextSubmit(query: String?) = true
+                override fun onQueryTextSubmit(query: String?) = false
             })
         }
     }
