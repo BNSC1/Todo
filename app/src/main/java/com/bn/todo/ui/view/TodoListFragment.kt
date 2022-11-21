@@ -31,8 +31,6 @@ import dagger.hilt.android.AndroidEntryPoint
 
 @AndroidEntryPoint
 class TodoListFragment : BaseFragment<FragmentTodoListBinding>(), CollectsViewModelMessage {
-    private var currentList: TodoList? = null
-
     override val viewModel: TodoViewModel by activityViewModels()
     private lateinit var todosAdapter: TodosAdapter
     private lateinit var searchView: SearchView
@@ -47,9 +45,9 @@ class TodoListFragment : BaseFragment<FragmentTodoListBinding>(), CollectsViewMo
         with(binding) {
             setupAddTodoButton()
             setupTodos()
-            collectCurrentList()
-            collectTodos()
         }
+        collectCurrentList()
+        collectTodos()
     }
 
     private fun setupOnBackPressedCallback() {
@@ -176,7 +174,7 @@ class TodoListFragment : BaseFragment<FragmentTodoListBinding>(), CollectsViewMo
             inputReceiver = object : DialogUtil.OnInputReceiver {
                 override fun receiveInput(input: String?) {
                     if (!input.isNullOrBlank()) {
-                        currentList?.let {
+                        viewModel.currentList.value?.let {
                             viewModel.updateTodoList(it, input)
                         }
                     } else {
@@ -212,9 +210,8 @@ class TodoListFragment : BaseFragment<FragmentTodoListBinding>(), CollectsViewMo
 
     private fun collectCurrentList() {
         viewModel.currentList.collectLatestLifecycleFlow(viewLifecycleOwner) { list ->
-            currentList = list
             (requireActivity() as AppCompatActivity).supportActionBar?.title =
-                currentList?.name
+                list?.name
         }
     }
 
@@ -228,7 +225,7 @@ class TodoListFragment : BaseFragment<FragmentTodoListBinding>(), CollectsViewMo
         nullListAction: () -> Unit = { showToast(getString(R.string.msg_no_list_selected)) },
         action: (TodoList) -> Unit
     ) =
-        currentList?.let {
+        viewModel.currentList.value?.let {
             action(it)
         } ?: nullListAction()
 
