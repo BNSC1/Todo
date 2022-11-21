@@ -47,7 +47,7 @@ class MainActivity : NavigationActivity(), TodoClickCallback {
     private fun ActivityMainBinding.collectTodoLists() =
         viewModel.todoLists.combine(viewModel.currentList) { lists, currentList ->
             updateDrawerMenu(lists)
-            currentList?.id?.let { getIndexById(viewModel.todoLists.value, it) }
+            currentList?.id?.let { getIndexById(lists, it) }
                 ?.let {
                     setSelectedListItem(it)
                 }
@@ -136,7 +136,7 @@ class MainActivity : NavigationActivity(), TodoClickCallback {
                 onActionAddList()
             }
             else -> {
-                viewModel.setCurrentList(viewModel.todoLists.value[item.itemId])
+                viewModel.setCurrentList(item.itemId)
                 setSelectedListItem(item.itemId)
             }
         }

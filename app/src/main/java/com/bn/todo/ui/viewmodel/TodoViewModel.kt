@@ -65,7 +65,13 @@ class TodoViewModel @Inject constructor(
     }
 
     fun deleteTodoList(list: TodoList) = tryRun {
-        if (todoLists.value.size > 1) {
+        val lists = todoLists.value
+        if (lists.size > 1) {
+            setCurrentList(
+                lists[
+                        if (lists[0] == list) 1 else 0
+                ]
+            )
             todoRepository.deleteTodoList(list)
         } else throw IllegalStateException("Attempting to delete last todo list")
     }
@@ -141,10 +147,16 @@ class TodoViewModel @Inject constructor(
             initialValue = 0
         )
 
-    fun setCurrentList(list: TodoList? = null, id: Long? = null) = tryRun {
-        (list?.id ?: id)?.let {
-            userPrefRepository.setCurrentListId(it)
-        }
+    fun setCurrentList(ordinal: Int) {
+        setCurrentList(todoLists.value[ordinal].id)
+    }
+
+    private fun setCurrentList(list: TodoList) {
+        setCurrentList(list.id)
+    }
+
+    private fun setCurrentList(id: Long) = tryRun {
+        userPrefRepository.setCurrentListId(id)
     }
 
     private fun getShowCompletedFlow(default: Boolean = true) =
