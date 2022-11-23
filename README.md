@@ -20,21 +20,13 @@ Todos creating, reading, updating and deleting.
 <img src="preview/todo_crud.gif" alt="cover"/>
 
 
-Todos sorting and filtering.
+Todos sorting, filtering and searching.
 
 
-<img src="preview/todo_sort_filter.gif" alt="cover"/>
+<img src="preview/todo_operations.gif" alt="cover"/>
 
 
 Deleting all completed todos.
 
 
 <img src="preview/todo_delete_completed.gif" alt="cover"/>
-
-
-📝To-do's (for this project)
-
-
-- [ ] Implement start time/end time for to-do items.
-- [ ] Implement push notifications.
-- [X] Implement sorting for to-do items.
