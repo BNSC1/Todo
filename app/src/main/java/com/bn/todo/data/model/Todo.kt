@@ -15,11 +15,11 @@ import java.time.OffsetDateTime
     )]
 )
 data class Todo(
-    @ColumnInfo val title: String,
-    @ColumnInfo val body: String?,
+    val title: String,
+    val body: String?,
     @ColumnInfo(index = true) val listId: Long,
-    @ColumnInfo val isCompleted: Boolean = false,
-    @ColumnInfo val createdTime: OffsetDateTime? = null,
+    val isCompleted: Boolean = false,
+    val createdTime: OffsetDateTime? = null,
 //    val locationName: String?,
 //    val imageUri: Uri?,
     @PrimaryKey(autoGenerate = true) val id: Long = 0
