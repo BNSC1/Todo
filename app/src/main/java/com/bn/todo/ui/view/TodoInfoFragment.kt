@@ -6,20 +6,18 @@ import androidx.fragment.app.activityViewModels
 import com.bn.todo.R
 import com.bn.todo.arch.BaseBottomSheetDialogFragment
 import com.bn.todo.arch.CollectsViewModelMessage
-import com.bn.todo.data.model.Todo
 import com.bn.todo.databinding.FragmentTodoInfoBinding
 import com.bn.todo.ktx.TAG
-import com.bn.todo.ktx.collectFirstLifecycleFlow
 import com.bn.todo.ktx.setInvisible
 import com.bn.todo.ktx.setVisible
 import com.bn.todo.ui.viewmodel.TodoViewModel
 import com.bn.todo.util.ResUtil
+import com.bn.todo.util.TimeUtil
 import dagger.hilt.android.AndroidEntryPoint
 
 @AndroidEntryPoint
 class TodoInfoFragment : BaseBottomSheetDialogFragment<FragmentTodoInfoBinding>(), CollectsViewModelMessage {
     override val viewModel: TodoViewModel by activityViewModels()
-    private var clickedTodo: Todo? = null
     private val colorAccent: Int by lazy {
         ResUtil.getAttribute(requireContext(), androidx.appcompat.R.attr.colorAccent)
     }
@@ -36,7 +34,7 @@ class TodoInfoFragment : BaseBottomSheetDialogFragment<FragmentTodoInfoBinding>(
     }
 
     private fun FragmentTodoInfoBinding.setupCompleteBtn() {
-        clickedTodo?.apply {
+        viewModel.clickedTodo.value?.apply {
             if (isCompleted) {
                 completeBtn.setInvisible()
                 undoCompleteBtn.setVisible()
@@ -65,24 +63,27 @@ class TodoInfoFragment : BaseBottomSheetDialogFragment<FragmentTodoInfoBinding>(
     private fun FragmentTodoInfoBinding.setupDeleteBtn(
     ) {
         deleteBtn.setOnClickListener {
-            clickedTodo?.let { todo -> viewModel.deleteTodo(todo) }
+            viewModel.clickedTodo.value?.let { todo ->
+                viewModel.deleteTodo(todo)
+            }
             dismiss()
         }
     }
 
     private fun FragmentTodoInfoBinding.setupTodo() {
-        viewModel.clickedTodo.collectFirstLifecycleFlow(viewLifecycleOwner) {
-            clickedTodo = it
-        }
-
-        clickedTodo?.apply {
+        viewModel.clickedTodo.value?.apply {
             titleText.text = title
+            createdTimeText.text = String.format(
+                getString(R.string.format_created_time),
+                createdTime?.let { TimeUtil.formatToDateTime(it) })
             bodyText.text = body
         }
     }
 
     private fun setTodoComplete(isCompleted: Boolean) {
-        clickedTodo?.let { viewModel.updateTodo(it, isCompleted) }
+        viewModel.clickedTodo.value?.let {
+            viewModel.updateTodo(it, isCompleted)
+        }
     }
 
     private fun FragmentTodoInfoBinding.setNotCompletedText() {
