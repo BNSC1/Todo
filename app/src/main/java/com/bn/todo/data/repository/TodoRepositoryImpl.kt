@@ -6,6 +6,7 @@ import com.bn.todo.data.model.Todo
 import com.bn.todo.data.model.TodoFilter
 import com.bn.todo.data.model.TodoList
 import kotlinx.coroutines.flow.Flow
+import java.time.OffsetDateTime
 import javax.inject.Inject
 import javax.inject.Singleton
 
@@ -26,8 +27,13 @@ class TodoRepositoryImpl @Inject constructor(
     override suspend fun deleteTodoList(list: TodoList) = todoListDao.delete(list)
 
 
-    override suspend fun insertTodo(title: String, body: String?, listId: Long) =
-        todoDao.insert(Todo(title, body, listId))
+    override suspend fun insertTodo(
+        title: String,
+        body: String?,
+        listId: Long,
+        createdTime: OffsetDateTime
+    ) =
+        todoDao.insert(Todo(title, body, listId, createdTime = createdTime))
 
     override fun queryTodoFlow(todoFilter: TodoFilter): Flow<List<Todo>> {
         todoFilter.apply {

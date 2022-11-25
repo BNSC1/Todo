@@ -1,28 +1,19 @@
 package com.bn.todo.util
 
-import android.annotation.SuppressLint
-import java.text.SimpleDateFormat
+import java.time.Instant
+import java.time.OffsetDateTime
+import java.time.ZoneId
+import java.time.ZoneOffset
 import java.util.*
 
 object TimeUtil {
-    val currentTime: Date get() = Calendar.getInstance().time
+    val calendar: Calendar get() = Calendar.getInstance()
+    private var zoneOffset = ZoneId.systemDefault().rules.getOffset(Instant.now())
 
-    @SuppressLint("SimpleDateFormat")
-    fun getLocaleMonth(month: Int): String {
-        val cal = Calendar.getInstance()
-        cal.set(Calendar.MONTH, month - 1)
-        val dateFormat = SimpleDateFormat("MMMM")
-        return dateFormat.format(cal.time)
-    }
-
-    fun convertDateStringToDate(dateString: String?, format: String = "yyyy-MM-dd'T'HH:mm:ss") =
-        dateString?.let {
-            SimpleDateFormat(format, Locale.getDefault()).parse(it)
-        }
-
-    fun convertDateToDateString(date: Date?, format: String = "yyyy-MM-dd") =
-        date?.let {
-            SimpleDateFormat(format, Locale.getDefault()).format(date)
-        }
+    fun getOffsetDateTime(
+        instant: Instant,
+        zoneOffset: ZoneOffset = this.zoneOffset
+    ): OffsetDateTime =
+        instant.atOffset(zoneOffset)
 
 }

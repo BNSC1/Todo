@@ -10,6 +10,7 @@ import com.bn.todo.data.model.TodoList
 import com.bn.todo.data.model.TodoSort
 import com.bn.todo.data.repository.TodoRepository
 import com.bn.todo.data.repository.UserPrefRepository
+import com.bn.todo.util.TimeUtil
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.*
@@ -77,7 +78,14 @@ class TodoViewModel @Inject constructor(
     }
 
     fun insertTodo(title: String, body: String? = null) = tryRun {
-        currentList.value?.id?.let { todoRepository.insertTodo(title, body, it) }
+        currentList.value?.id?.let { listId ->
+            todoRepository.insertTodo(
+                title,
+                body,
+                listId,
+                TimeUtil.getOffsetDateTime(TimeUtil.calendar.toInstant())
+            )
+        }
     }
 
 

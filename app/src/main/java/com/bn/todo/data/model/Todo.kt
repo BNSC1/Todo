@@ -4,6 +4,7 @@ import androidx.room.ColumnInfo
 import androidx.room.Entity
 import androidx.room.ForeignKey
 import androidx.room.PrimaryKey
+import java.time.OffsetDateTime
 
 @Entity(
     foreignKeys = [ForeignKey(
@@ -16,8 +17,9 @@ import androidx.room.PrimaryKey
 data class Todo(
     @ColumnInfo val title: String,
     @ColumnInfo val body: String?,
-    @ColumnInfo val listId: Long,
+    @ColumnInfo(index = true) val listId: Long,
     @ColumnInfo val isCompleted: Boolean = false,
+    @ColumnInfo val createdTime: OffsetDateTime? = null,
 //    val locationName: String?,
 //    val imageUri: Uri?,
     @PrimaryKey(autoGenerate = true) val id: Long = 0

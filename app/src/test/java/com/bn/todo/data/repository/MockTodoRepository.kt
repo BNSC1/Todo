@@ -4,6 +4,7 @@ import com.bn.todo.data.model.Todo
 import com.bn.todo.data.model.TodoFilter
 import com.bn.todo.data.model.TodoList
 import kotlinx.coroutines.flow.flow
+import java.time.OffsetDateTime
 
 class MockTodoRepository : TodoRepository {
     val todoLists = mutableListOf<TodoList>()
@@ -31,9 +32,14 @@ class MockTodoRepository : TodoRepository {
         todoLists.remove(list)
     }
 
-    override suspend fun insertTodo(title: String, body: String?, listId: Long) {
+    override suspend fun insertTodo(
+        title: String,
+        body: String?,
+        listId: Long,
+        createdTime: OffsetDateTime
+    ) {
         (todos.size.toLong() + 1).also {
-            todos.add(Todo(title, body, listId, id = it))
+            todos.add(Todo(title, body, listId, id = it, createdTime = createdTime))
         }
     }
 
