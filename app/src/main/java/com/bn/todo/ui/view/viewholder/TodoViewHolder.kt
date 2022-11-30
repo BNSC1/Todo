@@ -12,24 +12,31 @@ class TodoViewHolder(private val binding: ItemTodoBinding) : ViewHolder(binding.
 
     fun bind(context: Context, todo: Todo, onItemClick: (Todo) -> Unit) {
         with(binding) {
-            val defaultTextColor = context.getColor(R.color.text_highlight)
-            fun ItemTodoBinding.toggleAppearanceCompleted() {
-                if (todo.isCompleted) {
-                    completedCheckbox.isChecked = true
-                    titleText.setStrikeThrough()
-                    titleText.setTextColor(context.getColor(R.color.gray_out))
-                } else {
-                    completedCheckbox.isChecked = false
-                    titleText.unsetStrikeThrough()
-                    titleText.setTextColor(defaultTextColor)
-                }
-            }
-
             titleText.text = todo.title
-            toggleAppearanceCompleted()
+            setAppearanceCompleted(
+                todo.isCompleted,
+                defaultTextColor = context.getColor(R.color.text_highlight),
+                completedTextColor = context.getColor(R.color.gray_out)
+            )
             itemLayout.setOnClickListener {
                 onItemClick(todo)
             }
+        }
+    }
+
+    private fun ItemTodoBinding.setAppearanceCompleted(
+        isCompleted: Boolean,
+        defaultTextColor: Int,
+        completedTextColor: Int
+    ) {
+        if (isCompleted) {
+            completedCheckbox.isChecked = true
+            titleText.setStrikeThrough()
+            titleText.setTextColor(completedTextColor)
+        } else {
+            completedCheckbox.isChecked = false
+            titleText.unsetStrikeThrough()
+            titleText.setTextColor(defaultTextColor)
         }
     }
 }
