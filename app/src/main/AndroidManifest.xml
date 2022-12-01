@@ -25,7 +25,7 @@
             android:exported="false"
             android:theme="@style/Theme.Todo.NoActionBar" />
         <activity
-            android:name=".ui.EntryActivity"
+            android:name=".ui.entry.EntryActivity"
             android:exported="true">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />

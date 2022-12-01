@@ -1,19 +1,19 @@
-package com.bn.todo.ui.viewmodel
+package com.bn.todo.ui.entry.viewmodel
 
 import androidx.lifecycle.viewModelScope
 import com.bn.todo.arch.BaseViewModel
-import com.bn.todo.data.repository.UserPrefRepository
+import com.bn.todo.usecase.GetIsFirstLaunchUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
-import kotlinx.coroutines.flow.SharedFlow
 import kotlinx.coroutines.flow.SharingStarted
-import kotlinx.coroutines.flow.shareIn
+import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.stateIn
 import javax.inject.Inject
 
 @HiltViewModel
 class EntryViewModel @Inject constructor(
-    private val userPrefRepository: UserPrefRepository
+    private val getIsFirstLaunchUseCase: GetIsFirstLaunchUseCase
 ) : BaseViewModel() {
-    private var _isFirstLaunch: SharedFlow<Boolean>
+    private var _isFirstLaunch: StateFlow<Boolean>
     val isFirstLaunch get() = _isFirstLaunch
 
     init {
@@ -21,8 +21,9 @@ class EntryViewModel @Inject constructor(
     }
 
     private fun getIsFirstLaunchFlow() =
-        userPrefRepository.getIsFirstTimeLaunch().shareIn(
+        getIsFirstLaunchUseCase().stateIn(
             scope = viewModelScope,
-            started = SharingStarted.WhileSubscribed()
+            started = SharingStarted.WhileSubscribed(),
+            initialValue = false
         )
 }
