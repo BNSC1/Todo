@@ -6,8 +6,8 @@ import androidx.activity.viewModels
 import com.bn.todo.arch.BaseActivity
 import com.bn.todo.ktx.collectLatestLifecycleFlow
 import com.bn.todo.ui.MainActivity
-import com.bn.todo.ui.WelcomeActivity
 import com.bn.todo.ui.entry.viewmodel.EntryViewModel
+import com.bn.todo.ui.welcome.WelcomeActivity
 import dagger.hilt.android.AndroidEntryPoint
 
 @AndroidEntryPoint

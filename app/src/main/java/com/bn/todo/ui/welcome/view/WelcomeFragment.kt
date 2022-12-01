@@ -1,4 +1,4 @@
-package com.bn.todo.ui.view
+package com.bn.todo.ui.welcome.view
 
 import android.os.Bundle
 import android.view.View

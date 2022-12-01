@@ -1,4 +1,4 @@
-package com.bn.todo.ui
+package com.bn.todo.ui.welcome
 
 import android.os.Bundle
 import com.bn.todo.R
