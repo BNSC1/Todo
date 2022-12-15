@@ -19,9 +19,8 @@
     </fragment>
     <fragment
         android:id="@+id/createListFragment"
-        android:name="com.bn.todo.ui.welcome.view.CreateListFragment"
-        android:label="fragment_create_list"
-        tools:layout="@layout/fragment_create_list">
+        android:name="com.bn.todo.ui.welcome.view.FirstTodoListFragment"
+        tools:layout="@layout/fragment_first_todo_list">
         <action
             android:id="@+id/action_to_main_activity"
             app:destination="@id/mainActivity"

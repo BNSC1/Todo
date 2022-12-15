@@ -7,14 +7,15 @@ import androidx.fragment.app.viewModels
 import com.bn.todo.R
 import com.bn.todo.arch.BaseFragment
 import com.bn.todo.arch.CollectsViewModelMessage
-import com.bn.todo.databinding.FragmentCreateListBinding
-import com.bn.todo.ui.welcome.viewmodel.CreateListViewModel
+import com.bn.todo.databinding.FragmentFirstTodoListBinding
+import com.bn.todo.ui.welcome.viewmodel.FirstTodoListViewModel
 import com.bn.todo.util.TextInputUtil
 import dagger.hilt.android.AndroidEntryPoint
 
 @AndroidEntryPoint
-class CreateListFragment : BaseFragment<FragmentCreateListBinding>(), CollectsViewModelMessage {
-    override val viewModel: CreateListViewModel by viewModels()
+class FirstTodoListFragment : BaseFragment<FragmentFirstTodoListBinding>(),
+    CollectsViewModelMessage {
+    override val viewModel: FirstTodoListViewModel by viewModels()
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
@@ -26,15 +27,15 @@ class CreateListFragment : BaseFragment<FragmentCreateListBinding>(), CollectsVi
         }
     }
 
-    private fun FragmentCreateListBinding.setupNextButton() {
+    private fun FragmentFirstTodoListBinding.setupNextButton() {
         nextBtn.setOnClickListener {
             insertTodoList()
-            CreateListFragmentDirections.actionToMainActivity().navigate()
+            FirstTodoListFragmentDirections.actionToMainActivity().navigate()
             requireActivity().finish()
         }
     }
 
-    private fun FragmentCreateListBinding.setupInput() {
+    private fun FragmentFirstTodoListBinding.setupInput() {
         listNameInputLayout.root.hint = getString(R.string.list_name)
         TextInputUtil.showKeyboard(requireActivity(), listNameInputLayout.input)
         listNameInputLayout.input.doOnTextChanged { text, _, _, _ ->

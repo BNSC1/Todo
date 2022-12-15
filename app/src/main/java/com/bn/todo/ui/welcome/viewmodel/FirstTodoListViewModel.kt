@@ -9,7 +9,7 @@ import kotlinx.coroutines.flow.asStateFlow
 import javax.inject.Inject
 
 @HiltViewModel
-class CreateListViewModel @Inject constructor(
+class FirstTodoListViewModel @Inject constructor(
     private val insertTodoListUseCase: InsertTodoListUseCase,
     private val setIsNotFirstLaunchUseCase: SetIsNotFirstLaunchUseCase
 ) : BaseViewModel() {
