@@ -13,12 +13,12 @@ import javax.inject.Inject
 
 @HiltViewModel
 class TodoListViewModel @Inject constructor(
-    private val insertListUseCase: InsertListUseCase,
-    private val updateListUseCase: UpdateListUseCase,
-    private val deleteListUseCase: DeleteListUseCase,
-    private val setCurrentListIdUseCase: SetCurrentListIdUseCase,
+    private val insertTodoListUseCase: InsertTodoListUseCase,
+    private val getTodoListFlowUseCase: GetTodoListFlowUseCase,
+    private val updateTodoListUseCase: UpdateTodoListUseCase,
+    private val deleteTodoListUseCase: DeleteTodoListUseCase,
     private val getCurrentListIdFlowUseCase: GetCurrentListIdFlowUseCase,
-    private val getTodoListFlowUseCase: GetTodoListFlowUseCase
+    private val setCurrentListIdUseCase: SetCurrentListIdUseCase
 ) : BaseViewModel() {
     private val _todoLists: StateFlow<List<TodoList>>
     val todoLists get() = _todoLists
@@ -38,12 +38,12 @@ class TodoListViewModel @Inject constructor(
         )
 
     fun insertTodoList(name: String) = tryRun {
-        setCurrentList(id = insertListUseCase(name))
+        setCurrentList(id = insertTodoListUseCase(name))
     }
 
     fun updateTodoList(list: TodoList, name: String) {
         tryRun {
-            updateListUseCase(list, name)
+            updateTodoListUseCase(list, name)
         }
     }
 
@@ -54,7 +54,7 @@ class TodoListViewModel @Inject constructor(
                 setCurrentList(
                     lists[if (lists[0] == list) 1 else 0]
                 )
-                deleteListUseCase(list)
+                deleteTodoListUseCase(list)
             } else throw IllegalStateException("Attempting to delete last todo list")
         }
     }
