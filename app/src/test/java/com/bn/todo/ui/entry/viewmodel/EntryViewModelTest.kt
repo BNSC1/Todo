@@ -1,9 +1,8 @@
-package com.bn.todo.ui.viewmodel
+package com.bn.todo.ui.entry.viewmodel
 
 import app.cash.turbine.test
 import com.bn.todo.MainCoroutineExtension
 import com.bn.todo.data.repository.MockUserPrefRepository
-import com.bn.todo.ui.entry.viewmodel.EntryViewModel
 import com.bn.todo.usecase.GetIsFirstLaunchUseCase
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.test.runTest

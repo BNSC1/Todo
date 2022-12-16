@@ -1,4 +1,4 @@
-package com.bn.todo.ui.view
+package com.bn.todo.ui.main.view
 
 import android.os.Bundle
 import android.view.View
@@ -10,7 +10,7 @@ import com.bn.todo.databinding.FragmentTodoInfoBinding
 import com.bn.todo.ktx.TAG
 import com.bn.todo.ktx.setInvisible
 import com.bn.todo.ktx.setVisible
-import com.bn.todo.ui.viewmodel.TodoViewModel
+import com.bn.todo.ui.main.viewmodel.TodoViewModel
 import com.bn.todo.util.ResUtil
 import com.bn.todo.util.TimeUtil
 import dagger.hilt.android.AndroidEntryPoint

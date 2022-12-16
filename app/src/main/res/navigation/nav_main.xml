@@ -7,7 +7,7 @@
 
     <fragment
         android:id="@+id/listFragment"
-        android:name="com.bn.todo.ui.view.TodoListFragment"
+        android:name="com.bn.todo.ui.main.view.TodoListFragment"
         android:label="Lists"
         tools:layout="@layout/fragment_todo_list">
         <action
@@ -35,7 +35,7 @@
         android:label="Settings" />
     <fragment
         android:id="@+id/createTodoFragment"
-        android:name="com.bn.todo.ui.view.CreateTodoFragment"
+        android:name="com.bn.todo.ui.main.view.CreateTodoFragment"
         android:label="@string/title_add_todo"
         tools:layout="@layout/fragment_create_todo">
         <argument

@@ -1,4 +1,4 @@
-package com.bn.todo.ui.view.viewholder
+package com.bn.todo.ui.main.view.viewholder
 
 import android.content.Context
 import androidx.recyclerview.widget.RecyclerView.ViewHolder

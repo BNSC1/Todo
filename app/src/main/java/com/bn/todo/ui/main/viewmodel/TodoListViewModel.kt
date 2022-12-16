@@ -1,4 +1,4 @@
-package com.bn.todo.ui.viewmodel
+package com.bn.todo.ui.main.viewmodel
 
 import androidx.lifecycle.viewModelScope
 import com.bn.todo.arch.BaseViewModel

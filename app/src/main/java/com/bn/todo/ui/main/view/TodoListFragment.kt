@@ -1,4 +1,4 @@
-package com.bn.todo.ui.view
+package com.bn.todo.ui.main.view
 
 import android.os.Bundle
 import android.view.Menu
@@ -23,8 +23,8 @@ import com.bn.todo.data.model.TodoList
 import com.bn.todo.databinding.FragmentTodoListBinding
 import com.bn.todo.ktx.*
 import com.bn.todo.ui.callback.TodoClickCallback
-import com.bn.todo.ui.view.adapter.TodosAdapter
-import com.bn.todo.ui.viewmodel.TodoViewModel
+import com.bn.todo.ui.main.view.adapter.TodosAdapter
+import com.bn.todo.ui.main.viewmodel.TodoViewModel
 import com.bn.todo.util.DialogUtil
 import dagger.hilt.android.AndroidEntryPoint
 

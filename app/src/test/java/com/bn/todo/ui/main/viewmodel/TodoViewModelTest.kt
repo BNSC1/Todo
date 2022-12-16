@@ -1,4 +1,4 @@
-package com.bn.todo.ui.viewmodel
+package com.bn.todo.ui.main.viewmodel
 
 import app.cash.turbine.test
 import com.bn.todo.MainCoroutineExtension
