@@ -14,8 +14,8 @@ import com.bn.todo.data.model.TodoList
 import com.bn.todo.databinding.ActivityMainBinding
 import com.bn.todo.ktx.*
 import com.bn.todo.ui.callback.TodoClickCallback
-import com.bn.todo.ui.view.TodoInfoFragment
-import com.bn.todo.ui.viewmodel.TodoViewModel
+import com.bn.todo.ui.main.view.TodoInfoFragment
+import com.bn.todo.ui.main.viewmodel.TodoListViewModel
 import com.bn.todo.util.DialogUtil
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.flow.combine
@@ -24,7 +24,7 @@ private const val MENU_ORDER = Menu.NONE
 
 @AndroidEntryPoint
 class MainActivity : NavigationActivity(), TodoClickCallback {
-    private val viewModel: TodoViewModel by viewModels()
+    private val viewModel: TodoListViewModel by viewModels()
     private val binding: ActivityMainBinding by viewBinding()
     override val navHostId by lazy { binding.navHost.id }
     private lateinit var toggle: ActionBarDrawerToggle

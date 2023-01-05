@@ -1,4 +1,4 @@
-package com.bn.todo.ui.view.adapter
+package com.bn.todo.ui.main.view.adapter
 
 import android.content.Context
 import android.view.LayoutInflater
@@ -7,7 +7,7 @@ import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.ListAdapter
 import com.bn.todo.data.model.Todo
 import com.bn.todo.databinding.ItemTodoBinding
-import com.bn.todo.ui.view.viewholder.TodoViewHolder
+import com.bn.todo.ui.main.view.viewholder.TodoViewHolder
 
 class TodosAdapter(
     private val context: Context,

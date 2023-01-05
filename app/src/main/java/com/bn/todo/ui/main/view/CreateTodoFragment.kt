@@ -1,4 +1,4 @@
-package com.bn.todo.ui.view
+package com.bn.todo.ui.main.view
 
 import android.os.Bundle
 import android.text.Editable
@@ -20,7 +20,7 @@ import com.bn.todo.data.model.Todo
 import com.bn.todo.databinding.FragmentCreateTodoBinding
 import com.bn.todo.databinding.LayoutTextInputBinding
 import com.bn.todo.ui.MainActivity
-import com.bn.todo.ui.viewmodel.TodoViewModel
+import com.bn.todo.ui.main.viewmodel.TodoViewModel
 import com.bn.todo.util.TextInputUtil
 import com.google.android.material.textfield.TextInputEditText
 import dagger.hilt.android.AndroidEntryPoint
