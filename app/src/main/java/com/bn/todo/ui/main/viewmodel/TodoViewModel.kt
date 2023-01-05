@@ -23,7 +23,8 @@ class TodoViewModel @Inject constructor(
     private val getSortPrefFlowUseCase: GetSortPrefFlowUseCase,
     private val setSortPrefUseCase: SetSortPrefUseCase,
     private val getTodosFlowUseCase: GetTodosFlowUseCase,
-    private val insertTodoListUseCase: InsertTodoListUseCase
+    private val insertTodoListUseCase: InsertTodoListUseCase,
+    private val setCurrentListIdUseCase: SetCurrentListIdUseCase
 ) : BaseViewModel() {
 
     private val _todoLists: StateFlow<List<TodoList>>
@@ -144,7 +145,7 @@ class TodoViewModel @Inject constructor(
     }
 
     private fun setCurrentList(id: Long) = tryRun {
-        userPrefRepository.setCurrentListId(id)
+        setCurrentListIdUseCase(id)
     }
 
     private fun getShowCompletedFlow(default: Boolean = true) =
