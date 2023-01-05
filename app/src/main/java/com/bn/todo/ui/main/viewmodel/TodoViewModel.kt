@@ -9,10 +9,7 @@ import com.bn.todo.data.model.TodoList
 import com.bn.todo.data.model.TodoSort
 import com.bn.todo.data.repository.TodoRepository
 import com.bn.todo.data.repository.UserPrefRepository
-import com.bn.todo.usecase.GetShowCompletedFlowUseCase
-import com.bn.todo.usecase.GetSortPrefFlowUseCase
-import com.bn.todo.usecase.GetTodosFlowUseCase
-import com.bn.todo.usecase.SetSortPrefUseCase
+import com.bn.todo.usecase.*
 import com.bn.todo.util.TimeUtil
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.*
@@ -25,7 +22,8 @@ class TodoViewModel @Inject constructor(
     private val getShowCompletedFlowUseCase: GetShowCompletedFlowUseCase,
     private val getSortPrefFlowUseCase: GetSortPrefFlowUseCase,
     private val setSortPrefUseCase: SetSortPrefUseCase,
-    private val getTodosFlowUseCase: GetTodosFlowUseCase
+    private val getTodosFlowUseCase: GetTodosFlowUseCase,
+    private val insertTodoListUseCase: InsertTodoListUseCase
 ) : BaseViewModel() {
 
     private val _todoLists: StateFlow<List<TodoList>>
@@ -53,10 +51,8 @@ class TodoViewModel @Inject constructor(
     }
 
     fun insertTodoList(name: String) = tryRun {
-        setCurrentList(id = todoRepository.insertTodoList(name))
-        if (userPrefRepository.getIsFirstTimeLaunch().first()) {
-            userPrefRepository.setIsFirstTimeLaunch(false)
-        }
+        val insertedTodoListId = insertTodoListUseCase(name)
+        setCurrentList(id = insertedTodoListId)
     }
 
     private fun getTodoListFlow(name: String? = null) =
