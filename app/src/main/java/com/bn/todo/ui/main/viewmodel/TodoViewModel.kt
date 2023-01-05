@@ -8,7 +8,6 @@ import com.bn.todo.data.model.Todo
 import com.bn.todo.data.model.TodoList
 import com.bn.todo.data.model.TodoSort
 import com.bn.todo.data.repository.TodoRepository
-import com.bn.todo.data.repository.UserPrefRepository
 import com.bn.todo.usecase.*
 import com.bn.todo.util.TimeUtil
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -18,7 +17,6 @@ import javax.inject.Inject
 @HiltViewModel
 class TodoViewModel @Inject constructor(
     private val todoRepository: TodoRepository,
-    private val userPrefRepository: UserPrefRepository,
     private val getShowCompletedFlowUseCase: GetShowCompletedFlowUseCase,
     private val getSortPrefFlowUseCase: GetSortPrefFlowUseCase,
     private val setSortPrefUseCase: SetSortPrefUseCase,
@@ -28,7 +26,8 @@ class TodoViewModel @Inject constructor(
     private val setShowCompletedUseCase: SetShowCompletedUseCase,
     private val deleteTodoUseCase: DeleteTodoUseCase,
     private val updateTodoUseCase: UpdateTodoUseCase,
-    private val deleteCompletedTodosUseCase: DeleteCompletedTodosUseCase
+    private val deleteCompletedTodosUseCase: DeleteCompletedTodosUseCase,
+    private val getCurrentListIdFlowUseCase: GetCurrentListIdFlowUseCase
 ) : BaseViewModel() {
 
     private val _todoLists: StateFlow<List<TodoList>>
@@ -137,7 +136,7 @@ class TodoViewModel @Inject constructor(
         _todoQuery.value = query
     }
 
-    private fun getCurrentListIdFlow() = userPrefRepository.getCurrentListId(0)
+    private fun getCurrentListIdFlow() = getCurrentListIdFlowUseCase(0)
         .stateIn(
             scope = viewModelScope,
             started = SharingStarted.WhileSubscribed(),
