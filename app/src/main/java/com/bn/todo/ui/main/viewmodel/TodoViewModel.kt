@@ -27,7 +27,8 @@ class TodoViewModel @Inject constructor(
     private val setCurrentListIdUseCase: SetCurrentListIdUseCase,
     private val setShowCompletedUseCase: SetShowCompletedUseCase,
     private val deleteTodoUseCase: DeleteTodoUseCase,
-    private val updateTodoUseCase: UpdateTodoUseCase
+    private val updateTodoUseCase: UpdateTodoUseCase,
+    private val deleteCompletedTodosUseCase: DeleteCompletedTodosUseCase
 ) : BaseViewModel() {
 
     private val _todoLists: StateFlow<List<TodoList>>
@@ -120,7 +121,7 @@ class TodoViewModel @Inject constructor(
 
     fun deleteCompletedTodos() = tryRun {
         val deletedTodoCount = currentList.value?.id?.let {
-            todoRepository.deleteCompletedTodo(it)
+            deleteCompletedTodosUseCase(it)
         }
         _message.emit(deletedTodoCount?.let {
             ViewModelMessage.Info.CompletedTodoDeletion(it)
