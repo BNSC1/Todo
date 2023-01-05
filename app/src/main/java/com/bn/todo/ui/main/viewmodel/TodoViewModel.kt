@@ -9,7 +9,6 @@ import com.bn.todo.data.model.TodoList
 import com.bn.todo.data.model.TodoSort
 import com.bn.todo.data.repository.TodoRepository
 import com.bn.todo.usecase.*
-import com.bn.todo.util.TimeUtil
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.*
 import javax.inject.Inject
@@ -27,7 +26,8 @@ class TodoViewModel @Inject constructor(
     private val deleteTodoUseCase: DeleteTodoUseCase,
     private val updateTodoUseCase: UpdateTodoUseCase,
     private val deleteCompletedTodosUseCase: DeleteCompletedTodosUseCase,
-    private val getCurrentListIdFlowUseCase: GetCurrentListIdFlowUseCase
+    private val getCurrentListIdFlowUseCase: GetCurrentListIdFlowUseCase,
+    private val insertTodoUseCase: InsertTodoUseCase
 ) : BaseViewModel() {
 
     private val _todoLists: StateFlow<List<TodoList>>
@@ -85,11 +85,10 @@ class TodoViewModel @Inject constructor(
 
     fun insertTodo(title: String, body: String? = null) = tryRun {
         currentList.value?.id?.let { listId ->
-            todoRepository.insertTodo(
-                title,
-                body,
+            insertTodoUseCase(
                 listId,
-                TimeUtil.getOffsetDateTime(TimeUtil.calendar.toInstant())
+                title,
+                body
             )
         }
     }
