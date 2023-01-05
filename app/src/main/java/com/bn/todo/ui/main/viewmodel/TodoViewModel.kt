@@ -143,10 +143,6 @@ class TodoViewModel @Inject constructor(
             initialValue = 0
         )
 
-    fun setCurrentList(ordinal: Int) {
-        setCurrentList(todoLists.value[ordinal].id)
-    }
-
     private fun setCurrentList(list: TodoList) {
         setCurrentList(list.id)
     }
