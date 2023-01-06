@@ -24,13 +24,15 @@ import com.bn.todo.databinding.FragmentTodoListBinding
 import com.bn.todo.ktx.*
 import com.bn.todo.ui.callback.TodoClickCallback
 import com.bn.todo.ui.main.view.adapter.TodosAdapter
-import com.bn.todo.ui.main.viewmodel.TodoViewModel
+import com.bn.todo.ui.main.viewmodel.TodoListViewModel
+import com.bn.todo.ui.main.viewmodel.TodoShowViewModel
 import com.bn.todo.util.DialogUtil
 import dagger.hilt.android.AndroidEntryPoint
 
 @AndroidEntryPoint
 class TodoListFragment : BaseFragment<FragmentTodoListBinding>(), CollectsViewModelMessage {
-    override val viewModel: TodoViewModel by activityViewModels()
+    override val viewModel: TodoShowViewModel by activityViewModels()
+    private val listViewModel: TodoListViewModel by activityViewModels()
     private lateinit var todosAdapter: TodosAdapter
     private lateinit var searchView: SearchView
     private lateinit var onBackPressedCancelSearchCallback: OnBackPressedCallback
@@ -158,13 +160,13 @@ class TodoListFragment : BaseFragment<FragmentTodoListBinding>(), CollectsViewMo
                     list.name
                 ),
                 okAction = {
-                    viewModel.deleteCompletedTodos()
+                    viewModel.deleteCompletedTodos(listViewModel.currentList.value?.id)
                 })
         }
     }
 
     private fun onActionDelete() {
-        if (viewModel.todoLists.value.size > 1) {
+        if (listViewModel.todoLists.value.size > 1) {
             tryCurrentListAction { list ->
                 DialogUtil.showConfirmDialog(
                     requireContext(),
@@ -173,7 +175,7 @@ class TodoListFragment : BaseFragment<FragmentTodoListBinding>(), CollectsViewMo
                         list.name
                     ),
                     okAction = {
-                        viewModel.deleteTodoList(list)
+                        listViewModel.deleteTodoList(list)
                     }
                 )
             }
@@ -190,8 +192,8 @@ class TodoListFragment : BaseFragment<FragmentTodoListBinding>(), CollectsViewMo
             inputReceiver = object : DialogUtil.OnInputReceiver {
                 override fun receiveInput(input: String?) {
                     if (!input.isNullOrBlank()) {
-                        viewModel.currentList.value?.let {
-                            viewModel.updateTodoList(it, input)
+                        listViewModel.currentList.value?.let {
+                            listViewModel.updateTodoList(it, input)
                         }
                     } else {
                         showDialog(message = getString(R.string.title_input_name_for_list))
@@ -225,7 +227,7 @@ class TodoListFragment : BaseFragment<FragmentTodoListBinding>(), CollectsViewMo
     }
 
     private fun collectCurrentList() {
-        viewModel.currentList.collectLatestLifecycleFlow(viewLifecycleOwner) { list ->
+        listViewModel.currentList.collectLatestLifecycleFlow(viewLifecycleOwner) { list ->
             (requireActivity() as AppCompatActivity).supportActionBar?.title =
                 list?.name
         }
@@ -250,7 +252,7 @@ class TodoListFragment : BaseFragment<FragmentTodoListBinding>(), CollectsViewMo
         nullListAction: () -> Unit = { showToast(getString(R.string.msg_no_list_selected)) },
         action: (TodoList) -> Unit
     ) =
-        viewModel.currentList.value?.let {
+        listViewModel.currentList.value?.let {
             action(it)
         } ?: nullListAction()
 

@@ -1,39 +1,29 @@
 package com.bn.todo.ui.main.viewmodel
 
 import androidx.lifecycle.viewModelScope
-import com.bn.todo.R
 import com.bn.todo.arch.BaseViewModel
+import com.bn.todo.arch.HasListAction
 import com.bn.todo.arch.ViewModelMessage
 import com.bn.todo.data.model.Todo
-import com.bn.todo.data.model.TodoList
 import com.bn.todo.data.model.TodoSort
-import com.bn.todo.data.repository.TodoRepository
 import com.bn.todo.usecase.*
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.*
 import javax.inject.Inject
 
 @HiltViewModel
-class TodoViewModel @Inject constructor(
-    private val todoRepository: TodoRepository,
+class TodoShowViewModel @Inject constructor(
     private val getShowCompletedFlowUseCase: GetShowCompletedFlowUseCase,
     private val getSortPrefFlowUseCase: GetSortPrefFlowUseCase,
     private val setSortPrefUseCase: SetSortPrefUseCase,
     private val getTodosFlowUseCase: GetTodosFlowUseCase,
-    private val insertTodoListUseCase: InsertTodoListUseCase,
-    private val setCurrentListIdUseCase: SetCurrentListIdUseCase,
     private val setShowCompletedUseCase: SetShowCompletedUseCase,
     private val deleteTodoUseCase: DeleteTodoUseCase,
     private val updateTodoUseCase: UpdateTodoUseCase,
     private val deleteCompletedTodosUseCase: DeleteCompletedTodosUseCase,
-    private val getCurrentListIdFlowUseCase: GetCurrentListIdFlowUseCase,
     private val insertTodoUseCase: InsertTodoUseCase
-) : BaseViewModel() {
+) : BaseViewModel(), HasListAction {
 
-    private val _todoLists: StateFlow<List<TodoList>>
-    val todoLists get() = _todoLists
-    private val _currentList: StateFlow<TodoList?>
-    val currentList get() = _currentList
     private val _sortPref: StateFlow<TodoSort>
     val sortPref get() = _sortPref
     private val _currentTodos: StateFlow<List<Todo>>
@@ -47,46 +37,15 @@ class TodoViewModel @Inject constructor(
     val clickedTodo get() = _clickedTodo
 
     init {
-        _todoLists = getTodoListFlow()
-        _currentList = getCurrentListFlow()
         _sortPref = getSortPrefFlow()
         _currentTodos = queryTodo()
         _showCompleted = getShowCompletedFlow()
     }
 
-    fun insertTodoList(name: String) = tryRun {
-        val insertedTodoListId = insertTodoListUseCase(name)
-        setCurrentList(id = insertedTodoListId)
-    }
-
-    private fun getTodoListFlow(name: String? = null) =
-        todoRepository.queryTodoList(name)
-            .stateIn(
-                scope = viewModelScope,
-                started = SharingStarted.WhileSubscribed(),
-                initialValue = emptyList()
-            )
-
-    fun updateTodoList(list: TodoList, name: String) = tryRun {
-        todoRepository.updateTodoList(list, name)
-    }
-
-    fun deleteTodoList(list: TodoList) = tryRun {
-        val lists = todoLists.value
-        if (lists.size > 1) {
-            setCurrentList(
-                lists[
-                        if (lists[0] == list) 1 else 0
-                ]
-            )
-            todoRepository.deleteTodoList(list)
-        } else throw IllegalStateException("Attempting to delete last todo list")
-    }
-
-    fun insertTodo(title: String, body: String? = null) = tryRun {
-        currentList.value?.id?.let { listId ->
+    fun insertTodo(currentListId: Long?, title: String, body: String? = null) = tryRun {
+        tryListAction(currentListId) {
             insertTodoUseCase(
-                listId,
+                it,
                 title,
                 body
             )
@@ -117,13 +76,11 @@ class TodoViewModel @Inject constructor(
         deleteTodoUseCase(todo)
     }
 
-    fun deleteCompletedTodos() = tryRun {
-        val deletedTodoCount = currentList.value?.id?.let {
-            deleteCompletedTodosUseCase(it)
+    fun deleteCompletedTodos(currentListId: Long?) = tryRun {
+        val deletedTodoCount = tryListAction(currentListId) { deleteCompletedTodosUseCase(it) }
+        _message.emit(deletedTodoCount.let {
+            ViewModelMessage.Info.CompletedTodoDeletion(it as Int)
         }
-        _message.emit(deletedTodoCount?.let {
-            ViewModelMessage.Info.CompletedTodoDeletion(it)
-        } ?: ViewModelMessage.Error(msgStringId = R.string.error_missing_current_list)
         )
     }
 
@@ -133,21 +90,6 @@ class TodoViewModel @Inject constructor(
 
     fun searchTodo(query: String) {
         _todoQuery.value = query
-    }
-
-    private fun getCurrentListIdFlow() = getCurrentListIdFlowUseCase(0)
-        .stateIn(
-            scope = viewModelScope,
-            started = SharingStarted.WhileSubscribed(),
-            initialValue = 0
-        )
-
-    private fun setCurrentList(list: TodoList) {
-        setCurrentList(list.id)
-    }
-
-    private fun setCurrentList(id: Long) = tryRun {
-        setCurrentListIdUseCase(id)
     }
 
     private fun getShowCompletedFlow(default: Boolean = true) =
@@ -161,15 +103,6 @@ class TodoViewModel @Inject constructor(
     fun setShowCompleted(showCompleted: Boolean) = tryRun {
         setShowCompletedUseCase(showCompleted)
     }
-
-    private fun getCurrentListFlow() = todoLists.combine(getCurrentListIdFlow()) { list, id ->
-        list.firstOrNull { it.id == id } ?: todoLists.value.firstOrNull()
-    }
-        .stateIn(
-            scope = viewModelScope,
-            started = SharingStarted.WhileSubscribed(),
-            initialValue = null
-        )
 
     fun setSortPref(sortPref: Int) = tryRun {
         setSortPrefUseCase(sortPref)

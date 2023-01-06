@@ -20,14 +20,16 @@ import com.bn.todo.data.model.Todo
 import com.bn.todo.databinding.FragmentCreateTodoBinding
 import com.bn.todo.databinding.LayoutTextInputBinding
 import com.bn.todo.ui.MainActivity
-import com.bn.todo.ui.main.viewmodel.TodoViewModel
+import com.bn.todo.ui.main.viewmodel.TodoListViewModel
+import com.bn.todo.ui.main.viewmodel.TodoShowViewModel
 import com.bn.todo.util.TextInputUtil
 import com.google.android.material.textfield.TextInputEditText
 import dagger.hilt.android.AndroidEntryPoint
 
 @AndroidEntryPoint
 class CreateTodoFragment : BaseFragment<FragmentCreateTodoBinding>(), CollectsViewModelMessage {
-    override val viewModel: TodoViewModel by activityViewModels()
+    override val viewModel: TodoShowViewModel by activityViewModels()
+    private val listViewModel: TodoListViewModel by activityViewModels()
     private var isAllowed = false
     private val args by navArgs<CreateTodoFragmentArgs>()
     private lateinit var sourceFragment: String
@@ -77,7 +79,7 @@ class CreateTodoFragment : BaseFragment<FragmentCreateTodoBinding>(), CollectsVi
         val body = layoutBodyInput.input.text.toString()
         if (isAllowed) {
             strategy.apply {
-                viewModel.finishAction(title, body)
+                viewModel.finishAction(listViewModel.currentList.value?.id, title, body)
             }
             findNavController().popBackStack()
         } else {
@@ -112,7 +114,11 @@ class CreateTodoFragment : BaseFragment<FragmentCreateTodoBinding>(), CollectsVi
 
     sealed class TodoStrategy {
         abstract fun CreateTodoFragment.setupAction()
-        abstract fun TodoViewModel.finishAction(title: String, body: String)
+        abstract fun TodoShowViewModel.finishAction(
+            currentListId: Long?,
+            title: String,
+            body: String
+        )
 
         class EditStrategy : TodoStrategy() {
             private var clickedTodo: Todo? = null
@@ -127,7 +133,11 @@ class CreateTodoFragment : BaseFragment<FragmentCreateTodoBinding>(), CollectsVi
                 }
             }
 
-            override fun TodoViewModel.finishAction(title: String, body: String) {
+            override fun TodoShowViewModel.finishAction(
+                currentListId: Long?,
+                title: String,
+                body: String
+            ) {
                 this@EditStrategy.clickedTodo?.let { updateTodo(it, title, body) }
             }
 
@@ -136,8 +146,12 @@ class CreateTodoFragment : BaseFragment<FragmentCreateTodoBinding>(), CollectsVi
         object AddStrategy : TodoStrategy() {
             override fun CreateTodoFragment.setupAction() {}
 
-            override fun TodoViewModel.finishAction(title: String, body: String) {
-                insertTodo(title, body)
+            override fun TodoShowViewModel.finishAction(
+                currentListId: Long?,
+                title: String,
+                body: String
+            ) {
+                insertTodo(currentListId, title, body)
             }
 
         }

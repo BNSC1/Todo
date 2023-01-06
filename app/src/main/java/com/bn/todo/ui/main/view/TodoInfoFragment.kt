@@ -10,14 +10,14 @@ import com.bn.todo.databinding.FragmentTodoInfoBinding
 import com.bn.todo.ktx.TAG
 import com.bn.todo.ktx.setInvisible
 import com.bn.todo.ktx.setVisible
-import com.bn.todo.ui.main.viewmodel.TodoViewModel
+import com.bn.todo.ui.main.viewmodel.TodoShowViewModel
 import com.bn.todo.util.ResUtil
 import com.bn.todo.util.TimeUtil
 import dagger.hilt.android.AndroidEntryPoint
 
 @AndroidEntryPoint
 class TodoInfoFragment : BaseBottomSheetDialogFragment<FragmentTodoInfoBinding>(), CollectsViewModelMessage {
-    override val viewModel: TodoViewModel by activityViewModels()
+    override val viewModel: TodoShowViewModel by activityViewModels()
     private val colorAccent: Int by lazy {
         ResUtil.getAttribute(requireContext(), androidx.appcompat.R.attr.colorAccent)
     }
