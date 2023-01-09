@@ -58,7 +58,6 @@
     <fragment
         android:id="@+id/welcomeFragment"
         android:name="com.bn.todo.ui.welcome.view.WelcomeFragment"
-        android:label="fragment_welcome"
         tools:layout="@layout/fragment_welcome">
         <action
             android:id="@+id/action_to_firstTodoListFragment"
@@ -67,7 +66,6 @@
     <fragment
         android:id="@+id/firstTodoListFragment"
         android:name="com.bn.todo.ui.welcome.view.FirstTodoListFragment"
-        android:label="fragment_first_todo_list"
         tools:layout="@layout/fragment_first_todo_list">
         <action
             android:id="@+id/action_to_listFragment"
