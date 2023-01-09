@@ -53,6 +53,8 @@
             app:popUpToInclusive="true" />
         <action
             android:id="@+id/action_to_listFragment"
+            app:popUpTo="@id/entryFragment"
+            app:popUpToInclusive="true"
             app:destination="@id/listFragment" />
     </fragment>
     <fragment
@@ -69,7 +71,7 @@
         tools:layout="@layout/fragment_first_todo_list">
         <action
             android:id="@+id/action_to_listFragment"
-            app:popUpTo="@id/entryFragment"
+            app:popUpTo="@id/welcomeFragment"
             app:popUpToInclusive="true"
             app:destination="@id/listFragment" />
     </fragment>
