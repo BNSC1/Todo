@@ -4,17 +4,15 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import androidx.navigation.NavDirections
 import androidx.viewbinding.ViewBinding
 import com.google.android.material.bottomsheet.BottomSheetDialogFragment
 import java.lang.reflect.ParameterizedType
 
-abstract class BaseBottomSheetDialogFragment<Binding : ViewBinding> : BottomSheetDialogFragment() {
-    private val mActivity get() = activity as? NavigationActivity
+abstract class BaseBottomSheetDialogFragment<Binding : ViewBinding> : BottomSheetDialogFragment(),
+    HasNavigation {
+    override val _activity get() = activity as? NavigationActivity
     private var _binding: Binding? = null
     protected val binding get() = _binding!!
-
-    private val navigation get() = mActivity?.navigation
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -44,9 +42,5 @@ abstract class BaseBottomSheetDialogFragment<Binding : ViewBinding> : BottomShee
 
     private fun removeViewBinding() {
         _binding = null
-    }
-
-    fun NavDirections.navigate() {
-        navigation?.navigate(this)
     }
 }
