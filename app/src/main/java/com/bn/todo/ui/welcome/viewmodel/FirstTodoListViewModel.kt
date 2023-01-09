@@ -1,6 +1,9 @@
 package com.bn.todo.ui.welcome.viewmodel
 
 import com.bn.todo.arch.BaseViewModel
+import com.bn.todo.arch.EmitsViewState
+import com.bn.todo.data.model.ViewState
+import com.bn.todo.data.model.ViewState.Idle
 import com.bn.todo.usecase.InsertTodoListUseCase
 import com.bn.todo.usecase.SetCurrentListIdUseCase
 import com.bn.todo.usecase.SetIsNotFirstLaunchUseCase
@@ -14,7 +17,9 @@ class FirstTodoListViewModel @Inject constructor(
     private val insertTodoListUseCase: InsertTodoListUseCase,
     private val setIsNotFirstLaunchUseCase: SetIsNotFirstLaunchUseCase,
     private val setCurrentListIdUseCase: SetCurrentListIdUseCase
-) : BaseViewModel() {
+) : BaseViewModel(), EmitsViewState {
+    private val _viewState = MutableStateFlow<ViewState>(Idle)
+    override val viewState = _viewState.asStateFlow()
     private val _inputName = MutableStateFlow("")
     val inputName = _inputName.asStateFlow()
 
@@ -23,6 +28,7 @@ class FirstTodoListViewModel @Inject constructor(
             insertTodoListUseCase(inputName.value.ifEmpty { defaultName })
         )
         setIsNotFirstLaunchUseCase()
+        _viewState.value = ViewState.Success
     }
 
     fun setInputName(name: String) {

@@ -7,6 +7,9 @@ import androidx.fragment.app.viewModels
 import com.bn.todo.R
 import com.bn.todo.arch.BaseFragment
 import com.bn.todo.arch.CollectsViewModelMessage
+import com.bn.todo.arch.CollectsViewState
+import com.bn.todo.arch.HidesActionBar
+import com.bn.todo.data.model.ViewState
 import com.bn.todo.databinding.FragmentFirstTodoListBinding
 import com.bn.todo.ui.welcome.viewmodel.FirstTodoListViewModel
 import com.bn.todo.util.TextInputUtil
@@ -14,12 +17,13 @@ import dagger.hilt.android.AndroidEntryPoint
 
 @AndroidEntryPoint
 class FirstTodoListFragment : BaseFragment<FragmentFirstTodoListBinding>(),
-    CollectsViewModelMessage {
+    CollectsViewModelMessage, CollectsViewState, HidesActionBar {
     override val viewModel: FirstTodoListViewModel by viewModels()
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         collectMessage()
+        collectViewState()
 
         with(binding) {
             setupInput()
@@ -27,10 +31,29 @@ class FirstTodoListFragment : BaseFragment<FragmentFirstTodoListBinding>(),
         }
     }
 
+    override fun onStart() {
+        super.onStart()
+        hideActionBar()
+    }
+
+    override fun onStop() {
+        super.onStop()
+        showActionBar()
+    }
+
+    override fun onViewStateChanged(viewState: ViewState) {
+        if (viewState is ViewState.Success) {
+            goToNextPage()
+        }
+    }
+
+    private fun goToNextPage() {
+        FirstTodoListFragmentDirections.actionToListFragment().navigate()
+    }
+
     private fun FragmentFirstTodoListBinding.setupNextButton() {
         nextBtn.setOnClickListener {
             insertTodoList()
-            FirstTodoListFragmentDirections.actionToListFragment().navigate()
         }
     }
 
