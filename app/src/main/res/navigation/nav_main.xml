@@ -48,7 +48,9 @@
         android:name="com.bn.todo.ui.entry.view.EntryFragment">
         <action
             android:id="@+id/action_to_welcomeFragment"
-            app:destination="@id/welcomeFragment" />
+            app:destination="@id/welcomeFragment"
+            app:popUpTo="@id/entryFragment"
+            app:popUpToInclusive="true" />
         <action
             android:id="@+id/action_to_listFragment"
             app:destination="@id/listFragment" />
@@ -69,6 +71,8 @@
         tools:layout="@layout/fragment_first_todo_list">
         <action
             android:id="@+id/action_to_listFragment"
+            app:popUpTo="@id/entryFragment"
+            app:popUpToInclusive="true"
             app:destination="@id/listFragment" />
     </fragment>
 </navigation>
