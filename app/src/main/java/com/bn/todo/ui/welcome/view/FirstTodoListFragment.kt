@@ -30,8 +30,7 @@ class FirstTodoListFragment : BaseFragment<FragmentFirstTodoListBinding>(),
     private fun FragmentFirstTodoListBinding.setupNextButton() {
         nextBtn.setOnClickListener {
             insertTodoList()
-            FirstTodoListFragmentDirections.actionToMainActivity().navigate()
-            requireActivity().finish()
+            FirstTodoListFragmentDirections.actionToListFragment().navigate()
         }
     }
 

@@ -22,7 +22,7 @@ class WelcomeFragment : BaseFragment<FragmentWelcomeBinding>() {
         )
 
         nextBtn.setOnClickListener {
-            WelcomeFragmentDirections.actionCreateList().navigate()
+            WelcomeFragmentDirections.actionToFirstTodoListFragment().navigate()
         }
     }
 }
