@@ -1,9 +1,11 @@
 package com.bn.todo.data.model
 
+import android.os.Parcelable
 import androidx.room.ColumnInfo
 import androidx.room.Entity
 import androidx.room.ForeignKey
 import androidx.room.PrimaryKey
+import kotlinx.parcelize.Parcelize
 import java.time.OffsetDateTime
 
 @Entity(
@@ -14,6 +16,7 @@ import java.time.OffsetDateTime
         onDelete = ForeignKey.CASCADE
     )]
 )
+@Parcelize
 data class Todo(
     val title: String,
     val body: String?,
@@ -23,4 +26,4 @@ data class Todo(
 //    val locationName: String?,
 //    val imageUri: Uri?,
     @PrimaryKey(autoGenerate = true) val id: Long = 0
-)
+) : Parcelable
