@@ -2,7 +2,8 @@ package com.bn.todo.ui.main.view
 
 import android.os.Bundle
 import android.view.View
-import androidx.fragment.app.activityViewModels
+import androidx.fragment.app.viewModels
+import androidx.navigation.fragment.navArgs
 import com.bn.todo.R
 import com.bn.todo.arch.BaseBottomSheetDialogFragment
 import com.bn.todo.arch.CollectsViewModelMessage
@@ -10,20 +11,22 @@ import com.bn.todo.databinding.FragmentTodoInfoBinding
 import com.bn.todo.ktx.TAG
 import com.bn.todo.ktx.setInvisible
 import com.bn.todo.ktx.setVisible
-import com.bn.todo.ui.main.viewmodel.TodoShowViewModel
+import com.bn.todo.ui.main.viewmodel.TodoOperationViewModel
 import com.bn.todo.util.ResUtil
 import com.bn.todo.util.TimeUtil
 import dagger.hilt.android.AndroidEntryPoint
 
 @AndroidEntryPoint
 class TodoInfoFragment : BaseBottomSheetDialogFragment<FragmentTodoInfoBinding>(), CollectsViewModelMessage {
-    override val viewModel: TodoShowViewModel by activityViewModels()
+    override val viewModel: TodoOperationViewModel by viewModels()
+    private val args by navArgs<TodoInfoFragmentArgs>()
     private val colorAccent: Int by lazy {
         ResUtil.getAttribute(requireContext(), androidx.appcompat.R.attr.colorAccent)
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
+        setClickedTodo()
         collectMessage()
         with(binding) {
             setupTodo()
@@ -31,6 +34,10 @@ class TodoInfoFragment : BaseBottomSheetDialogFragment<FragmentTodoInfoBinding>(
             setupDeleteBtn()
             setupEditBtn()
         }
+    }
+
+    private fun setClickedTodo() {
+        viewModel.setClickedTodo(args.clickedTodo)
     }
 
     private fun FragmentTodoInfoBinding.setupCompleteBtn() {
@@ -55,7 +62,10 @@ class TodoInfoFragment : BaseBottomSheetDialogFragment<FragmentTodoInfoBinding>(
 
     private fun FragmentTodoInfoBinding.setupEditBtn() {
         editBtn.setOnClickListener {
-            TodoListFragmentDirections.actionCreateTodo(this@TodoInfoFragment.TAG).navigate()
+            TodoInfoFragmentDirections.actionEditTodo(
+                this@TodoInfoFragment.TAG,
+                viewModel.clickedTodo.value
+            ).navigate()
             dismiss()
         }
     }

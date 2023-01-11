@@ -11,7 +11,7 @@ import androidx.appcompat.R.id.search_src_text
 import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.widget.SearchView
 import androidx.core.view.MenuProvider
-import androidx.fragment.app.activityViewModels
+import androidx.fragment.app.viewModels
 import androidx.lifecycle.Lifecycle
 import androidx.navigation.findNavController
 import androidx.navigation.ui.NavigationUI
@@ -22,17 +22,18 @@ import com.bn.todo.data.model.Todo
 import com.bn.todo.data.model.TodoList
 import com.bn.todo.databinding.FragmentTodoListBinding
 import com.bn.todo.ktx.*
-import com.bn.todo.ui.callback.TodoClickCallback
 import com.bn.todo.ui.main.view.adapter.TodosAdapter
 import com.bn.todo.ui.main.viewmodel.TodoListViewModel
+import com.bn.todo.ui.main.viewmodel.TodoOperationViewModel
 import com.bn.todo.ui.main.viewmodel.TodoShowViewModel
 import com.bn.todo.util.DialogUtil
 import dagger.hilt.android.AndroidEntryPoint
 
 @AndroidEntryPoint
 class TodoListFragment : BaseFragment<FragmentTodoListBinding>(), CollectsViewModelMessage {
-    override val viewModel: TodoShowViewModel by activityViewModels()
-    private val listViewModel: TodoListViewModel by activityViewModels()
+    override val viewModel: TodoShowViewModel by viewModels()
+    private val todoOperationViewModel: TodoOperationViewModel by viewModels()
+    private val listViewModel: TodoListViewModel by viewModels()
     private lateinit var todosAdapter: TodosAdapter
     private lateinit var searchView: SearchView
     private lateinit var onBackPressedCancelSearchCallback: OnBackPressedCallback
@@ -160,7 +161,7 @@ class TodoListFragment : BaseFragment<FragmentTodoListBinding>(), CollectsViewMo
                     list.name
                 ),
                 okAction = {
-                    viewModel.deleteCompletedTodos(listViewModel.currentList.value?.id)
+                    todoOperationViewModel.deleteCompletedTodos(listViewModel.currentList.value?.id)
                 })
         }
     }
@@ -214,8 +215,7 @@ class TodoListFragment : BaseFragment<FragmentTodoListBinding>(), CollectsViewMo
 
     private fun FragmentTodoListBinding.setupTodos() {
         todosAdapter = TodosAdapter(requireContext()) {
-            (requireActivity() as TodoClickCallback).onTodoClick()
-            viewModel.setClickedTodo(it)
+            TodoListFragmentDirections.actionToTodoInfoFragment(it).navigate()
         }
         list.adapter = todosAdapter
     }

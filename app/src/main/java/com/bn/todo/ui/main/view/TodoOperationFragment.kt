@@ -7,7 +7,7 @@ import android.view.MenuInflater
 import android.view.MenuItem
 import android.view.View
 import androidx.core.view.MenuProvider
-import androidx.fragment.app.activityViewModels
+import androidx.fragment.app.viewModels
 import androidx.lifecycle.Lifecycle
 import androidx.navigation.findNavController
 import androidx.navigation.fragment.findNavController
@@ -17,21 +17,22 @@ import com.bn.todo.R
 import com.bn.todo.arch.BaseFragment
 import com.bn.todo.arch.CollectsViewModelMessage
 import com.bn.todo.data.model.Todo
-import com.bn.todo.databinding.FragmentCreateTodoBinding
+import com.bn.todo.databinding.FragmentTodoOperationBinding
 import com.bn.todo.databinding.LayoutTextInputBinding
 import com.bn.todo.ui.MainActivity
 import com.bn.todo.ui.main.viewmodel.TodoListViewModel
-import com.bn.todo.ui.main.viewmodel.TodoShowViewModel
+import com.bn.todo.ui.main.viewmodel.TodoOperationViewModel
 import com.bn.todo.util.TextInputUtil
 import com.google.android.material.textfield.TextInputEditText
 import dagger.hilt.android.AndroidEntryPoint
 
 @AndroidEntryPoint
-class CreateTodoFragment : BaseFragment<FragmentCreateTodoBinding>(), CollectsViewModelMessage {
-    override val viewModel: TodoShowViewModel by activityViewModels()
-    private val listViewModel: TodoListViewModel by activityViewModels()
+class TodoOperationFragment : BaseFragment<FragmentTodoOperationBinding>(),
+    CollectsViewModelMessage {
+    override val viewModel: TodoOperationViewModel by viewModels()
+    private val listViewModel: TodoListViewModel by viewModels()
     private var isAllowed = false
-    private val args by navArgs<CreateTodoFragmentArgs>()
+    private val args by navArgs<TodoOperationFragmentArgs>()
     private lateinit var sourceFragment: String
     private lateinit var strategy: TodoStrategy
 
@@ -52,7 +53,7 @@ class CreateTodoFragment : BaseFragment<FragmentCreateTodoBinding>(), CollectsVi
     private fun setupStrategy() {
         sourceFragment = args.sourceFragment
         strategy =
-            if (sourceFragment == TodoInfoFragment::class.java.name) TodoStrategy.EditStrategy()
+            if (sourceFragment == TodoInfoFragment::class.java.name) TodoStrategy.EditStrategy(args.clickedTodo)
             else TodoStrategy.AddStrategy
     }
 
@@ -74,7 +75,7 @@ class CreateTodoFragment : BaseFragment<FragmentCreateTodoBinding>(), CollectsVi
         }, viewLifecycleOwner, Lifecycle.State.STARTED)
     }
 
-    private fun FragmentCreateTodoBinding.setupAddAction() {
+    private fun FragmentTodoOperationBinding.setupAddAction() {
         val title = layoutTitleInput.input.text.toString()
         val body = layoutBodyInput.input.text.toString()
         if (isAllowed) {
@@ -88,7 +89,7 @@ class CreateTodoFragment : BaseFragment<FragmentCreateTodoBinding>(), CollectsVi
         }
     }
 
-    private fun FragmentCreateTodoBinding.setupLayout() {
+    private fun FragmentTodoOperationBinding.setupLayout() {
         layoutTitleInput.apply {
             root.hint = getString(R.string.todo_title)
             root.isErrorEnabled = true
@@ -113,19 +114,17 @@ class CreateTodoFragment : BaseFragment<FragmentCreateTodoBinding>(), CollectsVi
     }
 
     sealed class TodoStrategy {
-        abstract fun CreateTodoFragment.setupAction()
-        abstract fun TodoShowViewModel.finishAction(
+        abstract fun TodoOperationFragment.setupAction()
+        abstract fun TodoOperationViewModel.finishAction(
             currentListId: Long?,
             title: String,
             body: String
         )
 
-        class EditStrategy : TodoStrategy() {
-            private var clickedTodo: Todo? = null
-            override fun CreateTodoFragment.setupAction() {
+        class EditStrategy(private val clickedTodo: Todo?) : TodoStrategy() {
+            override fun TodoOperationFragment.setupAction() {
                 (requireActivity() as MainActivity).supportActionBar?.title =
                     getString(R.string.title_edit_todo)
-                clickedTodo = viewModel.clickedTodo.value
 
                 with(binding) {
                     layoutTitleInput.input.setText(clickedTodo?.title)
@@ -133,20 +132,22 @@ class CreateTodoFragment : BaseFragment<FragmentCreateTodoBinding>(), CollectsVi
                 }
             }
 
-            override fun TodoShowViewModel.finishAction(
+            override fun TodoOperationViewModel.finishAction(
                 currentListId: Long?,
                 title: String,
                 body: String
             ) {
-                this@EditStrategy.clickedTodo?.let { updateTodo(it, title, body) }
+                this@EditStrategy.clickedTodo?.let {
+                    updateTodo(it, title, body)
+                }
             }
 
         }
 
         object AddStrategy : TodoStrategy() {
-            override fun CreateTodoFragment.setupAction() {}
+            override fun TodoOperationFragment.setupAction() {}
 
-            override fun TodoShowViewModel.finishAction(
+            override fun TodoOperationViewModel.finishAction(
                 currentListId: Long?,
                 title: String,
                 body: String
