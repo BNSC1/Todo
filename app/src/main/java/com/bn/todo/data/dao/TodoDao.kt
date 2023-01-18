@@ -23,7 +23,7 @@ interface TodoDao {
     fun query(
         listId: Long,
         queryString: String = "",
-        showCompleted: Boolean
+        showCompleted: Boolean = true
     ): Flow<List<Todo>>
 
     @Update
