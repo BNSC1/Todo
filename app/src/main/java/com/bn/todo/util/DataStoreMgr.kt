@@ -2,9 +2,11 @@ package com.bn.todo.util
 
 import android.content.Context
 import androidx.datastore.core.DataStore
-import androidx.datastore.preferences.core.*
+import androidx.datastore.preferences.core.Preferences
+import androidx.datastore.preferences.core.edit
+import androidx.datastore.preferences.core.emptyPreferences
 import androidx.datastore.preferences.preferencesDataStore
-import com.bn.todo.util.DataStoreKeys.DATASTORE_NAME
+import com.bn.todo.constant.DataStoreKeys.DATASTORE_NAME
 import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.flow.catch
 import kotlinx.coroutines.flow.map
@@ -43,12 +45,4 @@ class DataStoreMgr @Inject constructor(@ApplicationContext val context: Context)
         .map { prefs ->
             prefs[key] ?: default
         }
-}
-
-object DataStoreKeys {
-    internal const val DATASTORE_NAME = "preferences"
-    val CURRENT_LIST = longPreferencesKey("current_list")
-    val IS_FIRST_LAUNCH = booleanPreferencesKey("is_first_launch")
-    val SHOW_COMPLETED = booleanPreferencesKey("show_completed")
-    val SORT_PREF = intPreferencesKey("sort_pref")
 }

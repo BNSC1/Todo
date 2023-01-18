@@ -1,6 +1,6 @@
 package com.bn.todo.data.repository
 
-import com.bn.todo.util.DataStoreKeys
+import com.bn.todo.constant.DataStoreKeys
 import com.bn.todo.util.DataStoreMgr
 import javax.inject.Inject
 import javax.inject.Singleton
