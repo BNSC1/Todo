@@ -161,7 +161,9 @@ class TodoListFragment : BaseFragment<FragmentTodoListBinding>(), CollectsViewMo
                     list.name
                 ),
                 okAction = {
-                    todoOperationViewModel.deleteCompletedTodos(listViewModel.currentList.value?.id)
+                    tryCurrentListAction {
+                        todoOperationViewModel.deleteCompletedTodos(it)
+                    }
                 })
         }
     }
@@ -193,9 +195,7 @@ class TodoListFragment : BaseFragment<FragmentTodoListBinding>(), CollectsViewMo
             inputReceiver = object : DialogUtil.OnInputReceiver {
                 override fun receiveInput(input: String?) {
                     if (!input.isNullOrBlank()) {
-                        listViewModel.currentList.value?.let {
-                            listViewModel.updateTodoList(it, input)
-                        }
+                        listViewModel.updateTodoList(list, input)
                     } else {
                         showDialog(message = getString(R.string.title_input_name_for_list))
                     }
