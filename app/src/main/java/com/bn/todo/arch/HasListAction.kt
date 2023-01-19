@@ -1,8 +1,10 @@
 package com.bn.todo.arch
 
+import com.bn.todo.data.model.TodoList
+
 interface HasListAction {
-    suspend fun tryListAction(listId: Long?, action: suspend (Long) -> Any) =
-        listId?.let {
-            action(it)
-        } ?: throw IllegalArgumentException("List ID is null.")
+    suspend fun tryListAction(list: TodoList?, action: suspend (Long) -> Any) =
+        list?.let {
+            action(it.id)
+        } ?: throw IllegalArgumentException("List is null.")
 }

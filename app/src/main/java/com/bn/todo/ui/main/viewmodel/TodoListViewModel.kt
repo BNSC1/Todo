@@ -81,9 +81,4 @@ class TodoListViewModel @Inject constructor(
         )
 
     private fun getCurrentListIdFlow() = getCurrentListIdFlowUseCase()
-        .stateIn(
-            scope = viewModelScope,
-            started = SharingStarted.WhileSubscribed(),
-            initialValue = 0
-        )
 }

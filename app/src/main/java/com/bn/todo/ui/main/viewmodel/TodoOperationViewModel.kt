@@ -28,8 +28,8 @@ class TodoOperationViewModel @Inject constructor(
         _clickedTodo.value = clickedTodo
     }
 
-    fun insertTodo(currentListId: Long?, title: String, body: String? = null) = tryRun {
-        tryListAction(currentListId) {
+    fun insertTodo(currentList: TodoList?, title: String, body: String? = null) = tryRun {
+        tryListAction(currentList) {
             insertTodoUseCase(
                 it,
                 title,
@@ -50,10 +50,12 @@ class TodoOperationViewModel @Inject constructor(
         deleteTodoUseCase(todo)
     }
 
-    fun deleteCompletedTodos(currentList: TodoList) = tryRun {
-        val deletedTodoCount = deleteCompletedTodosUseCase(currentList.id)
+    fun deleteCompletedTodos(currentList: TodoList?) = tryRun {
+        val deletedTodoCount = tryListAction(currentList) {
+            deleteCompletedTodosUseCase(it)
+        }
         _message.emit(deletedTodoCount.let {
-            ViewModelMessage.Info.CompletedTodoDeletion(it)
+            ViewModelMessage.Info.CompletedTodoDeletion(it as Int)
         }
         )
     }
