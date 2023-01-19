@@ -31,7 +31,7 @@ import dagger.hilt.android.AndroidEntryPoint
 
 @AndroidEntryPoint
 class TodoListFragment : BaseFragment<FragmentTodoListBinding>(), CollectsViewModelMessage {
-    override val viewModel: TodoShowViewModel by viewModels()
+    private val viewModel: TodoShowViewModel by viewModels()
     private val todoOperationViewModel: TodoOperationViewModel by viewModels()
     private val listViewModel: TodoListViewModel by viewModels()
     private lateinit var todosAdapter: TodosAdapter
@@ -41,7 +41,8 @@ class TodoListFragment : BaseFragment<FragmentTodoListBinding>(), CollectsViewMo
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         setupOnBackPressedCallback()
-        collectMessage()
+        collectMessage(todoOperationViewModel)
+        collectMessage(listViewModel)
         setupMenu()
 
         with(binding) {

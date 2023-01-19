@@ -18,7 +18,7 @@ import dagger.hilt.android.AndroidEntryPoint
 
 @AndroidEntryPoint
 class TodoInfoFragment : BaseBottomSheetDialogFragment<FragmentTodoInfoBinding>(), CollectsViewModelMessage {
-    override val viewModel: TodoOperationViewModel by viewModels()
+    private val viewModel: TodoOperationViewModel by viewModels()
     private val args by navArgs<TodoInfoFragmentArgs>()
     private val colorAccent: Int by lazy {
         ResUtil.getAttribute(requireContext(), androidx.appcompat.R.attr.colorAccent)
@@ -27,7 +27,7 @@ class TodoInfoFragment : BaseBottomSheetDialogFragment<FragmentTodoInfoBinding>(
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         setClickedTodo()
-        collectMessage()
+        collectMessage(viewModel)
         with(binding) {
             setupTodo()
             setupCompleteBtn()

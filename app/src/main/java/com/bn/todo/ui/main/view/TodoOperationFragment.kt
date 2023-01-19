@@ -31,7 +31,7 @@ import dagger.hilt.android.AndroidEntryPoint
 @AndroidEntryPoint
 class TodoOperationFragment : BaseFragment<FragmentTodoOperationBinding>(),
     CollectsViewModelMessage {
-    override val viewModel: TodoOperationViewModel by viewModels()
+    private val todoOperationViewModel: TodoOperationViewModel by viewModels()
     private val listViewModel: TodoListViewModel by viewModels()
     private var isAllowed = false
     private val args by navArgs<TodoOperationFragmentArgs>()
@@ -40,7 +40,8 @@ class TodoOperationFragment : BaseFragment<FragmentTodoOperationBinding>(),
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        collectMessage()
+        collectMessage(todoOperationViewModel)
+        collectMessage(listViewModel)
         setupMenu()
 
         with(binding) {
@@ -90,7 +91,7 @@ class TodoOperationFragment : BaseFragment<FragmentTodoOperationBinding>(),
         val body = layoutBodyInput.input.text.toString()
         if (isAllowed) {
             strategy.apply {
-                viewModel.finishAction(title, body)
+                todoOperationViewModel.finishAction(title, body)
             }
             findNavController().popBackStack()
         } else {
