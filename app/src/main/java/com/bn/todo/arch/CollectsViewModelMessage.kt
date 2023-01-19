@@ -10,13 +10,17 @@ import com.bn.todo.ktx.collectLatestLifecycleFlow
 import com.bn.todo.util.DialogUtil.showDialog
 
 interface CollectsViewModelMessage {
-    val viewModel: BaseViewModel
+    fun Fragment.collectMessage(viewModel: BaseViewModel) =
+        collectMessage(requireContext(), viewLifecycleOwner, viewModel)
 
-    fun Fragment.collectMessage() = collectMessage(requireContext(), viewLifecycleOwner)
+    fun AppCompatActivity.collectMessage(viewModel: BaseViewModel) =
+        collectMessage(this, this, viewModel)
 
-    fun AppCompatActivity.collectMessage() = collectMessage(this, this)
-
-    private fun collectMessage(context: Context, lifecycleOwner: LifecycleOwner) {
+    private fun collectMessage(
+        context: Context,
+        lifecycleOwner: LifecycleOwner,
+        viewModel: BaseViewModel
+    ) {
         viewModel.message.collectLatestLifecycleFlow(lifecycleOwner) { msg ->
             when (msg) {
                 is ViewModelMessage.Error -> {

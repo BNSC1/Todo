@@ -31,7 +31,7 @@ import dagger.hilt.android.AndroidEntryPoint
 
 @AndroidEntryPoint
 class TodoListFragment : BaseFragment<FragmentTodoListBinding>(), CollectsViewModelMessage {
-    override val viewModel: TodoShowViewModel by viewModels()
+    private val viewModel: TodoShowViewModel by viewModels()
     private val todoOperationViewModel: TodoOperationViewModel by viewModels()
     private val listViewModel: TodoListViewModel by viewModels()
     private lateinit var todosAdapter: TodosAdapter
@@ -41,7 +41,8 @@ class TodoListFragment : BaseFragment<FragmentTodoListBinding>(), CollectsViewMo
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         setupOnBackPressedCallback()
-        collectMessage()
+        collectMessage(todoOperationViewModel)
+        collectMessage(listViewModel)
         setupMenu()
 
         with(binding) {
@@ -161,7 +162,9 @@ class TodoListFragment : BaseFragment<FragmentTodoListBinding>(), CollectsViewMo
                     list.name
                 ),
                 okAction = {
-                    todoOperationViewModel.deleteCompletedTodos(listViewModel.currentList.value?.id)
+                    tryCurrentListAction {
+                        todoOperationViewModel.deleteCompletedTodos(it)
+                    }
                 })
         }
     }
@@ -193,9 +196,7 @@ class TodoListFragment : BaseFragment<FragmentTodoListBinding>(), CollectsViewMo
             inputReceiver = object : DialogUtil.OnInputReceiver {
                 override fun receiveInput(input: String?) {
                     if (!input.isNullOrBlank()) {
-                        listViewModel.currentList.value?.let {
-                            listViewModel.updateTodoList(it, input)
-                        }
+                        listViewModel.updateTodoList(list, input)
                     } else {
                         showDialog(message = getString(R.string.title_input_name_for_list))
                     }

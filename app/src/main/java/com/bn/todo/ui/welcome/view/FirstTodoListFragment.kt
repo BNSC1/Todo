@@ -22,7 +22,7 @@ class FirstTodoListFragment : BaseFragment<FragmentFirstTodoListBinding>(),
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        collectMessage()
+        collectMessage(viewModel)
         collectViewState()
 
         with(binding) {

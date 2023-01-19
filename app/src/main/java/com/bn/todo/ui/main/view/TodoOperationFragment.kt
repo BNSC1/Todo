@@ -17,8 +17,10 @@ import com.bn.todo.R
 import com.bn.todo.arch.BaseFragment
 import com.bn.todo.arch.CollectsViewModelMessage
 import com.bn.todo.data.model.Todo
+import com.bn.todo.data.model.TodoList
 import com.bn.todo.databinding.FragmentTodoOperationBinding
 import com.bn.todo.databinding.LayoutTextInputBinding
+import com.bn.todo.ktx.collectLatestLifecycleFlow
 import com.bn.todo.ui.MainActivity
 import com.bn.todo.ui.main.viewmodel.TodoListViewModel
 import com.bn.todo.ui.main.viewmodel.TodoOperationViewModel
@@ -29,7 +31,7 @@ import dagger.hilt.android.AndroidEntryPoint
 @AndroidEntryPoint
 class TodoOperationFragment : BaseFragment<FragmentTodoOperationBinding>(),
     CollectsViewModelMessage {
-    override val viewModel: TodoOperationViewModel by viewModels()
+    private val todoOperationViewModel: TodoOperationViewModel by viewModels()
     private val listViewModel: TodoListViewModel by viewModels()
     private var isAllowed = false
     private val args by navArgs<TodoOperationFragmentArgs>()
@@ -38,23 +40,32 @@ class TodoOperationFragment : BaseFragment<FragmentTodoOperationBinding>(),
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        collectMessage()
-        setupStrategy()
+        collectMessage(todoOperationViewModel)
+        collectMessage(listViewModel)
         setupMenu()
 
         with(binding) {
             setupLayout()
-            strategy.apply {
-                setupAction()
+            collectCurrentList {
+                setupStrategy(it)
+                strategy.apply {
+                    setupAction()
+                }
             }
         }
     }
 
-    private fun setupStrategy() {
+    private fun collectCurrentList(onCollectAction: (TodoList?) -> Unit) {
+        listViewModel.currentList.collectLatestLifecycleFlow(viewLifecycleOwner) {
+            onCollectAction(it)
+        }
+    }
+
+    private fun setupStrategy(currentList: TodoList?) {
         sourceFragment = args.sourceFragment
         strategy =
             if (sourceFragment == TodoInfoFragment::class.java.name) TodoStrategy.EditStrategy(args.clickedTodo)
-            else TodoStrategy.AddStrategy
+            else TodoStrategy.AddStrategy(currentList)
     }
 
     private fun setupMenu() {
@@ -80,7 +91,7 @@ class TodoOperationFragment : BaseFragment<FragmentTodoOperationBinding>(),
         val body = layoutBodyInput.input.text.toString()
         if (isAllowed) {
             strategy.apply {
-                viewModel.finishAction(listViewModel.currentList.value?.id, title, body)
+                todoOperationViewModel.finishAction(title, body)
             }
             findNavController().popBackStack()
         } else {
@@ -116,7 +127,6 @@ class TodoOperationFragment : BaseFragment<FragmentTodoOperationBinding>(),
     sealed class TodoStrategy {
         abstract fun TodoOperationFragment.setupAction()
         abstract fun TodoOperationViewModel.finishAction(
-            currentListId: Long?,
             title: String,
             body: String
         )
@@ -133,7 +143,6 @@ class TodoOperationFragment : BaseFragment<FragmentTodoOperationBinding>(),
             }
 
             override fun TodoOperationViewModel.finishAction(
-                currentListId: Long?,
                 title: String,
                 body: String
             ) {
@@ -144,15 +153,14 @@ class TodoOperationFragment : BaseFragment<FragmentTodoOperationBinding>(),
 
         }
 
-        object AddStrategy : TodoStrategy() {
+        class AddStrategy(private val currentList: TodoList?) : TodoStrategy() {
             override fun TodoOperationFragment.setupAction() {}
 
             override fun TodoOperationViewModel.finishAction(
-                currentListId: Long?,
                 title: String,
                 body: String
             ) {
-                insertTodo(currentListId, title, body)
+                insertTodo(currentList, title, body)
             }
 
         }

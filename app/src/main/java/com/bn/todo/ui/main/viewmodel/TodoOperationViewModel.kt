@@ -4,6 +4,7 @@ import com.bn.todo.arch.BaseViewModel
 import com.bn.todo.arch.HasListAction
 import com.bn.todo.arch.ViewModelMessage
 import com.bn.todo.data.model.Todo
+import com.bn.todo.data.model.TodoList
 import com.bn.todo.usecase.DeleteCompletedTodosUseCase
 import com.bn.todo.usecase.DeleteTodoUseCase
 import com.bn.todo.usecase.InsertTodoUseCase
@@ -27,8 +28,8 @@ class TodoOperationViewModel @Inject constructor(
         _clickedTodo.value = clickedTodo
     }
 
-    fun insertTodo(currentListId: Long?, title: String, body: String? = null) = tryRun {
-        tryListAction(currentListId) {
+    fun insertTodo(currentList: TodoList?, title: String, body: String? = null) = tryRun {
+        tryListAction(currentList) {
             insertTodoUseCase(
                 it,
                 title,
@@ -49,8 +50,10 @@ class TodoOperationViewModel @Inject constructor(
         deleteTodoUseCase(todo)
     }
 
-    fun deleteCompletedTodos(currentListId: Long?) = tryRun {
-        val deletedTodoCount = tryListAction(currentListId) { deleteCompletedTodosUseCase(it) }
+    fun deleteCompletedTodos(currentList: TodoList?) = tryRun {
+        val deletedTodoCount = tryListAction(currentList) {
+            deleteCompletedTodosUseCase(it)
+        }
         _message.emit(deletedTodoCount.let {
             ViewModelMessage.Info.CompletedTodoDeletion(it as Int)
         }
