@@ -8,7 +8,7 @@ import java.time.OffsetDateTime
 
 class MockTodoRepository : TodoRepository {
     val todoLists = mutableListOf<TodoList>()
-    val todos = mutableListOf<Todo>()
+    private val todos = mutableListOf<Todo>()
 
     override suspend fun insertTodoList(name: String) =
         (todoLists.size.toLong() + 1).also {
@@ -16,14 +16,18 @@ class MockTodoRepository : TodoRepository {
         }
 
     override fun queryTodoList(name: String?) = flow {
-        emit(todoLists)
+        emit(
+            name?.let { n ->
+                todoLists.filter { it.name.contains(n.toRegex()) }
+            } ?: todoLists
+        )
     }
 
     override suspend fun updateTodoList(list: TodoList, name: String) {
         todoLists.apply {
             set(
                 indexOfFirst { it == list },
-                list.copy(name = name)
+                first { it == list }.copy(name = name)
             )
         }
     }

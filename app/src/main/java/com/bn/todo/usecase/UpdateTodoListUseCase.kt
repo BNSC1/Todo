@@ -8,6 +8,7 @@ class UpdateTodoListUseCase @Inject constructor(
     private val repository: TodoRepository
 ) {
     suspend operator fun invoke(list: TodoList, name: String) {
+        if (name.isEmpty()) throw IllegalArgumentException("Empty todo list name")
         repository.updateTodoList(list, name)
     }
 }
