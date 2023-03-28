@@ -111,6 +111,10 @@ class TodoOperationFragment : BaseFragment<FragmentTodoOperationBinding>(),
                     root.error = ""
                     isAllowed = !target.text.isNullOrBlank()
                 }
+                //do nothing
+                override fun onTextChanged(p0: CharSequence?, p1: Int, p2: Int, p3: Int) {}
+                //do nothing
+                override fun beforeTextChanged(p0: CharSequence?, p1: Int, p2: Int, p3: Int) {}
             })
         }
         layoutBodyInput.apply {
@@ -125,7 +129,8 @@ class TodoOperationFragment : BaseFragment<FragmentTodoOperationBinding>(),
     }
 
     sealed class TodoStrategy {
-        abstract fun TodoOperationFragment.setupAction()
+        //default do nothing
+        open fun TodoOperationFragment.setupAction() {}
         abstract fun TodoOperationViewModel.finishAction(
             title: String,
             body: String
@@ -154,8 +159,6 @@ class TodoOperationFragment : BaseFragment<FragmentTodoOperationBinding>(),
         }
 
         class AddStrategy(private val currentList: TodoList?) : TodoStrategy() {
-            override fun TodoOperationFragment.setupAction() {}
-
             override fun TodoOperationViewModel.finishAction(
                 title: String,
                 body: String

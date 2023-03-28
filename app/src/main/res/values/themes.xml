@@ -39,7 +39,6 @@
     </style>
 
     <style name="instruction_text">
-        <!--        <item name="android:textSize">@dimen/size_large_text</item>-->
         <item name="android:gravity">center</item>
     </style>
 

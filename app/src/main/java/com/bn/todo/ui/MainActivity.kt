@@ -89,12 +89,6 @@ class MainActivity : NavigationActivity() {
                 MENU_ORDER,
                 R.string.action_add_list
             ).setIcon(R.drawable.ic_add_list)
-//            add(
-//                R.id.setting_group,
-//                R.id.action_settings,
-//                MENU_ORDER,
-//                R.string.settings
-//            ).setIcon(R.drawable.ic_settings)
             invalidateOptionsMenu()
         }
     }
