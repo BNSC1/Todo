@@ -20,19 +20,16 @@ class TodoShowViewModel @Inject constructor(
     private val setShowCompletedUseCase: SetShowCompletedUseCase
 ) : BaseViewModel(), HasListAction {
 
-    private val _sortPref: StateFlow<TodoSort>
-    val sortPref get() = _sortPref
-    private val _currentTodos: StateFlow<List<Todo>>
-    val currentTodos get() = _currentTodos
-    private val _showCompleted: StateFlow<Boolean>
-    val showCompleted get() = _showCompleted
+    val sortPref: StateFlow<TodoSort>
+    val currentTodos: StateFlow<List<Todo>>
+    val showCompleted: StateFlow<Boolean>
     private val _todoQuery = MutableStateFlow("")
-    val todoQuery get() = _todoQuery
+    val todoQuery = _todoQuery.asStateFlow()
 
     init {
-        _sortPref = getSortPrefFlow()
-        _currentTodos = queryTodo()
-        _showCompleted = getShowCompletedFlow()
+        sortPref = getSortPrefFlow()
+        currentTodos = queryTodo()
+        showCompleted = getShowCompletedFlow()
     }
 
     private fun queryTodo() =

@@ -20,14 +20,12 @@ class TodoListViewModel @Inject constructor(
     private val getCurrentListIdFlowUseCase: GetCurrentListIdFlowUseCase,
     private val setCurrentListIdUseCase: SetCurrentListIdUseCase
 ) : BaseViewModel() {
-    private val _todoLists: StateFlow<List<TodoList>>
-    val todoLists get() = _todoLists
-    private val _currentList: StateFlow<TodoList?>
-    val currentList get() = _currentList
+    val todoLists: StateFlow<List<TodoList>>
+    val currentList: StateFlow<TodoList?>
 
     init {
-        _todoLists = getTodoListFlow()
-        _currentList = getCurrentListFlow()
+        todoLists = getTodoListFlow()
+        currentList = getCurrentListFlow()
     }
 
     private fun getTodoListFlow(query: String? = null) =
