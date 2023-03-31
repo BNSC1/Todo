@@ -6,19 +6,10 @@ plugins {
     id 'androidx.navigation.safeargs.kotlin'
     id "de.mannodermaus.android-junit5" version "1.8.2.1"
     id 'kotlin-parcelize'
-    id "org.sonarqube" version "3.5.0.2730"
 }
 
 ext {
     androidslidinguppanelVersion = '4.4.1'
-}
-
-sonarqube {
-    properties {
-        property "sonar.projectKey", "BNSC1_Todo"
-        property "sonar.organization", "bnsc1"
-        property "sonar.host.url", "https://sonarcloud.io"
-    }
 }
 
 android {
@@ -66,7 +57,7 @@ dependencies {
     implementation 'androidx.constraintlayout:constraintlayout:2.1.4'
     implementation 'androidx.legacy:legacy-support-v4:1.0.0'
     implementation 'androidx.preference:preference:1.2.0'
-    implementation 'androidx.lifecycle:lifecycle-viewmodel-ktx:2.6.0'
+    implementation 'androidx.lifecycle:lifecycle-viewmodel-ktx:2.6.1'
 
     // testing
     testImplementation 'junit:junit:4.13.2'
