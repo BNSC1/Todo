@@ -2,7 +2,7 @@ package com.bn.todo.data.repository
 
 import kotlinx.coroutines.flow.flow
 
-class MockUserPrefRepository: UserPrefRepository {
+class FakeUserPrefRepository: UserPrefRepository {
     private var isFirstTimeLaunch = true
     private var sortPref = 0
     private var showCompleted = true

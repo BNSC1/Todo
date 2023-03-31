@@ -2,7 +2,7 @@ package com.bn.todo.usecase
 
 import com.bn.todo.MainCoroutineExtension
 import com.bn.todo.data.model.TodoList
-import com.bn.todo.data.repository.MockTodoRepository
+import com.bn.todo.data.repository.FakeTodoRepository
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.test.runTest
 import org.amshove.kluent.*
@@ -14,12 +14,12 @@ import org.junit.jupiter.api.extension.ExtendWith
 @ExtendWith(MainCoroutineExtension::class)
 internal class InsertTodoListUseCaseTest {
     private lateinit var insertTodoList: InsertTodoListUseCase
-    private lateinit var todoRepository: MockTodoRepository
+    private lateinit var todoRepository: FakeTodoRepository
     private lateinit var lists: List<TodoList>
 
     @BeforeEach
     fun setup() {
-        todoRepository = MockTodoRepository()
+        todoRepository = FakeTodoRepository()
         insertTodoList = InsertTodoListUseCase(todoRepository)
         lists = todoRepository.todoLists
     }

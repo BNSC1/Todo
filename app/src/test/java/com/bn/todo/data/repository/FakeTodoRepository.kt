@@ -6,7 +6,7 @@ import com.bn.todo.data.model.TodoList
 import kotlinx.coroutines.flow.flow
 import java.time.OffsetDateTime
 
-class MockTodoRepository : TodoRepository {
+class FakeTodoRepository : TodoRepository {
     val todoLists = mutableListOf<TodoList>()
     private val todos = mutableListOf<Todo>()
 

@@ -2,8 +2,8 @@ package com.bn.todo.ui.welcome.viewmodel
 
 import app.cash.turbine.test
 import com.bn.todo.MainCoroutineExtension
-import com.bn.todo.data.repository.MockTodoRepository
-import com.bn.todo.data.repository.MockUserPrefRepository
+import com.bn.todo.data.repository.FakeTodoRepository
+import com.bn.todo.data.repository.FakeUserPrefRepository
 import com.bn.todo.usecase.InsertTodoListUseCase
 import com.bn.todo.usecase.SetCurrentListIdUseCase
 import com.bn.todo.usecase.SetIsNotFirstLaunchUseCase
@@ -22,8 +22,8 @@ internal class FirstTodoListViewModelTest {
     private lateinit var insertTodoListUseCase: InsertTodoListUseCase
     private lateinit var setIsNotFirstLaunchUseCase: SetIsNotFirstLaunchUseCase
     private lateinit var setCurrentListIdUseCase: SetCurrentListIdUseCase
-    private val todoRepository = MockTodoRepository()
-    private val userPrefRepository = MockUserPrefRepository()
+    private val todoRepository = FakeTodoRepository()
+    private val userPrefRepository = FakeUserPrefRepository()
     private val todoListName = "todoListName"
 
     @BeforeEach
