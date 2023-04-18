@@ -2,6 +2,7 @@ package com.bn.todo.ui.welcome.view
 
 import android.os.Bundle
 import android.view.View
+import androidx.navigation.fragment.findNavController
 import com.bn.todo.R
 import com.bn.todo.arch.BaseFragment
 import com.bn.todo.arch.HidesActionBar
@@ -33,7 +34,9 @@ class WelcomeFragment : BaseFragment<FragmentWelcomeBinding>(), HidesActionBar {
         )
 
         nextBtn.setOnClickListener {
-            WelcomeFragmentDirections.actionToFirstTodoListFragment().navigate()
+            WelcomeFragmentDirections.actionToFirstTodoListFragment().let {
+                findNavController().navigate(it)
+            }
         }
     }
 }

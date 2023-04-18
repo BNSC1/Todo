@@ -4,6 +4,7 @@ import android.os.Bundle
 import android.view.View
 import androidx.core.widget.doOnTextChanged
 import androidx.fragment.app.viewModels
+import androidx.navigation.fragment.findNavController
 import com.bn.todo.R
 import com.bn.todo.arch.BaseFragment
 import com.bn.todo.arch.CollectsViewModelMessage
@@ -48,7 +49,9 @@ class FirstTodoListFragment : BaseFragment<FragmentFirstTodoListBinding>(),
     }
 
     private fun goToNextPage() {
-        FirstTodoListFragmentDirections.actionToListFragment().navigate()
+        FirstTodoListFragmentDirections.actionToListFragment().let {
+            findNavController().navigate(it)
+        }
     }
 
     private fun FragmentFirstTodoListBinding.setupNextButton() {

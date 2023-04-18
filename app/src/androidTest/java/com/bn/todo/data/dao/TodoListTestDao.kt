@@ -3,7 +3,7 @@ package com.bn.todo.data.dao
 import android.content.Context
 import androidx.room.Room
 import androidx.test.core.app.ApplicationProvider
-import com.bn.todo.InstantTaskExecutorExtension
+import com.bn.todo.testutil.InstantTaskExecutorExtension
 import com.bn.todo.data.db.TodoDatabase
 import com.bn.todo.data.model.TodoList
 import kotlinx.coroutines.ExperimentalCoroutinesApi
