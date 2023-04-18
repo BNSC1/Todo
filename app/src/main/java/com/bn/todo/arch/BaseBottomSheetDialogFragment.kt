@@ -8,8 +8,7 @@ import androidx.viewbinding.ViewBinding
 import com.google.android.material.bottomsheet.BottomSheetDialogFragment
 
 abstract class BaseBottomSheetDialogFragment<Binding : ViewBinding> : BottomSheetDialogFragment(),
-    HasNavigation, InitViewBinding<Binding> {
-    override val _activity get() = activity as? NavigationActivity
+    InitViewBinding<Binding> {
     override var _binding: Binding? = null
     protected val binding get() = _binding!!
 

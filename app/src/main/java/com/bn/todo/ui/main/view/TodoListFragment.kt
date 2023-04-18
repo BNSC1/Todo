@@ -14,6 +14,7 @@ import androidx.core.view.MenuProvider
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.Lifecycle
 import androidx.navigation.findNavController
+import androidx.navigation.fragment.findNavController
 import androidx.navigation.ui.NavigationUI
 import com.bn.todo.R
 import com.bn.todo.arch.BaseFragment
@@ -215,15 +216,19 @@ class TodoListFragment : BaseFragment<FragmentTodoListBinding>(), CollectsViewMo
     }
 
     private fun FragmentTodoListBinding.setupTodos() {
-        todosAdapter = TodosAdapter(requireContext()) {
-            TodoListFragmentDirections.actionToTodoInfoFragment(it).navigate()
+        todosAdapter = TodosAdapter(requireContext()) { todo ->
+            TodoListFragmentDirections.actionToTodoInfoFragment(todo).let {
+                findNavController().navigate(it)
+            }
         }
         list.adapter = todosAdapter
     }
 
     private fun FragmentTodoListBinding.setupAddTodoButton() {
         addTodoBtn.setOnClickListener {
-            TodoListFragmentDirections.actionCreateTodo().navigate()
+            TodoListFragmentDirections.actionCreateTodo().let {
+                findNavController().navigate(it)
+            }
         }
     }
 

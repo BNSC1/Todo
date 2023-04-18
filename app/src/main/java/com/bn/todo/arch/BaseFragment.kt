@@ -7,9 +7,8 @@ import android.view.ViewGroup
 import androidx.fragment.app.Fragment
 import androidx.viewbinding.ViewBinding
 
-abstract class BaseFragment<Binding : ViewBinding> : Fragment(), HasNavigation,
+abstract class BaseFragment<Binding : ViewBinding> : Fragment(),
     InitViewBinding<Binding> {
-    override val _activity get() = activity as? NavigationActivity
     override var _binding: Binding? = null
     protected val binding get() = _binding!!
 

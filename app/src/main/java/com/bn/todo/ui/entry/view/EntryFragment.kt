@@ -3,15 +3,13 @@ package com.bn.todo.ui.entry.view
 import android.os.Bundle
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
-import com.bn.todo.arch.HasNavigation
-import com.bn.todo.arch.NavigationActivity
+import androidx.navigation.fragment.findNavController
 import com.bn.todo.ktx.collectLatestLifecycleFlow
 import com.bn.todo.ui.entry.viewmodel.EntryViewModel
 import dagger.hilt.android.AndroidEntryPoint
 
 @AndroidEntryPoint
-class EntryFragment : Fragment(), HasNavigation {
-    override val _activity get() = activity as? NavigationActivity
+class EntryFragment : Fragment() {
     private val viewModel: EntryViewModel by viewModels()
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -35,7 +33,7 @@ class EntryFragment : Fragment(), HasNavigation {
                 actionToListFragment()
             }
         }
-        direction.navigate()
+        findNavController().navigate(direction)
     }
 
 }

@@ -3,6 +3,7 @@ package com.bn.todo.ui.main.view
 import android.os.Bundle
 import android.view.View
 import androidx.fragment.app.viewModels
+import androidx.navigation.fragment.findNavController
 import androidx.navigation.fragment.navArgs
 import com.bn.todo.R
 import com.bn.todo.arch.BaseBottomSheetDialogFragment
@@ -65,7 +66,9 @@ class TodoInfoFragment : BaseBottomSheetDialogFragment<FragmentTodoInfoBinding>(
             TodoInfoFragmentDirections.actionEditTodo(
                 this@TodoInfoFragment.TAG,
                 viewModel.clickedTodo.value
-            ).navigate()
+            ).let {
+                findNavController().navigate(it)
+            }
             dismiss()
         }
     }
