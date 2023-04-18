@@ -1,4 +1,4 @@
-package com.bn.todo
+package com.bn.todo.testutil
 
 import androidx.arch.core.executor.testing.InstantTaskExecutorRule
 import org.junit.jupiter.api.extension.Extension
