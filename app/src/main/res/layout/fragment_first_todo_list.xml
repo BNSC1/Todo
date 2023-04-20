@@ -39,7 +39,7 @@
             app:layout_constraintStart_toStartOf="parent" />
 
     </androidx.constraintlayout.widget.ConstraintLayout>
-    <!--todo: virtual keyboard blocks next button.-->
+
     <Button
         android:id="@+id/next_btn"
         style="@style/transparent_button.large"

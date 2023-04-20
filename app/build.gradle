@@ -48,6 +48,18 @@ android {
         }
     }
     namespace 'com.bn.todo'
+
+    android {
+        sourceSets {
+            String sharedTestDir = 'src/sharedTest/java'
+            test {
+                java.srcDirs += sharedTestDir
+            }
+            androidTest {
+                java.srcDirs += sharedTestDir
+            }
+        }
+    }
 }
 
 dependencies {
@@ -79,6 +91,7 @@ dependencies {
     androidTestImplementation "org.jetbrains.kotlinx:kotlinx-coroutines-test:$coroutines_version"
     androidTestImplementation "androidx.navigation:navigation-testing:$nav_version"
     androidTestImplementation "org.amshove.kluent:kluent-android:$kluent_version"
+    androidTestImplementation 'app.cash.turbine:turbine:0.12.1'
     androidTestRuntimeOnly "de.mannodermaus.junit5:android-test-runner:1.3.0"
     //noinspection GradleDependency, workaround stuck test
     debugImplementation "androidx.fragment:fragment-testing:1.6.0-alpha04"

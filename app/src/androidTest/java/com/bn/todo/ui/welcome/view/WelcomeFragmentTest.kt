@@ -13,7 +13,6 @@ import com.bn.todo.testutil.launchFragmentInHiltContainer
 import dagger.hilt.android.testing.HiltAndroidRule
 import dagger.hilt.android.testing.HiltAndroidTest
 import org.amshove.kluent.shouldBeEqualTo
-import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -22,14 +21,8 @@ import org.junit.runner.RunWith
 @HiltAndroidTest
 @MediumTest
 internal class WelcomeFragmentTest {
-
     @get:Rule
     var hiltRule = HiltAndroidRule(this)
-
-    @Before
-    fun setup() {
-        hiltRule.inject()
-    }
 
     @Test
     fun testNextStep() {

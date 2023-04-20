@@ -5,8 +5,9 @@ import com.bn.todo.data.model.TodoFilter
 import com.bn.todo.data.model.TodoList
 import kotlinx.coroutines.flow.flow
 import java.time.OffsetDateTime
+import javax.inject.Inject
 
-class FakeTodoRepository : TodoRepository {
+class FakeTodoRepository @Inject constructor(): TodoRepository {
     val todoLists = mutableListOf<TodoList>()
     private val todos = mutableListOf<Todo>()
 

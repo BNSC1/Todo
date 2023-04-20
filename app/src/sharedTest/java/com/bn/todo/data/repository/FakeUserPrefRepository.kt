@@ -1,8 +1,9 @@
 package com.bn.todo.data.repository
 
 import kotlinx.coroutines.flow.flow
+import javax.inject.Inject
 
-class FakeUserPrefRepository: UserPrefRepository {
+class FakeUserPrefRepository @Inject constructor(): UserPrefRepository {
     private var isFirstTimeLaunch = true
     private var sortPref = 0
     private var showCompleted = true
