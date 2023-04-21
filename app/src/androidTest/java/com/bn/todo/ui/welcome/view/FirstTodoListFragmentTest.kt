@@ -6,7 +6,7 @@ import androidx.navigation.testing.TestNavHostController
 import androidx.test.core.app.ApplicationProvider
 import androidx.test.espresso.Espresso.onView
 import androidx.test.espresso.Espresso.pressBack
-import androidx.test.espresso.action.ViewActions.click
+import androidx.test.espresso.action.ViewActions.*
 import androidx.test.espresso.matcher.ViewMatchers.withId
 import androidx.test.filters.MediumTest
 import app.cash.turbine.test
@@ -36,6 +36,10 @@ class FirstTodoListFragmentTest {
     @Inject
     lateinit var repository: TodoRepository
 
+    companion object {
+        private const val testString = "testString"
+    }
+
     @Before
     fun setup() {
         hiltRule.inject()
@@ -59,6 +63,29 @@ class FirstTodoListFragmentTest {
                 val res = awaitItem()
                 res.size shouldBeEqualTo 1
                 res.first().name shouldBeEqualTo context.getString(R.string.default_list_name)
+                cancelAndIgnoreRemainingEvents()
+            }
+        }
+        navController.currentDestination?.id shouldBeEqualTo R.id.listFragment
+    }
+
+    @Test
+    fun testWithNameInput() {
+        launchFragmentInHiltContainer<FirstTodoListFragment> {
+            navController.setGraph(R.navigation.nav_main)
+            navController.setCurrentDestination(R.id.firstTodoListFragment)
+            Navigation.setViewNavController(requireView(), navController)
+        }
+
+        onView(withId(R.id.input)).perform(typeText(testString))
+        pressBack()
+        onView(withId(R.id.next_btn)).perform(click())
+
+        runTest {
+            repository.queryTodoList().test {
+                val res = awaitItem()
+                res.size shouldBeEqualTo 1
+                res.first().name shouldBeEqualTo testString
                 cancelAndIgnoreRemainingEvents()
             }
         }
