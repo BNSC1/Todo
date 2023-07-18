@@ -1,57 +1,56 @@
 <?xml version="1.0" encoding="utf-8"?>
-<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:app="http://schemas.android.com/apk/res-auto"
+<androidx.compose.ui.platform.ComposeView
+    android:id="@+id/compose_view"
+    xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context=".ui.welcome.view.WelcomeFragment">
+    tools:context=".ui.welcome.view.WelcomeFragment"/>
 
-    <androidx.constraintlayout.widget.ConstraintLayout
-        android:layout_width="match_parent"
-        android:layout_height="0dp"
-        android:background="?attr/colorPrimary"
-        android:paddingVertical="@dimen/padding_title_layout"
-        app:layout_constraintBottom_toBottomOf="@id/guideline_cover_ratio"
-        app:layout_constraintTop_toTopOf="parent">
+<!--    <androidx.constraintlayout.widget.ConstraintLayout-->
+<!--        android:layout_width="match_parent"-->
+<!--        android:layout_height="0dp"-->
+<!--        android:background="?attr/colorPrimary"-->
+<!--        android:paddingVertical="@dimen/padding_title_layout"-->
+<!--        app:layout_constraintBottom_toBottomOf="@id/guideline_cover_ratio"-->
+<!--        app:layout_constraintTop_toTopOf="parent">-->
 
-        <TextView
-            android:id="@+id/welcome_text"
-            style="@style/welcome_text"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="@string/title_welcome_format"
-            app:layout_constraintBottom_toBottomOf="parent"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toTopOf="parent" />
+<!--        <TextView-->
+<!--            android:id="@+id/welcome_text"-->
+<!--            style="@style/welcome_text"-->
+<!--            android:layout_width="wrap_content"-->
+<!--            android:layout_height="wrap_content"-->
+<!--            android:text="@string/title_welcome_format"-->
+<!--            app:layout_constraintBottom_toBottomOf="parent"-->
+<!--            app:layout_constraintEnd_toEndOf="parent"-->
+<!--            app:layout_constraintStart_toStartOf="parent"-->
+<!--            app:layout_constraintTop_toTopOf="parent" />-->
 
-        <TextView
-            android:id="@+id/welcome_subtext"
-            style="@style/welcome_subtext"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="@string/title_welcome_sub"
-            app:layout_constraintBottom_toBottomOf="parent"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintStart_toStartOf="parent" />
+<!--        <TextView-->
+<!--            android:id="@+id/welcome_subtext"-->
+<!--            style="@style/welcome_subtext"-->
+<!--            android:layout_width="wrap_content"-->
+<!--            android:layout_height="wrap_content"-->
+<!--            android:text="@string/title_welcome_sub"-->
+<!--            app:layout_constraintBottom_toBottomOf="parent"-->
+<!--            app:layout_constraintEnd_toEndOf="parent"-->
+<!--            app:layout_constraintStart_toStartOf="parent" />-->
 
-    </androidx.constraintlayout.widget.ConstraintLayout>
+<!--    </androidx.constraintlayout.widget.ConstraintLayout>-->
 
-    <androidx.constraintlayout.widget.Guideline
-        android:id="@+id/guideline_cover_ratio"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:orientation="horizontal"
-        app:layout_constraintGuide_percent="@dimen/welcome_cover_ratio" />
+<!--    <androidx.constraintlayout.widget.Guideline-->
+<!--        android:id="@+id/guideline_cover_ratio"-->
+<!--        android:layout_width="wrap_content"-->
+<!--        android:layout_height="wrap_content"-->
+<!--        android:orientation="horizontal"-->
+<!--        app:layout_constraintGuide_percent="@dimen/welcome_cover_ratio" />-->
 
 
-    <Button
-        android:id="@+id/next_btn"
-        style="@style/transparent_button.large"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="@string/action_next"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toEndOf="parent" />
-
-</androidx.constraintlayout.widget.ConstraintLayout>
+<!--    <Button-->
+<!--        android:id="@+id/next_btn"-->
+<!--        style="@style/transparent_button.large"-->
+<!--        android:layout_width="wrap_content"-->
+<!--        android:layout_height="wrap_content"-->
+<!--        android:text="@string/action_next"-->
+<!--        app:layout_constraintBottom_toBottomOf="parent"-->
+<!--        app:layout_constraintEnd_toEndOf="parent" />-->
